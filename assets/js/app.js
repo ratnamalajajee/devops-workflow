@@ -81,10 +81,12 @@
   }
 
   // ---------- sidebar ----------
-  // Sections are collapsible. navOpen remembers what the reader opened or closed;
-  // sections never toggled start collapsed, and route() opens the one being read.
-  const navOpen = store.get('dl-nav-open', {});
-  const saveNavOpen = () => store.set('dl-nav-open', navOpen);
+  // Sections are collapsible and start collapsed. navOpen remembers only sections the
+  // reader opened by clicking. The section of the guide being read is shown open for that
+  // page only (not saved), unless the reader collapses it (activeCollapsed, reset per route).
+  const navOpen = store.get('dl-nav-open-v2', {});
+  const saveNavOpen = () => store.set('dl-nav-open-v2', navOpen);
+  let activeCollapsed = false;
 
   function renderSidebar(activeId) {
     sidebar.innerHTML =
@@ -92,8 +94,8 @@
       `<a href="#/lab" class="nav-home ${activeId === 'lab' ? 'active' : ''}">🖥️ Practice lab</a>` +
       groupTools().map((g) => {
         const sec = sectionOf(g.name);
-        const open = !!navOpen[g.name];
         const hasActive = g.items.some(({ t }) => t.id === activeId);
+        const open = hasActive ? !activeCollapsed : !!navOpen[g.name];
         return `
         <div class="nav-group ${open ? 'open' : ''} ${hasActive ? 'has-active' : ''}" data-section="${esc(g.name)}" style="--s:${sec.color}">
           <button type="button" class="nav-label" aria-expanded="${open}">
@@ -122,8 +124,12 @@
     const open = !group.classList.contains('open');
     group.classList.toggle('open', open);
     btn.setAttribute('aria-expanded', String(open));
-    navOpen[group.dataset.section] = open;
-    saveNavOpen();
+    if (group.classList.contains('has-active')) {
+      activeCollapsed = !open;                 // current guide's section: this page only
+    } else {
+      navOpen[group.dataset.section] = open;   // other sections: remembered
+      saveNavOpen();
+    }
   });
 
   // ---------- pages ----------
@@ -466,12 +472,8 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
     hideResults();
     if (loadError && !Object.keys(guides).length) { renderSidebar(); return renderLoadError(); }
     const parts = location.hash.replace(/^#\/?/, '').split('/');
+    activeCollapsed = false;
     if (parts[0] === 'tool' && parts[1]) {
-      const tool = TOOLS.find((t) => t.id === parts[1]);
-      if (tool && tool.section && !navOpen[tool.section]) {   // reveal the guide being read
-        navOpen[tool.section] = true;
-        saveNavOpen();
-      }
       renderSidebar(parts[1]);
       renderTool(parts[1], parts[2]);
     } else if (parts[0] === 'lab') {
