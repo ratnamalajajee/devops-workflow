@@ -2,7 +2,7 @@
 
 Almost every server, container, and Kubernetes node you touch runs Linux. You don't need to be a kernel expert. You do need to move around the filesystem, read logs, manage processes and services, understand permissions, and write small scripts without thinking twice. This guide covers exactly that.
 
-> **Note:** Practice in your WSL Ubuntu, or start a throwaway container: `docker run -it --rm ubuntu:24.04 bash`.
+> **Tip:** No setup yet? Open the [Practice lab](#/lab) and click **Start Linux** to get a real Linux terminal right in your browser. It runs almost every command in this guide. The exceptions are `apt`, `systemctl` and networking, which need a full machine: WSL Ubuntu or the lab's cloud machine.
 
 ## Why Linux matters in DevOps
 

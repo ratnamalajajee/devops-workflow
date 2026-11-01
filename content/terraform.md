@@ -4,6 +4,8 @@ Terraform describes infrastructure in code (HCL), works out what needs to change
 
 > **Note:** You need the AWS CLI configured (`aws sts get-caller-identity` works) before starting. Terraform uses the same credentials.
 
+> **Tip:** No Docker or Kubernetes on your laptop? Use the **cloud lab machine** in the [Practice lab](#/lab). It has Docker, kind, kubectl, Helm, Terraform, the AWS CLI and the Argo CD CLI ready to go.
+
 ## Why Infrastructure as Code
 
 | Click-ops | Infrastructure as Code |

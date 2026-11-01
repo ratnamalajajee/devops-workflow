@@ -7,3 +7,6 @@
 /content/*
   Cache-Control: no-cache
   Content-Type: text/markdown; charset=utf-8
+
+/assets/vm/*
+  Cache-Control: public, max-age=604800

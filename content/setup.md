@@ -2,6 +2,8 @@
 
 Before learning any tool you need a working environment. This guide turns a fresh laptop into a DevOps workstation: a Linux shell, an editor, Git, and every CLI used in the later guides. Do it once, then verify everything with the check script at the end.
 
+> **Tip:** Can't install things on your laptop yet? The [Practice lab](#/lab) has a **cloud lab machine** (GitHub Codespaces) with every tool in this guide already installed. Come back to this setup when you're ready.
+
 > **Note:** All later guides assume a **bash shell on Linux**. On Windows that means WSL2 (Ubuntu). On macOS the native terminal works, with Homebrew for installs.
 
 ## What you will install

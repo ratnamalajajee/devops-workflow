@@ -59,6 +59,13 @@ To turn it on:
 
 Logged-out visitors now see the Cloudflare login page before the site loads.
 
+## Practice lab
+
+The **Practice lab** page (`#/lab`) gives learners two places to run commands:
+
+1. **Linux in the browser.** The [v86](https://github.com/copy/v86) x86 emulator (WebAssembly) boots a small Buildroot Linux 6.8 + BusyBox system inside the tab, shown through [xterm.js](https://xtermjs.org). Nothing runs on a server, and each learner's machine is private and resets on reload. All files are self-hosted in `assets/vm/` (about 13 MB, cached for a week by `_headers`). The pinned versions are v86 0.5.465, xterm.js 5.3.0 and SeaBIOS from v86 commit `b8a39b1`. The licenses are next to the files.
+2. **Full lab machine (GitHub Codespaces).** The **Open lab machine** button opens this repo in Codespaces using `.devcontainer/`: Ubuntu 24.04 with Docker, kind, kubectl, Helm, Terraform, AWS CLI, eksctl and the Argo CD CLI. Each learner gets their own machine, which uses their personal GitHub free quota. The button reads the repo from `repo` in `assets/js/config.js`.
+
 ## Project structure
 
 ```text
@@ -67,7 +74,9 @@ assets/css/style.css    # styles (light/dark tokens at the top)
 assets/js/config.js     # learning path: order, titles, colors, estimates
 assets/js/markdown.js   # tiny Markdown renderer
 assets/js/app.js        # routing, progress, search, copy buttons
+assets/vm/              # in-browser Linux: v86 emulator, BIOS, kernel image, xterm.js
 content/*.md            # one guide per tool  <-- edit these
+.devcontainer/          # GitHub Codespaces lab machine
 Dockerfile, nginx.conf  # container hosting
 ```
 

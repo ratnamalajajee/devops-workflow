@@ -4,6 +4,8 @@ Argo CD is a **GitOps** continuous-delivery tool for Kubernetes. Instead of a pi
 
 > **Note:** You need a running cluster (the kind cluster from the Kubernetes guide is perfect) and a GitHub or GitLab account.
 
+> **Tip:** No Docker or Kubernetes on your laptop? Use the **cloud lab machine** in the [Practice lab](#/lab). It has Docker, kind, kubectl, Helm, Terraform, the AWS CLI and the Argo CD CLI ready to go.
+
 ## GitOps concepts
 
 ```text

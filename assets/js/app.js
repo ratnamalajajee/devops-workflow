@@ -71,6 +71,7 @@
   function renderSidebar(activeId) {
     sidebar.innerHTML =
       `<a href="#/" class="nav-home ${!activeId ? 'active' : ''}">🏠 Home &amp; roadmap</a>` +
+      `<a href="#/lab" class="nav-home ${activeId === 'lab' ? 'active' : ''}">🖥️ Practice lab</a>` +
       '<div class="nav-label">Learning path</div>' +
       TOOLS.map((t, i) => `
         <a href="#/tool/${t.id}" class="nav-item ${t.id === activeId ? 'active' : ''}">
@@ -128,7 +129,7 @@
       <h2 class="section-title">How to use this site</h2>
       <div class="howto">
         <div><h3>1 · Set up once</h3><p>Do <a href="#/tool/setup">Workstation Setup</a> first. Every later guide assumes a Linux shell (WSL2 on Windows) with the CLIs installed.</p></div>
-        <div><h3>2 · Type, don't just read</h3><p>Run every command yourself. Break things on purpose, then use the troubleshooting sections to fix them.</p></div>
+        <div><h3>2 · Type, don't just read</h3><p>Run every command yourself, on your machine or in the <a href="#/lab">Practice lab</a>. Break things on purpose, then use the troubleshooting sections to fix them.</p></div>
         <div><h3>3 · Finish each lab</h3><p>Each guide ends with a hands-on lab. Do it without looking back at the steps before moving on.</p></div>
         <div><h3>4 · Watch the bill</h3><p>AWS steps that cost money are marked <span class="pill cost">Cost</span>. Always run the cleanup steps.</p></div>
       </div>`;
@@ -243,6 +244,173 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
     main.querySelectorAll('.step').forEach((s) => observer.observe(s));
   }
 
+  // ---------- practice lab ----------
+  // In-browser Linux: v86 (x86 emulator in WebAssembly) booting a Buildroot/BusyBox kernel,
+  // all self-hosted under assets/vm/. The VM element is built once and re-attached on each
+  // visit, so the session survives moving between guides (until the page is reloaded).
+  const VM_TRY = [
+    ['Where am I?', 'pwd; ls -la'],
+    ['System info', 'uname -a; free -m; df -h'],
+    ['Create files', 'mkdir -p ~/lab && cd ~/lab && echo "hello linux" > notes.txt && cat notes.txt && ls -l'],
+    ['Permissions', 'touch run.sh && chmod 750 run.sh && ls -l run.sh'],
+    ['Processes', 'ps | head -15'],
+    ['Pipes', 'cut -d: -f1 /etc/passwd | sort | head'],
+    ['Loop', 'for i in 1 2 3; do echo "Run $i"; done'],
+    ['Clear', 'clear']
+  ];
+  const vm = { el: null, emulator: null, ready: false, tail: '' };
+
+  function loadAsset(tag, attrs) {
+    return new Promise((resolve, reject) => {
+      const el = Object.assign(document.createElement(tag), attrs);
+      el.onload = resolve;
+      el.onerror = () => reject(new Error('Could not load ' + (attrs.src || attrs.href)));
+      document.head.appendChild(el);
+    });
+  }
+
+  function setVmStatus(state, text) {
+    vm.el.dataset.state = state;
+    vm.el.querySelector('.vm-status').textContent = text;
+  }
+
+  const focusVm = () => { const t = vm.el.querySelector('.xterm-helper-textarea'); if (t) t.focus(); };
+
+  function buildVm() {
+    const el = document.createElement('div');
+    el.className = 'vm';
+    el.dataset.state = 'idle';
+    el.innerHTML = `
+      <div class="vm-bar">
+        <span class="vm-dot"></span><span class="vm-status">Not started</span>
+        <span class="vm-actions">
+          <button class="btn primary vm-start" type="button">▶ Start Linux</button>
+          <button class="btn vm-restart" type="button" hidden>↻ Restart</button>
+        </span>
+      </div>
+      <div class="vm-screen"><div class="vm-placeholder">Click <strong>Start Linux</strong> to boot a real Linux kernel in this tab.<br>About 12&nbsp;MB to download the first time, then it boots in a few seconds.</div></div>
+      <div class="vm-try"><span>Try:</span>${VM_TRY.map(([label, cmd], i) =>
+        `<button type="button" class="chip" data-i="${i}" title="${esc(cmd)}">${esc(label)}</button>`).join('')}</div>`;
+
+    el.querySelector('.vm-start').addEventListener('click', startVm);
+    el.querySelector('.vm-restart').addEventListener('click', () => {
+      if (!vm.emulator) return;
+      vm.ready = false;
+      vm.tail = '';
+      setVmStatus('busy', 'Restarting…');
+      vm.emulator.restart();
+    });
+    el.querySelector('.vm-try').addEventListener('click', (e) => {
+      const chip = e.target.closest('.chip');
+      if (!chip) return;
+      if (!vm.ready) return setVmStatus(vm.emulator ? 'busy' : 'idle', vm.emulator ? 'Still booting… try again in a moment' : 'Click Start Linux first');
+      vm.emulator.serial0_send(VM_TRY[chip.dataset.i][1] + '\n');
+      focusVm();
+    });
+    return el;
+  }
+
+  async function startVm() {
+    const startBtn = vm.el.querySelector('.vm-start');
+    startBtn.disabled = true;
+    setVmStatus('busy', 'Loading emulator…');
+    try {
+      await Promise.all([
+        loadAsset('link', { rel: 'stylesheet', href: 'assets/vm/xterm.min.css' }),
+        loadAsset('script', { src: 'assets/vm/xterm.min.js' })
+      ]);
+      await loadAsset('script', { src: 'assets/vm/libv86.js' });
+    } catch (e) {
+      startBtn.disabled = false;
+      return setVmStatus('error', e.message);
+    }
+
+    const screen = vm.el.querySelector('.vm-screen');
+    screen.innerHTML = '';
+    vm.emulator = new window.V86({
+      wasm_path: 'assets/vm/v86.wasm',
+      memory_size: 128 * 1024 * 1024,
+      vga_memory_size: 2 * 1024 * 1024,
+      bios: { url: 'assets/vm/seabios.bin' },
+      vga_bios: { url: 'assets/vm/vgabios.bin' },
+      bzimage: { url: 'assets/vm/linux.bin' },
+      filesystem: {},
+      cmdline: 'tsc=reliable mitigations=off random.trust_cpu=on',
+      serial_console: { type: 'xtermjs', container: screen },
+      autostart: true
+    });
+    vm.emulator.add_listener('download-progress', (e) => {
+      if (e.lengthComputable && e.total) setVmStatus('busy', `Downloading Linux… ${Math.round(100 * e.loaded / e.total)}%`);
+    });
+    vm.emulator.add_listener('download-error', () => setVmStatus('error', 'Download failed. Check your connection and reload the page.'));
+    vm.emulator.add_listener('emulator-started', () => setVmStatus('busy', 'Booting Linux…'));
+    vm.emulator.add_listener('serial0-output-byte', (b) => {
+      if (vm.ready) return;
+      vm.tail = (vm.tail + String.fromCharCode(b)).slice(-8);
+      if (/[#$%] $/.test(vm.tail)) {
+        vm.ready = true;
+        setVmStatus('ready', 'Running · you are root in a BusyBox shell');
+        focusVm();
+      }
+    });
+    startBtn.hidden = true;
+    vm.el.querySelector('.vm-restart').hidden = false;
+  }
+
+  function renderLab() {
+    const repo = window.DEVOPS_CONFIG.repo;
+    const codespaceUrl = `https://codespaces.new/${repo}?quickstart=1`;
+    main.innerHTML = `
+      <article class="doc lab" style="--c:#0f766e">
+        <header class="doc-head">
+          <span class="badge big" style="--c:#0f766e">&gt;_</span>
+          <div><p class="eyebrow">Hands-on · nothing to install</p><h1>Practice lab</h1></div>
+        </header>
+        <div class="intro"><p>Two ways to run real commands while you follow the guides: a Linux terminal right here in the page,
+          and a full cloud machine with every DevOps tool already installed.</p></div>
+
+        <section class="step">
+          <div class="step-head"><span class="step-num">1</span><h2>Linux terminal in your browser</h2></div>
+          <div class="step-body">
+            <p>A real Linux 6.8 kernel with BusyBox runs <strong>entirely inside this browser tab</strong>. Nothing is sent to a server,
+              it can't affect your computer, and it resets when you reload. Use it with the <a href="#/tool/linux">Linux guide</a>
+              for files, permissions, pipes, processes, <code>vi</code> and shell scripts.</p>
+            <div id="vmSlot"></div>
+            <div class="callout note"><p><strong>Note:</strong> This is a minimal system: no internet, no <code>apt</code>, no
+              <code>systemd</code>, and no Docker or Kubernetes. Use the full lab machine below for those.</p></div>
+          </div>
+        </section>
+
+        <section class="step">
+          <div class="step-head"><span class="step-num">2</span><h2>Full lab machine (GitHub Codespaces)</h2></div>
+          <div class="step-body">
+            <p>Get your own Ubuntu machine in the cloud, with VS Code in the browser and everything from
+              <a href="#/tool/setup">Workstation Setup</a> already installed. Use it for the Docker, Kubernetes, Terraform and Argo CD guides.</p>
+            <p><a class="btn primary" href="${codespaceUrl}" target="_blank" rel="noopener">🚀 Open lab machine</a></p>
+            <div class="table-wrap"><table><thead><tr><th>Included</th><th>Notes</th></tr></thead><tbody>
+              <tr><td>Ubuntu 24.04, Git, VS Code</td><td>Runs in a browser tab, or open it in desktop VS Code</td></tr>
+              <tr><td>Docker</td><td><code>docker run hello-world</code> works straight away</td></tr>
+              <tr><td>kind, kubectl, Helm</td><td><code>kind create cluster</code> gives you Kubernetes in about a minute</td></tr>
+              <tr><td>Terraform, AWS CLI, eksctl</td><td>Sign in with <code>aws configure sso</code></td></tr>
+              <tr><td>Argo CD CLI</td><td>For the Argo CD guide, on top of your kind cluster</td></tr>
+            </tbody></table></div>
+            <ol>
+              <li>Sign in to GitHub (a free account works), then click <strong>Open lab machine</strong>.</li>
+              <li>The first start takes 2–3 minutes while the tools install. After that it opens in seconds.</li>
+              <li>Open the terminal (<code>Ctrl + \`</code>) and check it with <code>docker version &amp;&amp; kind version</code>.</li>
+            </ol>
+            <div class="callout cost"><p><strong>Cost:</strong> Personal GitHub accounts get <strong>120 core-hours free per month</strong>,
+              about 60 hours on the default 2-core machine. A machine stops itself after 30 minutes idle. Stop or delete old ones at
+              <a href="https://github.com/codespaces" target="_blank" rel="noopener">github.com/codespaces</a>.</p></div>
+          </div>
+        </section>
+      </article>`;
+    toc.innerHTML = '';
+    document.title = 'Practice lab · DevOps Launchpad';
+    if (!vm.el) vm.el = buildVm();
+    $('#vmSlot').appendChild(vm.el);
+  }
+
   // ---------- router ----------
   function route() {
     closeMenu();
@@ -252,6 +420,10 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
     if (parts[0] === 'tool' && parts[1]) {
       renderSidebar(parts[1]);
       renderTool(parts[1], parts[2]);
+    } else if (parts[0] === 'lab') {
+      renderSidebar('lab');
+      renderLab();
+      window.scrollTo(0, 0);
     } else {
       renderSidebar();
       renderHome();

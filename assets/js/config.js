@@ -1,6 +1,8 @@
 // Learning path. Order here = order on the roadmap and in the sidebar.
 // To add a new tool: create content/<id>.md and add an entry below.
 window.DEVOPS_CONFIG = {
+  // GitHub repo (owner/name) used for the "Open lab machine" Codespaces button.
+  repo: 'ratnamalajajee/devops-workflow',
   tools: [
     {
       id: 'setup',

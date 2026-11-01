@@ -2,6 +2,8 @@
 
 Docker packages an application and everything it needs (runtime, libraries, config) into an **image** that runs the same way on your laptop, in CI, and in production. Kubernetes, ECS, and most CI systems run containers, so this is the foundation for everything that follows.
 
+> **Tip:** No Docker or Kubernetes on your laptop? Use the **cloud lab machine** in the [Practice lab](#/lab). It has Docker, kind, kubectl, Helm, Terraform, the AWS CLI and the Argo CD CLI ready to go.
+
 ## Core concepts
 
 | Term | Meaning |

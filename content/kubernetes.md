@@ -4,6 +4,8 @@ Kubernetes (K8s) runs containers across many machines. It keeps the right number
 
 > **Note:** Learn on a free local cluster with **kind** first. Every command here works the same on EKS later.
 
+> **Tip:** No Docker or Kubernetes on your laptop? Use the **cloud lab machine** in the [Practice lab](#/lab). It has Docker, kind, kubectl, Helm, Terraform, the AWS CLI and the Argo CD CLI ready to go.
+
 ## Architecture
 
 ```text
