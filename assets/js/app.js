@@ -308,7 +308,7 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
           <button class="btn vm-restart" type="button" hidden>↻ Restart</button>
         </span>
       </div>
-      <div class="vm-screen"><div class="vm-placeholder">Click <strong>Start Linux</strong> to boot a real Linux kernel in this tab.<br>About 12&nbsp;MB to download the first time, then it boots in a few seconds.</div></div>
+      <div class="vm-screen"><div class="vm-placeholder"><p>Click <strong>Start Linux</strong> to boot a real Linux kernel in this tab.<br>About 12&nbsp;MB to download the first time, then it boots in a few seconds.</p></div></div>
       <div class="vm-try"><span>Try:</span>${VM_TRY.map(([label, cmd], i) =>
         `<button type="button" class="chip" data-i="${i}" title="${esc(cmd)}">${esc(label)}</button>`).join('')}</div>`;
 
@@ -454,6 +454,8 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
 
   // ---------- search ----------
   const searchInput = $('#search'), results = $('#results');
+  // The "/" shortcut hint is meaningless on touch screens and crowds small search boxes.
+  if (matchMedia('(hover: none), (max-width: 860px)').matches) searchInput.placeholder = 'Search guides…';
   function hideResults() { results.hidden = true; }
   function search(q) {
     q = q.trim().toLowerCase();
