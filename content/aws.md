@@ -4,6 +4,8 @@ AWS is the most widely used cloud platform. This guide sets up an account **safe
 
 > **Cost:** Several steps create billable resources (NAT gateways, EKS, load balancers). Those steps are marked. **Always run the cleanup step** when you finish, and set up a budget alert first.
 
+> **Tip:** This guide is the **overview**. Each service also has its own step-by-step deep dive: [IAM](#/tool/aws-iam) · [EC2 website lab](#/tool/ec2-website) · [S3](#/tool/aws-s3) · [KMS](#/tool/aws-kms) · [Route 53](#/tool/aws-route53) · [Load Balancers](#/tool/aws-elb) · [ECR](#/tool/aws-ecr) · [ECS](#/tool/aws-ecs).
+
 ## Start here: AWS and the cloud in simple words
 
 > **In simple words:** "The cloud" means renting computers, storage and databases from a company like Amazon over the internet, instead of buying and running your own. You pay only for what you use, like electricity.
@@ -101,6 +103,8 @@ If you have a company account, your platform team gives you access. Skip to the 
 ## IAM: users, roles and policies
 
 > **In simple words:** IAM is AWS's security desk. **Users** are people, **roles** are temporary badges for apps and servers, and **policies** list exactly what each one may do.
+
+> **Tip:** Step-by-step: creating users, roles, custom policies and EKS service account permissions is covered in the [IAM deep dive](#/tool/aws-iam).
 
 IAM answers **who** (principal) can do **what** (action) on **which resource**.
 
@@ -268,6 +272,8 @@ aws ec2 delete-key-pair --key-name devops-lab
 
 > **In simple words:** S3 is endless file storage. You put files into "buckets" and can share them with a link that expires.
 
+> **Tip:** Storage classes, lifecycle rules, bucket policies, encryption and static websites are in the [S3 deep dive](#/tool/aws-s3).
+
 ```bash
 BUCKET=devops-lab-$(date +%s)          # bucket names are globally unique
 aws s3 mb s3://$BUCKET
@@ -289,6 +295,8 @@ Good defaults that AWS now applies to new buckets: **Block Public Access on**, *
 ## ECR: container registry
 
 > **In simple words:** Your private store for Docker images inside AWS. Your servers and Kubernetes download images from here.
+
+> **Tip:** Scanning, lifecycle policies, pull-through cache and permissions are in the [ECR deep dive](#/tool/aws-ecr). To run these images without Kubernetes, see [ECS](#/tool/aws-ecs).
 
 ECR stores your Docker images privately in your account. EKS and ECS pull from it.
 

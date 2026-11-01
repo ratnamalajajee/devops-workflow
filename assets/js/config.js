@@ -7,7 +7,8 @@ window.DEVOPS_CONFIG = {
   // Colour and icon for each section heading (sidebar + roadmap).
   sections: {
     'Foundations': { color: '#f59e0b', icon: '🧱' },
-    'Cloud & infrastructure': { color: '#f97316', icon: '☁️' },
+    'AWS': { color: '#f97316', icon: '☁️' },
+    'Infrastructure as Code': { color: '#8b5cf6', icon: '🏗️' },
     'Kubernetes': { color: '#3b82f6', icon: '☸️' },
     'CI/CD': { color: '#10b981', icon: '🔁' },
     'Final project': { color: '#a855f7', icon: '🏆' }
@@ -45,7 +46,7 @@ window.DEVOPS_CONFIG = {
     },
     {
       id: 'aws',
-      section: 'Cloud & infrastructure',
+      section: 'AWS',
       title: 'AWS',
       badge: 'AWS',
       color: '#ff9900',
@@ -54,8 +55,18 @@ window.DEVOPS_CONFIG = {
       desc: 'Secure account, IAM, CLI, VPC, EC2, S3, ECR, EKS and cost control.'
     },
     {
+      id: 'aws-iam',
+      section: 'AWS',
+      title: 'AWS IAM',
+      badge: 'IAM',
+      color: '#e11d48',
+      level: 'Beginner',
+      hours: 4,
+      desc: 'Users, groups, roles and policies by hand, plus EKS service account permissions with Pod Identity and IRSA.'
+    },
+    {
       id: 'ec2-website',
-      section: 'Cloud & infrastructure',
+      section: 'AWS',
       title: 'AWS Lab: Website on EC2',
       badge: 'EC2',
       color: '#d45b07',
@@ -64,8 +75,68 @@ window.DEVOPS_CONFIG = {
       desc: 'Launch an EC2 server, install a web page with user data, open it by URL, and learn every service involved.'
     },
     {
+      id: 'aws-s3',
+      section: 'AWS',
+      title: 'Amazon S3',
+      badge: 'S3',
+      color: '#3f8624',
+      level: 'Beginner',
+      hours: 3,
+      desc: 'Buckets, storage classes, lifecycle, versioning, bucket policies, encryption, presigned URLs, static sites.'
+    },
+    {
+      id: 'aws-kms',
+      section: 'AWS',
+      title: 'AWS KMS',
+      badge: 'KMS',
+      color: '#0891b2',
+      level: 'Intermediate',
+      hours: 2,
+      desc: 'Encryption keys: key types, encrypt/decrypt, envelope encryption, key policies, rotation, safe deletion.'
+    },
+    {
+      id: 'aws-route53',
+      section: 'AWS',
+      title: 'Amazon Route 53',
+      badge: 'R53',
+      color: '#7c3aed',
+      level: 'Beginner',
+      hours: 3,
+      desc: 'DNS basics, hosted zones, records and aliases, routing policies, health checks, ACM certificates.'
+    },
+    {
+      id: 'aws-elb',
+      section: 'AWS',
+      title: 'Load Balancers',
+      badge: 'ELB',
+      color: '#c026d3',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'ALB vs NLB vs GWLB vs Classic, then build an ALB with path routing and HTTPS, and an NLB.'
+    },
+    {
+      id: 'aws-ecr',
+      section: 'AWS',
+      title: 'Amazon ECR',
+      badge: 'ECR',
+      color: '#2563eb',
+      level: 'Beginner',
+      hours: 2,
+      desc: 'Private container registry: push/pull, immutable tags, scanning, lifecycle policies, caching.'
+    },
+    {
+      id: 'aws-ecs',
+      section: 'AWS',
+      title: 'Amazon ECS',
+      badge: 'ECS',
+      color: '#ea580c',
+      level: 'Intermediate',
+      hours: 4,
+      desc: 'Run containers on Fargate behind an ALB: task definitions, services, deployments, scaling, ECS Exec.'
+    },
+    {
       id: 'terraform',
-      section: 'Cloud & infrastructure',
+      section: 'Infrastructure as Code',
       title: 'Terraform',
       badge: 'TF',
       color: '#7b42bc',
