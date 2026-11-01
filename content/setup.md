@@ -6,7 +6,49 @@ Before learning any tool you need a working environment. This guide turns a fres
 
 > **Note:** All later guides assume a **bash shell on Linux**. On Windows that means WSL2 (Ubuntu). On macOS the native terminal works, with Homebrew for installs.
 
+## Start here: what we are setting up and why
+
+> **In simple words:** Before a carpenter builds anything, they set up their workbench and tools. This guide does the same for your computer: it installs the tools a DevOps engineer uses every day, so every later guide just works.
+
+### What is a terminal?
+
+Most of the time you use a computer by **clicking** icons. A **terminal** (also called the *command line* or *shell*) is a window where you **type** instructions instead. It looks old-fashioned, but it's how engineers control servers, because:
+
+- You can't "click" on a server in a data center far away, but you *can* type commands to it.
+- Typed commands can be saved in a file and repeated exactly, with no mistakes. That's called **automation**.
+- Every DevOps tool (Docker, Kubernetes, Terraform, AWS) has a command-line version.
+
+### What you'll install, in plain words
+
+| Tool | Think of it as |
+|---|---|
+| **WSL2 + Ubuntu** (Windows only) | A real Linux computer living inside your Windows laptop |
+| **VS Code** | A smart notepad for code and config files |
+| **Git** | A "save history" for files: every change is recorded and can be undone |
+| **Docker** | A way to pack an app into a box that runs the same everywhere |
+| **AWS CLI** | A remote control for your Amazon cloud account |
+| **Terraform** | A tool that builds cloud servers from a written plan |
+| **kubectl / kind / Helm** | Tools to run and manage apps on Kubernetes |
+| **Argo CD CLI** | A tool that deploys apps automatically from Git |
+
+### Typing commands: the basics
+
+- When this site shows a grey box of commands, **click Copy** and paste it into your terminal (right-click or `Ctrl+Shift+V` in most Linux terminals).
+- Lines starting with `#` are **comments**: notes for you. The computer ignores them.
+- `sudo` at the start of a command means "run this as administrator". It will ask for **your Linux password**, and nothing appears on screen while you type it. That's normal.
+- If a command is running and you want to stop it, press `Ctrl+C`.
+
+### Check yourself
+
+1. What's the difference between clicking and using a terminal?
+2. What does a line starting with `#` mean?
+3. Why does nothing show when you type your password after `sudo`?
+
+> **Tip:** Answers: 1) A terminal lets you type instructions, which works on remote servers and can be automated. 2) It's a comment, so it isn't run. 3) It's hidden on purpose for security. Just type it and press Enter.
+
 ## What you will install
+
+> **In simple words:** A shopping list of the tools you'll need, and which guide uses each one.
 
 | Tool | Why you need it | Used in |
 |---|---|---|
@@ -23,6 +65,8 @@ Before learning any tool you need a working environment. This guide turns a fres
 Budget about 2 hours, mostly for downloads.
 
 ## Windows: install WSL2 and Ubuntu
+
+> **In simple words:** WSL2 puts a real Linux system inside Windows, so you can follow every guide without buying another computer.
 
 WSL2 runs a real Linux kernel inside Windows. Open **PowerShell as Administrator** and run:
 
@@ -53,6 +97,8 @@ sudo apt install -y curl wget unzip git jq tree ca-certificates gnupg lsb-releas
 
 ## macOS: install Homebrew
 
+> **In simple words:** Homebrew is an "app store" for the Mac terminal: one command installs a tool for you.
+
 Homebrew is the package manager for macOS. Open Terminal and run:
 
 ```bash
@@ -63,6 +109,8 @@ brew install git jq tree wget
 From here on, wherever a guide shows an `apt` install, Mac users can usually run `brew install <tool>` instead. This guide gives the Mac command for each tool.
 
 ## VS Code and extensions
+
+> **In simple words:** VS Code is the editor where you'll read and write files. Extensions add helpers like colours, error hints and autocomplete for each tool.
 
 Install VS Code from [code.visualstudio.com](https://code.visualstudio.com/). On Windows, also install the **WSL** extension, then open a project from inside Ubuntu with:
 
@@ -83,6 +131,8 @@ Recommended extensions:
 | GitLens | See Git history inline |
 
 ## Git and SSH keys
+
+> **In simple words:** Git keeps a history of every change to your files. An SSH key is like a digital ID card that proves to GitHub it's really you, without typing a password.
 
 Configure your identity. This name and email are recorded on every commit:
 
@@ -126,6 +176,8 @@ git log --oneline --graph -10                # history
 
 ## Install Docker
 
+> **In simple words:** Docker lets you run apps inside "containers", sealed boxes that work the same on any machine.
+
 **Windows:** install **Docker Desktop** and enable **Settings → Resources → WSL integration → Ubuntu**. The `docker` command then works inside Ubuntu.
 
 **Linux / WSL without Docker Desktop:** use Docker Engine:
@@ -142,6 +194,8 @@ docker run hello-world
 > **Note:** Docker Desktop requires a paid subscription for larger companies. Ask your team which option is approved.
 
 ## Install the cloud and Kubernetes CLIs
+
+> **In simple words:** Each block installs one command-line tool. Run them one at a time and check that the version line prints at the end.
 
 Run these inside Ubuntu (WSL) or any Linux x86_64 machine. Each block installs one tool.
 
@@ -212,6 +266,8 @@ brew tap hashicorp/tap && brew install hashicorp/tap/terraform
 
 ## Shell quality-of-life
 
+> **In simple words:** Shortcuts so you type less, for example `k` instead of `kubectl`, and Tab-completion that fills in commands for you.
+
 Add useful aliases and autocompletion to `~/.bashrc`:
 
 ```bash
@@ -231,6 +287,8 @@ source ~/.bashrc
 ```
 
 ## Verify everything
+
+> **In simple words:** A quick test that every tool is installed. If a line says MISSING, go back to that tool's install step.
 
 Save this as `~/check-tools.sh`, then run `bash ~/check-tools.sh`. Every line should show a version.
 

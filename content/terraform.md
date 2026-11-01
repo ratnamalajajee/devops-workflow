@@ -6,7 +6,72 @@ Terraform describes infrastructure in code (HCL), works out what needs to change
 
 > **Tip:** No Docker or Kubernetes on your laptop? Use the **cloud lab machine** in the [Practice lab](#/lab). It has Docker, kind, kubectl, Helm, Terraform, the AWS CLI and the Argo CD CLI ready to go.
 
+## Start here: Terraform in simple words
+
+> **In simple words:** Terraform lets you **write down** the cloud setup you want (servers, networks, databases) in a text file. Terraform then builds it for you, can show you every change before it happens, and can delete it all with one command.
+
+### The problem Terraform solves
+
+Building cloud infrastructure by clicking in the AWS console works once, but:
+
+- Nobody remembers exactly which buttons were clicked.
+- Building the same thing again for "test" and "production" gives slightly different results.
+- Forgotten resources keep costing money.
+
+With Terraform, the **file is the instructions**. Anyone can read it, review it, and rebuild exactly the same thing again.
+
+### A real-life comparison
+
+Clicking in the console is like **cooking without a recipe**: it might taste good, but you can't repeat it exactly. Terraform is **the written recipe**, and Terraform is also the chef who follows it perfectly every time.
+
+It's **declarative**: you describe *what* you want ("2 servers and 1 network"), not *how* to build it step by step. It's like ordering in a restaurant: you say "pasta, please", not "boil water, add salt…".
+
+### How it works
+
+```text
+  main.tf  ──terraform plan──▶  "Here's what I WILL do: +2 create, ~1 change"
+ (your wish)                         │  you review it
+                         terraform apply ▼
+                         AWS builds the resources
+                                     │
+                         terraform.tfstate  ◀── Terraform's notebook of what it built
+```
+
+### Key words
+
+| Word | Simple meaning |
+|---|---|
+| **HCL / `.tf` file** | The language and files where you write what you want |
+| **Provider** | A plug-in that teaches Terraform to talk to a platform (AWS, Azure, GitHub…) |
+| **Resource** | One thing to create, like a server or a bucket |
+| **Variable** | A blank to fill in, so one file can be reused with different values |
+| **Output** | A value printed at the end, like a server's IP address |
+| **State** | Terraform's notebook listing what it created, so it knows what to change next time |
+| **Plan** | A preview of changes. Nothing is built yet |
+| **Apply** | Actually make the changes |
+| **Destroy** | Delete everything this code created |
+| **Module** | A reusable folder of Terraform code, like a recipe you share with others |
+
+### The four commands you'll use 90% of the time
+
+| Command | Meaning |
+|---|---|
+| `terraform init` | Get ready: download the plug-ins |
+| `terraform plan` | Show me what would change |
+| `terraform apply` | Do it |
+| `terraform destroy` | Undo everything |
+
+### Check yourself
+
+1. What does `terraform plan` do, and does it change anything?
+2. What is the state file for?
+3. Why is Terraform better than clicking in the console for a team?
+
+> **Tip:** Answers: 1) It previews the changes and changes nothing. 2) It's Terraform's record of what it built, so it knows what to update or delete. 3) The setup is written down, reviewable, repeatable and easy to delete.
+
 ## Why Infrastructure as Code
+
+> **In simple words:** Infrastructure as Code means describing servers and networks in files instead of clicking, so the setup can be reviewed, repeated and undone.
 
 | Click-ops | Infrastructure as Code |
 |---|---|
@@ -20,6 +85,8 @@ Terraform is **declarative**: you describe *what*, not *how*. It builds a depend
 
 ## Install and set up
 
+> **In simple words:** Check Terraform is installed, and add the editor plug-in that colours and checks your `.tf` files.
+
 Terraform was installed during **Workstation Setup**. Check it:
 
 ```bash
@@ -31,6 +98,8 @@ terraform -version
 Install the **HashiCorp Terraform** VS Code extension for syntax highlighting, formatting and docs on hover.
 
 ## Core workflow: your first resource
+
+> **In simple words:** Write a tiny file that creates one storage bucket, then go through init → plan → apply → destroy to see the whole cycle.
 
 ```bash
 mkdir -p ~/code/tf-first && cd ~/code/tf-first
@@ -110,6 +179,8 @@ resource "aws_s3_bucket" "demo" {   # resource "<TYPE>" "<LOCAL NAME>"
 
 ## Variables, outputs and locals
 
+> **In simple words:** Variables are blanks you fill in, outputs are answers Terraform prints at the end, and locals are short nicknames for values you reuse.
+
 `variables.tf`:
 
 ```hcl
@@ -167,6 +238,8 @@ export TF_VAR_environment=staging        # environment variable
 
 ## State and remote backends
 
+> **In simple words:** State is Terraform's notebook of what it built. Keeping it in a shared, locked S3 bucket stops teammates overwriting each other's work.
+
 Terraform records what it created in **state** (`terraform.tfstate`). By default this is a local file. That's fine for learning, and dangerous for teams:
 
 - It may contain secrets in plain text.
@@ -212,6 +285,8 @@ terraform plan -refresh-only                               # detect drift
 
 ## Data sources, count and for_each
 
+> **In simple words:** Data sources **read** things that already exist. `count` and `for_each` create several similar things from one block, like a loop.
+
 **Data sources** read existing information without managing it:
 
 ```hcl
@@ -254,6 +329,8 @@ resource "aws_eip" "nat" {
 ```
 
 ## Modules
+
+> **In simple words:** A module is a reusable package of Terraform code, like a function, so you write a "web server" once and use it many times.
 
 A **module** is a folder of `.tf` files with inputs (variables) and outputs. Modules are how you reuse code across environments and teams.
 
@@ -364,6 +441,8 @@ terraform destroy
 
 ## Environments: dev, staging, prod
 
+> **In simple words:** How to build separate copies of the same setup for testing and for real users, without them interfering with each other.
+
 Two common approaches:
 
 | Approach | How | When |
@@ -381,6 +460,8 @@ terraform workspace select staging
 > **Note:** For bigger estates, teams add tools like **Terragrunt** or **Atlantis** / **HCP Terraform** to keep code DRY and run plans automatically on pull requests.
 
 ## Best practices and CI
+
+> **In simple words:** Good habits, plus running `terraform plan` automatically on every pull request so changes get reviewed before they're applied.
 
 - **Small, focused state files.** Separate network, cluster and apps so a mistake can't destroy everything.
 - **Pin versions:** `required_version`, provider `version`, module `version`.
@@ -423,6 +504,8 @@ jobs:
 
 ## Troubleshooting
 
+> **In simple words:** The common Terraform errors and how to fix each one.
+
 | Problem | Fix |
 |---|---|
 | `Error acquiring the state lock` | Someone else is applying, or a run crashed. Wait, then if needed `terraform force-unlock <ID>` |
@@ -435,6 +518,8 @@ jobs:
 Turn on debug logging with `TF_LOG=DEBUG terraform plan`.
 
 ## Lab: your own network and web tier
+
+> **In simple words:** Practice time: build a network and two web servers with your own module, then destroy it all.
 
 1. Bootstrap a versioned S3 state bucket and configure a backend with `use_lockfile = true`.
 2. Build a VPC across 2 AZs with the registry module (public and private subnets, NAT disabled).

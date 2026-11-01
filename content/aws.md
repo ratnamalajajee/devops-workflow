@@ -4,7 +4,66 @@ AWS is the most widely used cloud platform. This guide sets up an account **safe
 
 > **Cost:** Several steps create billable resources (NAT gateways, EKS, load balancers). Those steps are marked. **Always run the cleanup step** when you finish, and set up a budget alert first.
 
+## Start here: AWS and the cloud in simple words
+
+> **In simple words:** "The cloud" means renting computers, storage and databases from a company like Amazon over the internet, instead of buying and running your own. You pay only for what you use, like electricity.
+
+### Why companies use the cloud
+
+| Owning servers | Renting from the cloud (AWS) |
+|---|---|
+| Buy hardware up front, wait weeks for delivery | Get a server in about a minute |
+| Pay even when it sits idle | Pay per second or hour; switch off to stop paying |
+| You fix broken disks and power supplies | AWS looks after the hardware |
+| Hard to grow quickly | Add 10 more servers with one command |
+
+**Think of it like this:** owning servers is like owning a car: you pay for it, insure it and repair it. The cloud is like using a taxi or car rental: you get exactly the car you need, when you need it, and hand it back after.
+
+### AWS services translated
+
+AWS has 200+ services with confusing names. These are the ones you'll actually use:
+
+| AWS name | What it really is |
+|---|---|
+| **EC2** | A rented computer (virtual server) |
+| **S3** | Unlimited file storage, like Google Drive for apps |
+| **VPC** | Your own private network inside AWS |
+| **IAM** | The security desk: who can log in, and what they're allowed to do |
+| **RDS** | A ready-made database that AWS runs for you |
+| **ECR** | A private store for your Docker images |
+| **EKS** | Kubernetes, run for you by AWS |
+| **CloudWatch** | Monitoring: graphs, logs and alarms |
+| **Route 53** | Domain names (DNS), the internet's phone book |
+
+### Key words
+
+| Word | Simple meaning |
+|---|---|
+| **Region** | A city or area where AWS has data centers, such as Mumbai (`ap-south-1`) or N. Virginia (`us-east-1`) |
+| **Availability Zone (AZ)** | One of several separate data centers inside a Region |
+| **Account** | Your own space in AWS, with its own bill |
+| **Console** | The AWS website where you click to manage things |
+| **CLI** | The `aws` command to do the same things by typing |
+| **Resource** | Anything you create: a server, a bucket, a network |
+
+### Two golden rules
+
+1. **Security:** turn on MFA, never share passwords or access keys, and never put keys in code or Git.
+2. **Cost:** things keep charging until you delete them. Set a budget alert first, and always clean up after a lab.
+
+Want a gentle first project? Do the [AWS Lab: Website on EC2](#/tool/ec2-website). It explains every service step by step.
+
+### Check yourself
+
+1. What is EC2, in one sentence?
+2. What's the difference between a Region and an Availability Zone?
+3. Why should you delete resources after practising?
+
+> **Tip:** Answers: 1) A computer you rent from AWS. 2) A Region is an area (like a city); an AZ is one data center inside it. 3) Because AWS keeps charging for them until they're deleted.
+
 ## Core concepts
+
+> **In simple words:** The basic words of AWS: where your things live (Regions and AZs), whose they are (accounts), and who protects what (shared responsibility).
 
 | Concept | Meaning |
 |---|---|
@@ -27,6 +86,8 @@ Services you will use most:
 
 ## Secure your account first
 
+> **In simple words:** Lock the front door before moving in: add MFA, set a spending alert, and stop using the all-powerful "root" login.
+
 If you have a company account, your platform team gives you access. Skip to the CLI step. If you are using a **personal learning account**, do this immediately after signing up:
 
 1. **Enable MFA on the root user:** account menu → **Security credentials** → **Assign MFA device**.
@@ -38,6 +99,8 @@ If you have a company account, your platform team gives you access. Skip to the 
 > **Warning:** Leaked access keys get found by bots within minutes and used to mine cryptocurrency on your bill. Never commit keys to Git.
 
 ## IAM: users, roles and policies
+
+> **In simple words:** IAM is AWS's security desk. **Users** are people, **roles** are temporary badges for apps and servers, and **policies** list exactly what each one may do.
 
 IAM answers **who** (principal) can do **what** (action) on **which resource**.
 
@@ -73,6 +136,8 @@ Principles:
 - **Humans use SSO:** set up **IAM Identity Center**, create a user and a permission set (`AdministratorAccess` for a sandbox), and log in through the access portal.
 
 ## Install and configure the AWS CLI
+
+> **In simple words:** Connect the `aws` command on your computer to your AWS account, so you can control AWS by typing.
 
 You installed AWS CLI v2 during setup. Now connect it.
 
@@ -112,6 +177,8 @@ cat ~/.aws/config                    # profiles live here
 
 ## VPC networking
 
+> **In simple words:** A VPC is your private network in AWS. Subnets are its rooms, the internet gateway is the front door, and security groups are the locks on each server.
+
 A **VPC** is your private network in AWS. Understanding it is essential: EC2, RDS, EKS, and load balancers all live inside one.
 
 ```text
@@ -145,6 +212,8 @@ aws ec2 describe-subnets --query 'Subnets[].[SubnetId,AvailabilityZone,CidrBlock
 > **Cost:** NAT Gateways cost money per hour and per GB, even when idle. In the Terraform guide you'll build a full VPC and destroy it with one command.
 
 ## EC2: launch a server from the CLI
+
+> **In simple words:** Rent a Linux computer in AWS, open the right firewall ports, and have it install a web server by itself on first boot.
 
 > **Tip:** New to EC2? Do the step-by-step [AWS Lab: Website on EC2](#/tool/ec2-website) first. It walks through the console, explains every service involved, and links to the AWS docs for each one.
 
@@ -197,6 +266,8 @@ aws ec2 delete-key-pair --key-name devops-lab
 
 ## S3: object storage
 
+> **In simple words:** S3 is endless file storage. You put files into "buckets" and can share them with a link that expires.
+
 ```bash
 BUCKET=devops-lab-$(date +%s)          # bucket names are globally unique
 aws s3 mb s3://$BUCKET
@@ -216,6 +287,8 @@ aws s3 rb s3://$BUCKET --force
 Good defaults that AWS now applies to new buckets: **Block Public Access on**, **encryption at rest on**. Keep them that way unless you really mean to host public content (and even then, prefer CloudFront in front).
 
 ## ECR: container registry
+
+> **In simple words:** Your private store for Docker images inside AWS. Your servers and Kubernetes download images from here.
 
 ECR stores your Docker images privately in your account. EKS and ECS pull from it.
 
@@ -241,6 +314,8 @@ aws ecr put-lifecycle-policy --repository-name hello-docker --lifecycle-policy-t
 ```
 
 ## EKS: managed Kubernetes
+
+> **In simple words:** AWS runs the hard "brain" part of Kubernetes for you; you just add worker machines and deploy your apps.
 
 > **Cost:** An EKS control plane costs roughly $0.10/hour, plus EC2 nodes and a NAT gateway. Learn Kubernetes basics locally with **kind** first (Kubernetes guide), then come back. Delete the cluster the same day.
 
@@ -282,6 +357,8 @@ eksctl delete cluster --name devops-lab --region us-east-1
 
 ## CloudWatch and cost control
 
+> **In simple words:** CloudWatch shows graphs, logs and alarms for your resources. This step also shows how to find out what is costing you money.
+
 ```bash
 # Logs
 aws logs describe-log-groups --query 'logGroups[].logGroupName'
@@ -307,6 +384,8 @@ Common forgotten resources: **NAT gateways, load balancers, EKS clusters, unatta
 > **Tip:** Tag everything (`Owner`, `Project`, `Environment`). Tags make cost reports and cleanup straightforward.
 
 ## Lab: a public web server done right
+
+> **In simple words:** Practice time: build a small, secure web server using only the CLI, then clean everything up.
 
 1. Using only the CLI, create a security group allowing HTTP from anywhere and SSH from **your IP only**.
 2. Launch a `t3.micro` with user-data that installs nginx and writes your name to the index page.

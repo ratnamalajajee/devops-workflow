@@ -8,6 +8,8 @@ In this lab you launch a Linux server on Amazon EC2, install a web server on it 
 
 ## What you will build
 
+> **In simple words:** One rented Linux computer in AWS, running a web server that anyone can reach from a browser.
+
 ```text
   Your browser
       │  http://<public-ip>
@@ -41,6 +43,8 @@ When you type the URL, the request follows this path:
 Everything you need already exists in your account's **default VPC** except the instance itself, its security group and its key pair. You'll create those.
 
 ## The building blocks, explained
+
+> **In simple words:** Each AWS piece involved, explained one at a time. Read it once now and come back whenever a word is unfamiliar.
 
 Read this once now, then come back to it while you work through the steps. Each block links to the official AWS page that explains it in full.
 
@@ -113,6 +117,8 @@ A special address, `169.254.169.254`, that only the instance itself can reach. I
 
 ## Before you start
 
+> **In simple words:** Sign in, pick one Region and stay in it, and know what this costs (very little if you clean up).
+
 1. **Sign in** to the AWS console as your admin or SSO user, not root.
 2. **Choose a Region** in the top-right corner and use the same one for the whole lab.
 3. **Check your budget alert** exists: **Billing and Cost Management → Budgets**. AWS docs: [Managing costs with AWS Budgets](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html)
@@ -127,6 +133,8 @@ A special address, `169.254.169.254`, that only the instance itself can reach. I
 > **Tip:** In the launch wizard, AWS marks AMIs and instance types that your account can use under the free tier with a **Free tier eligible** label. Prefer those.
 
 ## Look at your network (default VPC)
+
+> **In simple words:** Look at the network AWS already made for you, and see why a server placed in it can be reached from the internet.
 
 Before launching anything, look at what already exists. This is the part most beginners skip, and the part interviews ask about.
 
@@ -158,6 +166,8 @@ aws ec2 describe-route-tables --filters Name=vpc-id,Values=$VPC_ID \
 
 ## Create an IAM role for Session Manager
 
+> **In simple words:** Give the server a "badge" that lets you open a terminal on it from the AWS website, with no passwords or keys.
+
 This role lets you open a terminal on the instance from the browser with no SSH keys and no open port 22. It's how most companies connect to servers.
 
 1. Open **IAM → Roles → Create role**.
@@ -170,6 +180,8 @@ What you just did: the role's **trust policy** says "EC2 instances may assume th
 AWS docs: [IAM roles for EC2](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html) · [Session Manager instance permissions](https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started-instance-profile.html)
 
 ## Launch the instance (console)
+
+> **In simple words:** Fill in the launch form field by field: which operating system, how big, which network, which firewall rules, and a script that installs the website.
 
 Open **EC2 → Instances → Launch instances** and go through the form from top to bottom.
 
@@ -262,6 +274,8 @@ AWS docs: [Get started with Amazon EC2](https://docs.aws.amazon.com/AWSEC2/lates
 
 ## Open your website
 
+> **In simple words:** Copy the server's public address into your browser, and your page appears.
+
 1. Select the instance. In the **Details** tab, copy the **Public IPv4 address** (or **Public IPv4 DNS**, which looks like `ec2-3-91-…compute-1.amazonaws.com`).
 2. In your browser, go to **`http://<public-ip>`**.
 
@@ -280,6 +294,8 @@ curl -i http://<public-ip>
 If the page doesn't load, wait one more minute (user data is still installing nginx), then work through **Troubleshooting** below.
 
 ## Connect to the instance and look around
+
+> **In simple words:** Open a terminal on the server and use your Linux skills to see how the website is running.
 
 Pick **one** of these three ways in.
 
@@ -331,6 +347,8 @@ Notice that `ip a` shows only the **private** IP (`172.31.x.x`). The instance it
 
 ## Change the web page
 
+> **In simple words:** Edit the page on the server and watch the change appear in your browser straight away.
+
 Replace the page with your own content:
 
 ```bash
@@ -356,6 +374,8 @@ echo '<h1>About</h1><p>Built in the EC2 lab.</p>' | sudo tee /usr/share/nginx/ht
 > **Why:** Editing files by hand on a server is fine for learning, but it doesn't scale. If the instance is replaced, your edits are gone. In real teams, the page is built into an image or deployed by automation. That's exactly what the Docker, Terraform and Argo CD guides teach.
 
 ## Do the same with the AWS CLI
+
+> **In simple words:** The same steps as typed commands. Useful for automation, and it shows what the console does behind the scenes.
 
 The console clicks you just made map one-to-one to API calls. Here is the whole lab as a script. Save the user data from the launch step as `user-data.sh`, then:
 
@@ -409,6 +429,8 @@ AWS docs: [`run-instances` CLI reference](https://awscli.amazonaws.com/v2/docume
 
 ## Stop, start, reboot, terminate
 
+> **In simple words:** What happens to your server, its address, its disk and your bill when you switch it off, on, or delete it.
+
 Try each one and refresh your page afterwards. Knowing the differences avoids nasty surprises.
 
 | Action | What happens | Public IP | EBS data | Billing |
@@ -423,6 +445,8 @@ After a stop/start, your old URL stops working because the public IP changed. Th
 AWS docs: [Stop and start](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Stop_Start.html) · [Terminate](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/terminating-instances.html) · [Instance state changes](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html)
 
 ## Troubleshooting
+
+> **In simple words:** If the page won't load or you can't connect, find your symptom in this table.
 
 Work from the outside in, the same way you'd debug in production:
 
@@ -442,6 +466,8 @@ Work from the outside in, the same way you'd debug in production:
 AWS docs: [Troubleshoot connecting to your instance](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/TroubleshootingInstancesConnecting.html)
 
 ## Clean up
+
+> **In simple words:** Delete what you created so it stops costing money.
 
 Delete everything you created so nothing keeps charging.
 
@@ -467,6 +493,8 @@ aws ec2 describe-addresses --query 'Addresses[].PublicIp'
 ```
 
 ## How to use the AWS documentation
+
+> **In simple words:** Which kind of AWS page to open for which question, so the official docs become useful instead of overwhelming.
 
 AWS docs are huge. Knowing *which* page type to open saves hours.
 
@@ -500,6 +528,8 @@ Tips:
 | Cost | [EC2 pricing](https://aws.amazon.com/ec2/pricing/on-demand/) · [VPC pricing (public IPv4)](https://aws.amazon.com/vpc/pricing/) · [Budgets](https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-managing-costs.html) |
 
 ## Next steps and challenge
+
+> **In simple words:** How real websites grow beyond one server, and a small challenge to test what you learned.
 
 You've hosted a site the "single server" way. Here's how real setups grow from it. Each one is a good follow-up lab:
 

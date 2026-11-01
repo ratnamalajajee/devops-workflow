@@ -4,7 +4,57 @@ Docker packages an application and everything it needs (runtime, libraries, conf
 
 > **Tip:** No Docker or Kubernetes on your laptop? Use the **cloud lab machine** in the [Practice lab](#/lab). It has Docker, kind, kubectl, Helm, Terraform, the AWS CLI and the Argo CD CLI ready to go.
 
+## Start here: Docker in simple words
+
+> **In simple words:** Docker packs an app together with everything it needs into a sealed box called a **container**. The box runs exactly the same on your laptop, a colleague's laptop and a cloud server.
+
+### The problem Docker solves
+
+Without Docker: "It works on my machine!" The app runs for the developer, then breaks on the server because it has a different version of Python, a missing library, or a different setting.
+
+With Docker, you ship the **whole box** (the app plus its exact Python, libraries and settings), so there's nothing left to go wrong between machines.
+
+### A real-life comparison
+
+Think of **shipping containers** on cargo ships. Before them, every item (barrels, boxes, sacks) had to be loaded differently. A standard container can carry anything, and every ship, crane and truck knows how to handle it. Docker does the same for software: every server knows how to run a container, whatever is inside.
+
+### How the pieces fit
+
+```text
+ Dockerfile ──build──▶ Image ──run──▶ Container (the app, running)
+ (the recipe)          (the packed box)
+                         │
+                       push ▼  pull
+                      Registry (an online store of images, e.g. Docker Hub, Amazon ECR)
+```
+
+| Word | Simple meaning | Everyday comparison |
+|---|---|---|
+| **Dockerfile** | A text file with step-by-step instructions to build the box | A recipe |
+| **Image** | The finished, packed box, ready to run but not running | A frozen ready-meal |
+| **Container** | A running copy of an image | The meal, heated and being eaten |
+| **Registry** | A place to store and share images | A supermarket shelf |
+| **Tag** | A version label on an image, like `1.0` | The "best before" label |
+| **Volume** | Storage that survives when a container is deleted | A lunchbox you keep after the meal |
+| **Port mapping** | Connecting a door on your computer to a door in the container | Forwarding phone calls to an extension |
+
+One image can start many containers, just as one recipe can make many identical meals.
+
+### Containers vs virtual machines
+
+A **virtual machine** is a whole pretend computer with its own full operating system: heavy and slow to start. A **container** shares the host's operating system core and only packs the app's own files: light, and it starts in about a second.
+
+### Check yourself
+
+1. What's the difference between an image and a container?
+2. Where do you store images so others can use them?
+3. Why does "it works on my machine" stop being a problem?
+
+> **Tip:** Answers: 1) An image is the packed box; a container is that box running. 2) In a registry, such as Docker Hub or Amazon ECR. 3) Because everything the app needs travels inside the image.
+
 ## Core concepts
+
+> **In simple words:** The handful of words you'll hear all the time: image, container, Dockerfile, registry, tag and volume.
 
 | Term | Meaning |
 |---|---|
@@ -23,6 +73,8 @@ A VM virtualizes **hardware** and boots a full OS kernel, which takes minutes an
 
 ## Install and verify
 
+> **In simple words:** Make sure Docker is installed and its background engine is running, then run a tiny test container.
+
 If you completed **Workstation Setup**, Docker is already installed. Verify it:
 
 ```bash
@@ -34,6 +86,8 @@ docker run hello-world
 If the server section is missing, the daemon is not running. Start Docker Desktop, or run `sudo systemctl start docker` on Linux.
 
 ## Your first containers
+
+> **In simple words:** Start ready-made apps (a web server, a database) with one command each, look at their logs, step inside them, and remove them.
 
 ```bash
 docker run -d --name web -p 8080:80 nginx:1.27
@@ -65,6 +119,8 @@ docker logs db | tail -5
 
 ## Working with images
 
+> **In simple words:** Download, list, inspect and delete images: the packed boxes your containers are started from.
+
 ```bash
 docker pull python:3.12-slim
 docker images                       # list local images
@@ -79,6 +135,8 @@ docker system prune                 # remove stopped containers, dangling images
 Every instruction in a Dockerfile creates a **layer**. Layers are cached and shared between images, which is why the instruction order in a Dockerfile matters for build speed.
 
 ## Write a Dockerfile
+
+> **In simple words:** Write your own recipe that packs a small web app into an image, then build it and run it.
 
 Create a tiny Python web app:
 
@@ -172,6 +230,8 @@ curl localhost:8000/health
 
 ## Multi-stage builds
 
+> **In simple words:** Build the app in one big "workshop" image, then copy only the finished result into a tiny final image. Smaller is faster and safer.
+
 Compiled languages need build tools that should not ship to production. Multi-stage builds compile in one stage and copy only the result into a minimal final image. Example for Go:
 
 ```dockerfile
@@ -192,6 +252,8 @@ The final image is a few MB, with no shell and no package manager, so there is m
 
 ## Volumes and bind mounts
 
+> **In simple words:** Containers forget everything when deleted. Volumes are separate storage that keeps data (like a database) safe across restarts.
+
 Containers are disposable. Anything written inside one disappears when it is removed, unless you mount storage.
 
 ```bash
@@ -211,6 +273,8 @@ docker volume inspect pgdata
 
 ## Networking
 
+> **In simple words:** Put containers on the same private network so they can find and talk to each other by name.
+
 ```bash
 docker network create appnet
 docker run -d --name db  --network appnet -e POSTGRES_PASSWORD=secret postgres:16
@@ -227,6 +291,8 @@ docker network inspect appnet
 | `none` | No networking |
 
 ## Docker Compose
+
+> **In simple words:** Describe several containers that work together (an app plus its database) in one file, and start them all with one command.
 
 Compose describes a multi-container application in one YAML file. Add `compose.yaml` to `hello-docker`:
 
@@ -268,6 +334,8 @@ docker compose down            # stop and remove (add -v to delete volumes)
 
 ## Push to a registry
 
+> **In simple words:** Upload your image to an online registry so servers and teammates can download and run it.
+
 ### Docker Hub
 
 ```bash
@@ -295,6 +363,8 @@ docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO:1.0.0
 
 ## Best practices and security
 
+> **In simple words:** Habits that keep images small, fast to build and hard to attack.
+
 - **Pin base images** (`python:3.12-slim`, not `python`), and prefer `slim`, `alpine` or `distroless`.
 - **Order layers** from least to most frequently changed. Dependencies go before source code.
 - **Run as non-root** with `USER`.
@@ -306,6 +376,8 @@ docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO:1.0.0
 
 ## Troubleshooting
 
+> **In simple words:** The common errors and what each one means, so you know where to look when a container won't start.
+
 | Symptom | Check |
 |---|---|
 | Container exits immediately | `docker logs <name>`. The main process ended or crashed. |
@@ -316,6 +388,8 @@ docker push $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO:1.0.0
 | Need to look inside | `docker exec -it <name> sh`, `docker inspect <name>` |
 
 ## Lab: containerize and compose
+
+> **In simple words:** Practice time: pack your own app into an image, run it with a database, and publish it.
 
 1. Write a Dockerfile for any small app (Node, Python, Go, or a static site on nginx).
 2. Make it run as non-root and keep the image under 200 MB. Check with `docker images`.

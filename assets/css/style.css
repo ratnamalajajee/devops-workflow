@@ -202,6 +202,8 @@ main:focus { outline: none; }
 .callout.warning { border-color: var(--warn); background: var(--warn-bg); }
 .callout.cost { border-color: var(--cost); background: var(--cost-bg); }
 .callout.why { border-color: #8b5cf6; background: color-mix(in srgb, #8b5cf6 10%, var(--surface)); }
+.callout.in-simple-words { border-color: #0d9488; background: color-mix(in srgb, #0d9488 10%, var(--surface)); }
+.callout.in-simple-words > p:first-child::before { content: "💡 "; }
 
 .table-wrap { overflow-x: auto; margin: 14px 0; }
 table { border-collapse: collapse; width: 100%; font-size: 14.5px; }

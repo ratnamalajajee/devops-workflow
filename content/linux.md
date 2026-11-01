@@ -4,7 +4,62 @@ Almost every server, container, and Kubernetes node you touch runs Linux. You do
 
 > **Tip:** No setup yet? Open the [Practice lab](#/lab) and click **Start Linux** to get a real Linux terminal right in your browser. It runs almost every command in this guide. The exceptions are `apt`, `systemctl` and networking, which need a full machine: WSL Ubuntu or the lab's cloud machine.
 
+## Start here: Linux in simple words
+
+> **In simple words:** Linux is the software that runs most of the world's servers, the computers behind websites and apps. Learning Linux means learning to talk to those servers by typing commands.
+
+### What is Linux?
+
+An **operating system** is the main software that runs a computer and lets other programs use the screen, disk and network. Windows and macOS are operating systems. **Linux** is another one: free, very stable, and used on almost every server, cloud machine and container.
+
+**Think of it like this:** a computer is a big office building. The **operating system** is the building manager who controls the rooms (files), the staff (programs) and the doors (network). In Linux you talk to the manager by typing short instructions in a **terminal**.
+
+### How a command is built
+
+```text
+ls   -l   /etc
+│    │    └── argument: WHAT to act on (the /etc folder)
+│    └─────── option:   HOW to do it (-l = long, detailed list)
+└──────────── command:  WHAT to do  (ls = list files)
+```
+
+Almost every Linux command follows this pattern: **command → options → what to act on**.
+
+### Key words
+
+| Word | Simple meaning |
+|---|---|
+| **Terminal / shell / bash** | The window where you type commands, and the program that reads them |
+| **Command** | One instruction, like `ls` (list) or `cd` (change folder) |
+| **Directory** | A folder |
+| **Path** | The address of a file, like `/home/alice/notes.txt` |
+| **Root (`/`)** | The very top folder that contains everything |
+| **root (user)** | The administrator account that can do anything |
+| **sudo** | "Do this as administrator" |
+| **Process** | A program that is currently running |
+| **Service** | A program that runs in the background all the time, like a web server |
+| **Package** | An installable piece of software |
+
+### Survival tips
+
+- Press **Tab** to auto-complete file and command names. It saves typing and spelling mistakes.
+- Press **↑ (up arrow)** to bring back your previous command.
+- **Ctrl+C** stops a running command. **Ctrl+L** or `clear` clears the screen.
+- Stuck on a command? Try `man ls` (the full manual; press `q` to quit) or `ls --help`.
+- Linux is **case-sensitive**: `File.txt` and `file.txt` are two different files.
+- Want to practise right now? Use the in-browser Linux terminal in the [Practice lab](#/lab).
+
+### Check yourself
+
+1. In `cp -r photos backup`, which part is the command, the option and the arguments?
+2. What's the difference between `/` and `root`?
+3. How do you stop a command that won't finish?
+
+> **Tip:** Answers: 1) `cp` is the command, `-r` the option ("recursive", meaning include folders), and `photos backup` the arguments. 2) `/` is the top folder; `root` is the admin user. 3) Press `Ctrl+C`.
+
 ## Why Linux matters in DevOps
+
+> **In simple words:** Servers, containers and cloud machines almost all run Linux, so this is the one skill every other guide builds on.
 
 - **Servers:** EC2 instances, on-prem VMs, and Kubernetes nodes are almost all Linux.
 - **Containers:** every Docker image is a small Linux userspace. Debugging containers means debugging Linux.
@@ -14,6 +69,8 @@ Almost every server, container, and Kubernetes node you touch runs Linux. You do
 Key idea: **everything is a file**. Configuration, devices, process information (`/proc`), and logs all appear in the filesystem.
 
 ## The filesystem hierarchy
+
+> **In simple words:** Linux stores everything in one big tree of folders starting at `/`. Each top-level folder has a job: settings live in `/etc`, logs in `/var/log`, your files in `/home`.
 
 | Path | What lives there |
 |---|---|
@@ -37,6 +94,8 @@ uname -a            # kernel info
 ```
 
 ## Navigation and file operations
+
+> **In simple words:** The everyday commands to move between folders and create, copy, move, find and delete files, just like in File Explorer but by typing.
 
 ```bash
 cd ~/code           # change directory (cd alone goes home, cd - goes back)
@@ -65,6 +124,8 @@ which python3                         # path of a command
 > **Warning:** `rm -rf` has no undo and no recycle bin. Double-check the path, especially when it contains a variable.
 
 ## Viewing and editing files
+
+> **In simple words:** How to read files (all at once, page by page, or live as they grow) and how to edit them in the terminal. The `|` pipe passes one command's output into the next.
 
 ```bash
 cat file.txt            # print whole file
@@ -107,6 +168,8 @@ Prefer something simpler? `nano file.txt` works too. Save with Ctrl+O and exit w
 
 ## Users, groups and permissions
 
+> **In simple words:** Every file has an owner and a set of rules saying who can **r**ead, **w**rite or e**x**ecute (run) it, like locks with different keys for different people.
+
 ```bash
 whoami && id                 # current user, UID, groups
 sudo adduser deploy          # create user
@@ -139,6 +202,8 @@ sudo chown -R www-data /var/www
 
 ## Package management
 
+> **In simple words:** A package manager is an app store for the command line. One command downloads and installs software and everything it needs.
+
 | Distro family | Tool | Install example |
 |---|---|---|
 | Ubuntu / Debian | `apt` | `sudo apt install nginx` |
@@ -155,6 +220,8 @@ dpkg -l | grep nginx         # is it installed?
 ```
 
 ## Processes and systemd services
+
+> **In simple words:** A process is a running program. A service is a program that runs in the background all the time, and systemd is the manager that starts, stops and restarts services.
 
 ```bash
 ps aux | grep nginx       # find a process
@@ -208,6 +275,8 @@ curl localhost:9000
 
 ## Networking basics
 
+> **In simple words:** Commands to see your computer's address, which "doors" (ports) are open, and whether another computer or website is reachable.
+
 ```bash
 ip a                          # interfaces and IPs
 ip route                      # routing table / default gateway
@@ -230,6 +299,8 @@ Concepts to know cold:
 
 ## Disks and storage
 
+> **In simple words:** How to see how full the disk is and which folders take up the most space. "Disk full" is one of the most common server problems.
+
 ```bash
 df -h                     # free space per filesystem
 du -sh /var/log/*         # size of each item
@@ -243,6 +314,8 @@ tar -xzvf backup.tar.gz -C /tmp      # extract
 > **Tip:** "Disk full" is a top-5 production incident. `df -h` then `du -sh` is the first move. The usual culprit is logs in `/var/log` or Docker data in `/var/lib/docker`.
 
 ## SSH: remote access
+
+> **In simple words:** SSH lets you open a terminal on a computer far away, safely, as if you were sitting in front of it.
 
 ```bash
 ssh -i ~/.ssh/mykey.pem ubuntu@203.0.113.10       # connect
@@ -266,6 +339,8 @@ Host bastion-*
 Harden the server in `/etc/ssh/sshd_config`: `PasswordAuthentication no`, `PermitRootLogin no`, then `sudo systemctl restart ssh`.
 
 ## Bash scripting
+
+> **In simple words:** A script is a text file of commands that run one after another, so you can automate a task instead of typing it every time.
 
 A script is a file of commands with a shebang line. This one has the patterns you will reuse everywhere:
 
@@ -316,6 +391,8 @@ Use [crontab.guru](https://crontab.guru) to check expressions.
 
 ## Logs and troubleshooting
 
+> **In simple words:** Logs are a program's diary. When something breaks, you read the logs and follow a checklist to find out why.
+
 ```bash
 journalctl -u nginx -f            # follow a service's logs
 journalctl -p err --since "1 hour ago"
@@ -334,6 +411,8 @@ A troubleshooting checklist when "the app is down":
 6. **Is the network or firewall blocking it?** security groups, `ufw`, DNS
 
 ## Lab: build a monitored web server
+
+> **In simple words:** Practice time: use everything above to set up a small website and a script that checks it's healthy.
 
 Do this without looking back at the earlier steps.
 

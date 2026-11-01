@@ -6,7 +6,71 @@ Kubernetes (K8s) runs containers across many machines. It keeps the right number
 
 > **Tip:** No Docker or Kubernetes on your laptop? Use the **cloud lab machine** in the [Practice lab](#/lab). It has Docker, kind, kubectl, Helm, Terraform, the AWS CLI and the Argo CD CLI ready to go.
 
+## Start here: Kubernetes in simple words
+
+> **In simple words:** Docker runs a container on **one** computer. Kubernetes runs **many** containers across **many** computers, and keeps them healthy: it restarts crashed ones, adds more when traffic grows, and sends visitors to the healthy ones.
+
+### The problem Kubernetes solves
+
+With only Docker, if your app crashes at 3 a.m., someone has to wake up and restart it. If traffic doubles, someone has to start more copies by hand. If a server dies, every app on it is gone.
+
+Kubernetes does all of that automatically. You tell it **what you want** ("always keep 3 copies of my app running"), and it constantly makes sure that's true.
+
+### A real-life comparison
+
+Think of a **restaurant manager**. You don't tell the manager *how* to run the kitchen; you say "always have 3 cooks on shift". If a cook goes home sick, the manager calls in another one. If it gets busy, the manager can add cooks. Kubernetes is that manager, and the cooks are your containers.
+
+This idea is called **desired state**: you describe what you want, and Kubernetes works non-stop to keep reality matching it.
+
+### How the pieces fit
+
+```text
+ You ──kubectl──▶ Control plane (the "manager", decides what runs where)
+                         │
+       ┌─────────────────┼─────────────────┐
+     Node 1            Node 2            Node 3      ◀ worker computers
+   [pod][pod]        [pod][pod]         [pod]        ◀ pods = your running containers
+       └────────── Service (one stable address) ──────────┘ ◀ visitors come in here
+```
+
+### Key words
+
+| Word | Simple meaning |
+|---|---|
+| **Cluster** | The whole group of computers Kubernetes manages |
+| **Node** | One computer (real or virtual) in the cluster |
+| **Pod** | The smallest unit: one running copy of your app (one or more containers) |
+| **Deployment** | The instruction "keep N copies of this pod running, and update them safely" |
+| **Service** | A fixed address that sends traffic to whichever pods are healthy |
+| **Namespace** | A folder to separate teams or projects inside one cluster |
+| **ConfigMap / Secret** | Settings and passwords given to your app from outside the image |
+| **Ingress** | The front door for web traffic: routes `website.com/...` to the right Service |
+| **kubectl** | The command you type to talk to the cluster |
+| **Manifest (YAML)** | A text file describing what you want, which you send with `kubectl apply` |
+
+### Reading YAML
+
+Kubernetes files are written in **YAML**. Indentation (spaces, never tabs) shows what belongs to what:
+
+```yaml
+kind: Deployment        # WHAT type of thing this is
+metadata:
+  name: web             # its name
+spec:                   # what you WANT
+  replicas: 3           # "keep 3 copies running"
+```
+
+### Check yourself
+
+1. What does Kubernetes do when one of your pods crashes?
+2. Why do you need a Service if you already have pods?
+3. What does "desired state" mean?
+
+> **Tip:** Answers: 1) It starts a new one automatically. 2) Pods come and go and change address; a Service gives one stable address that always reaches healthy pods. 3) You describe what you want, and Kubernetes keeps making reality match it.
+
 ## Architecture
+
+> **In simple words:** Kubernetes has a "brain" (the control plane) that makes decisions, and "workers" (nodes) that actually run your apps.
 
 ```text
                 ┌─────────────────── Control plane ───────────────────┐
@@ -32,6 +96,8 @@ Kubernetes (K8s) runs containers across many machines. It keeps the right number
 On EKS, AWS runs the control plane for you. You manage only the worker nodes and workloads.
 
 ## Create a local cluster with kind
+
+> **In simple words:** kind builds a small practice Kubernetes cluster inside Docker on your own computer: free, and safe to break.
 
 kind runs Kubernetes nodes as Docker containers. Create a multi-node cluster with ports mapped for Ingress later:
 
@@ -68,6 +134,8 @@ Delete it any time with `kind delete cluster --name lab`.
 
 ## kubectl essentials
 
+> **In simple words:** kubectl is your remote control for the cluster. You use it to list, inspect, create and delete everything.
+
 ```bash
 kubectl get nodes                       # list nodes
 kubectl get pods -A                     # pods in all namespaces
@@ -90,6 +158,8 @@ kubectl create deployment web --image=nginx --dry-run=client -o yaml > web.yaml 
 > **Tip:** With the `k` alias from setup, `k get po`, `k get svc`, and `k get deploy` save a lot of typing. Also try `kubectx` / `kubens` and **k9s** (a terminal UI).
 
 ## Pods
+
+> **In simple words:** A pod is one running copy of your app. You rarely create pods by hand, but every app ends up running inside them.
 
 A **Pod** is the smallest deployable unit: one or more containers that share network (same IP) and storage. You rarely create pods directly, but you need to understand them.
 
@@ -122,6 +192,8 @@ kubectl delete -f pod.yaml
 Every manifest has the same shape: `apiVersion`, `kind`, `metadata` (name, labels), `spec` (desired state). Kubernetes adds `status` (actual state).
 
 ## Deployments, rollouts and rollbacks
+
+> **In simple words:** A Deployment keeps the right number of pods running, replaces crashed ones, and updates your app to a new version without downtime. It can roll back if the new version is bad.
 
 A **Deployment** manages a **ReplicaSet**, which keeps N identical pods running. This is how you run stateless apps.
 
@@ -180,6 +252,8 @@ kubectl rollout undo deployment/web
 
 ## Services: stable networking
 
+> **In simple words:** Pods keep changing address. A Service gives your app one permanent name and address, and spreads traffic across the healthy pods.
+
 Pods come and go, and their IPs change. A **Service** gives a stable name and IP and load-balances across the pods whose labels match its `selector`.
 
 `service.yaml`:
@@ -215,6 +289,8 @@ kubectl run tmp --rm -it --image=curlimages/curl --restart=Never -- curl -s http
 | Headless (`clusterIP: None`) | Direct pod IPs via DNS | StatefulSets |
 
 ## ConfigMaps and Secrets
+
+> **In simple words:** Keep settings and passwords **outside** the image, so the same image can run in test and production with different settings.
 
 Keep configuration out of images.
 
@@ -254,6 +330,8 @@ kubectl get secret web-secret -o jsonpath='{.data.DB_PASSWORD}' | base64 -d
 > **Warning:** Kubernetes Secrets are only **base64-encoded**, not encrypted, and anyone with read access to them can decode them. Never commit them to Git in plain text. In production use **External Secrets Operator** with AWS Secrets Manager, or **Sealed Secrets** / **SOPS**.
 
 ## Namespaces, resources and probes
+
+> **In simple words:** Namespaces separate teams. Resource limits stop one app hogging the machine. Probes are health checks that tell Kubernetes when an app is ready, or stuck and needs a restart.
 
 ### Namespaces
 
@@ -315,6 +393,8 @@ kubectl get hpa
 
 ## Storage: volumes and PVCs
 
+> **In simple words:** Pods are temporary, so files written inside them vanish. A PersistentVolumeClaim asks for a real disk that survives restarts.
+
 A **PersistentVolumeClaim** asks for storage. A **StorageClass** provisions it dynamically: on kind it's a local path, on EKS an EBS volume.
 
 ```yaml
@@ -356,6 +436,8 @@ kubectl exec writer -- cat /data/log.txt     # two lines: data persisted
 
 ## Ingress: HTTP routing
 
+> **In simple words:** Ingress is the front door for websites: it reads the web address and sends each visitor to the right app.
+
 An **Ingress** routes HTTP(S) by host and path to Services through a single entry point. It needs an **Ingress controller**. Install ingress-nginx for kind:
 
 ```bash
@@ -392,6 +474,8 @@ curl http://web.localtest.me      # *.localtest.me resolves to 127.0.0.1
 
 ## Helm: the package manager
 
+> **In simple words:** Helm installs complete apps (like a database) into Kubernetes with one command, the way an app store installs apps on a phone.
+
 Helm packages a set of templated manifests as a **chart**, so you can install complex apps with one command and configure them with values.
 
 ```bash
@@ -421,6 +505,8 @@ Inside templates, values are referenced like `{{ .Values.image.repository }}:{{ 
 
 ## Debugging workflow
 
+> **In simple words:** A step-by-step routine to find out why a pod isn't working: look at its status, its events, then its logs.
+
 When something is wrong, work from the outside in:
 
 ```bash
@@ -445,6 +531,8 @@ kubectl top pods                         # needs metrics-server
 | `CreateContainerConfigError` | A referenced ConfigMap or Secret is missing |
 
 ## Lab: deploy your own app
+
+> **In simple words:** Practice time: run your own Docker image on Kubernetes with health checks, settings and a web address.
 
 Use the image you built in the Docker lab.
 

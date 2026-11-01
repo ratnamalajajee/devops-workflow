@@ -4,7 +4,30 @@ This project ties every guide together into the workflow you'd find on a real pl
 
 > **Cost:** This project runs an EKS cluster, EC2 nodes and a load balancer. Expect a few dollars per day. Do it in a focused session or two, and **run the final cleanup step**.
 
+## Start here: the big picture in simple words
+
+> **In simple words:** This project connects everything you learned into one automatic "assembly line". A developer changes the code, and a few minutes later the new version is live on a real cloud server, with no manual steps.
+
+### The journey of one code change
+
+1. **A developer edits the app** on their laptop and pushes the change to GitHub. *(Git)*
+2. **GitHub Actions** notices the push, builds a fresh Docker image and uploads it to AWS ECR. *(Docker, AWS)*
+3. **CI writes the new image version** into the GitOps repository. *(Git)*
+4. **Argo CD** sees the change in Git and tells Kubernetes to use the new image. *(Argo CD)*
+5. **Kubernetes** swaps the old copies for new ones, one at a time, so users never see downtime. *(Kubernetes)*
+6. **All of it runs** on AWS servers and networks that **Terraform** built from code. *(Terraform, AWS)*
+
+**Think of it like this:** a car factory. Terraform builds the factory, Docker makes the standard boxes, GitHub Actions is the conveyor belt, Argo CD is the shift supervisor following the plan, and Kubernetes is the floor team doing the work.
+
+### Before you start
+
+- Finish the earlier guides, or at least their labs. This project assumes them.
+- Work through the phases **in order**, and check each **Checkpoint** before moving on.
+- This uses real AWS resources that cost money. Do it in one or two sittings and **always run the Cleanup step**.
+
 ## Target architecture
+
+> **In simple words:** A map of what you're building and which tool is responsible for each part.
 
 ```text
  app repo ──push──▶ GitHub Actions ──build+push──▶ Amazon ECR
@@ -28,6 +51,8 @@ This project ties every guide together into the workflow you'd find on a real pl
 
 ## Repositories
 
+> **In simple words:** Three Git repositories with separate jobs: one for infrastructure, one for the app's code, and one describing what runs in the cluster.
+
 Create three repos (or three folders in one monorepo):
 
 ```text
@@ -43,6 +68,8 @@ gitops/              # what runs in the cluster
 ```
 
 ## Phase 1: Infrastructure with Terraform
+
+> **In simple words:** Use Terraform to build the network, the Kubernetes cluster and the image store in AWS, all from code.
 
 In `platform-infra/envs/dev`, use the community modules:
 
@@ -105,6 +132,8 @@ kubectl get nodes
 **Checkpoint:** two `Ready` nodes, and an empty ECR repo.
 
 ## Phase 2: CI with GitHub Actions and OIDC
+
+> **In simple words:** Make GitHub build and upload a new image on every push. OIDC lets GitHub log into AWS safely without storing any passwords.
 
 Let GitHub Actions assume an AWS role without any stored keys. Add this to Terraform:
 
@@ -189,6 +218,8 @@ jobs:
 
 ## Phase 3: Kubernetes manifests
 
+> **In simple words:** Write the files that tell Kubernetes how to run your app: how many copies, health checks, and how visitors reach it.
+
 In `gitops/hello/base`, write a Deployment (3 replicas, requests and limits, readiness and liveness probes, non-root `securityContext`), a ClusterIP Service, and an HPA. In `gitops/hello/dev/kustomization.yaml`:
 
 ```yaml
@@ -209,6 +240,8 @@ Expose it with one of these:
 > **Tip:** EKS nodes can pull from ECR in the same account out of the box, because the node role includes ECR read-only access. No image pull secret needed.
 
 ## Phase 4: Argo CD delivery
+
+> **In simple words:** Connect Argo CD to your GitOps repository, so every new image version is deployed automatically.
 
 1. Install Argo CD on EKS (Argo CD guide, install step), ideally with Helm.
 2. In `gitops/apps/` create `hello-dev.yaml` pointing at `hello/dev`, with automated sync, prune and self-heal.
@@ -231,6 +264,8 @@ curl http://<elb-hostname>/
 
 ## Phase 5: Operate it
 
+> **In simple words:** Practise real-life situations: a bad release, a traffic spike and a manual change, and see how the system reacts.
+
 Prove you can run what you built:
 
 - **Break it:** push an image whose `/health` returns 500. What happens to the rollout? Use `kubectl describe`, `kubectl logs` and the Argo CD UI to explain it, then fix it with `git revert`.
@@ -240,6 +275,8 @@ Prove you can run what you built:
 - **Document:** write a `README.md` in each repo explaining how to run, deploy and roll back. Explaining it in writing is what makes the knowledge stick.
 
 ## Cleanup
+
+> **In simple words:** Delete everything in the right order so nothing is left running and costing money.
 
 Delete in this order. Kubernetes-created load balancers must go **before** Terraform destroys the VPC, otherwise the destroy hangs on dependencies.
 

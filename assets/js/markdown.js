@@ -1,6 +1,7 @@
 // Minimal, dependency-free Markdown renderer covering what the guides use:
 // headings (###+), paragraphs, ul/ol lists, fenced code, tables, callouts
-// (> **Tip:** / **Note:** / **Warning:** / **Cost:**), `code`, **bold**, *italic*, [links](url).
+// (> **Tip:** / **Note:** / **Warning:** / **Cost:** / **Why:** / **In simple words:**),
+// `code`, **bold**, *italic*, [links](url).
 (function () {
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -52,8 +53,9 @@
         const buf = [];
         while (i < L.length && L[i].startsWith('>')) buf.push(L[i++].replace(/^>\s?/, ''));
         const text = buf.join('\n');
-        const km = text.match(/^\*\*(Tip|Note|Warning|Cost|Why)\b/i);
-        out.push(`<div class="callout ${km ? km[1].toLowerCase() : 'note'}">${render(text)}</div>`);
+        const km = text.match(/^\*\*(Tip|Note|Warning|Cost|Why|In simple words)\b/i);
+        const kind = km ? km[1].toLowerCase().replace(/\s+/g, '-') : 'note';
+        out.push(`<div class="callout ${kind}">${render(text)}</div>`);
       } else if (l.startsWith('|') && L[i + 1] && /^\|[\s:|-]+$/.test(L[i + 1].trim())) {
         const head = splitRow(l);
         i += 2;

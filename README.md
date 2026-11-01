@@ -68,7 +68,8 @@ Each guide is a Markdown file in `content/`:
 - `# Title` on the first line, followed by an intro paragraph.
 - Every `## Heading` becomes a numbered **step** with its own "Done" checkbox. Don't start lines inside code blocks with `## `.
 - Supported: `###` subheadings, lists, tables, fenced code blocks (with a language such as `bash` or `yaml`), `inline code`, **bold**, links.
-- Callouts: start a blockquote with `> **Tip:**`, `> **Note:**`, `> **Warning:**`, `> **Cost:**` or `> **Why:**`.
+- Callouts: start a blockquote with `> **Tip:**`, `> **Note:**`, `> **Warning:**`, `> **Cost:**`, `> **Why:**` or `> **In simple words:**`.
+- Beginner style: each guide opens with a **"Start here: … in simple words"** step (an everyday comparison, a glossary and self-check questions), and every step starts with a one-line `> **In simple words:**` box. Keep that pattern when adding steps or guides.
 - Write a literal `|` inside a table cell as `\|`.
 
 To add a new tool (for example Jenkins), create `content/jenkins.md` and add an entry to `assets/js/config.js`:

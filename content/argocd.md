@@ -6,7 +6,61 @@ Argo CD is a **GitOps** continuous-delivery tool for Kubernetes. Instead of a pi
 
 > **Tip:** No Docker or Kubernetes on your laptop? Use the **cloud lab machine** in the [Practice lab](#/lab). It has Docker, kind, kubectl, Helm, Terraform, the AWS CLI and the Argo CD CLI ready to go.
 
+## Start here: Argo CD and GitOps in simple words
+
+> **In simple words:** With GitOps, the files in a **Git repository** describe exactly what should be running. **Argo CD** watches that repository and keeps your Kubernetes cluster matching it automatically. To change the app, you change Git, never the cluster directly.
+
+### The problem it solves
+
+Without GitOps, people deploy by running `kubectl` commands from their laptops. Soon nobody knows exactly what is running, who changed it, or how to go back to yesterday's version.
+
+With GitOps:
+- **Every change is a Git commit**, so you know who changed what, when, and why.
+- **Going back is easy:** undo the commit, and the cluster follows.
+- **Manual changes are undone:** if someone edits the cluster by hand, Argo CD puts it back to match Git.
+
+### A real-life comparison
+
+Think of an **architect's blueprint** and a **site supervisor**. The blueprint (Git) says exactly how the building should look. The supervisor (Argo CD) walks around all day comparing the building with the blueprint. If a wall is in the wrong place, the supervisor fixes it. If you want a change, you update the blueprint first, and the supervisor makes it happen.
+
+### How it works
+
+```text
+ You edit YAML ─commit/push─▶ Git repository  (what SHOULD run)
+                                     ▲
+                                     │ Argo CD checks every few minutes
+                                     │
+                              Argo CD (inside the cluster)
+                                     │ applies changes, fixes differences
+                                     ▼
+                              Kubernetes cluster  (what IS running)
+```
+
+### Key words
+
+| Word | Simple meaning |
+|---|---|
+| **GitOps** | Running your system by changing files in Git |
+| **Repository (repo)** | A project folder stored in Git, for example on GitHub |
+| **Commit / push** | Save a change in Git / upload it to GitHub |
+| **Application** | Argo CD's link between "this folder in Git" and "this place in the cluster" |
+| **Sync** | Make the cluster match Git |
+| **Synced / OutOfSync** | The cluster matches Git / doesn't match yet |
+| **Healthy / Degraded** | The app is working / something is broken |
+| **Drift** | A difference caused by someone changing the cluster by hand |
+| **Self-heal** | Argo CD automatically undoing drift |
+
+### Check yourself
+
+1. In GitOps, how do you deploy a new version of an app?
+2. What happens if someone changes the cluster by hand, with self-heal on?
+3. How do you roll back a bad deploy?
+
+> **Tip:** Answers: 1) Change the files in Git (for example the image tag) and push; Argo CD deploys it. 2) Argo CD puts it back to match Git. 3) Revert the Git commit; Argo CD follows.
+
 ## GitOps concepts
+
+> **In simple words:** GitOps means Git is the single source of truth: the cluster always copies what Git says, never the other way round.
 
 ```text
  Developer ──PR──▶ Git repo (desired state) ◀──watches/pulls── Argo CD (in cluster)
@@ -36,6 +90,8 @@ Key Argo CD terms:
 
 ## Install Argo CD
 
+> **In simple words:** Install Argo CD into your cluster. It runs as a few small apps inside Kubernetes itself.
+
 ```bash
 kubectl create namespace argocd
 kubectl apply -n argocd --server-side --force-conflicts \
@@ -50,6 +106,8 @@ You should see the `argocd-server`, `argocd-repo-server`, `argocd-application-co
 > **Tip:** For production, install with the official Helm chart (`helm repo add argo https://argoproj.github.io/argo-helm`, then `helm install argocd argo/argo-cd -n argocd`) so Argo CD's own config lives in Git too.
 
 ## Access the UI and CLI
+
+> **In simple words:** Open Argo CD's web dashboard and log in, and connect the `argocd` command, so you can watch and control deployments.
 
 ```bash
 # 1. Port-forward the API/UI (leave running in a separate terminal)
@@ -68,6 +126,8 @@ Open **https://localhost:8080** (accept the self-signed certificate) and log in 
 > **Warning:** After changing the password, delete the bootstrap secret: `kubectl -n argocd delete secret argocd-initial-admin-secret`. In real environments, disable `admin` and use SSO.
 
 ## Prepare a GitOps repository
+
+> **In simple words:** Create a Git repository holding the Kubernetes files for your app. This is the "blueprint" Argo CD will follow.
 
 Create a new GitHub repository, for example `gitops-lab`, with this layout:
 
@@ -133,6 +193,8 @@ git add . && git commit -m "Add guestbook manifests" && git push
 
 ## Your first Application
 
+> **In simple words:** Tell Argo CD "deploy the files in this Git folder into this namespace", then watch it create your app.
+
 Define the Application declaratively, so it can live in Git as well. `apps/guestbook.yaml`:
 
 ```yaml
@@ -179,6 +241,8 @@ argocd app create guestbook --repo https://github.com/<you>/gitops-lab.git --pat
 
 ## Automated sync, prune and self-heal
 
+> **In simple words:** Switch on autopilot: Argo CD deploys new commits by itself, deletes things removed from Git, and undoes manual changes.
+
 Manual sync is good for learning. Real GitOps is automatic. Update `syncPolicy`:
 
 ```yaml
@@ -213,6 +277,8 @@ kubectl get deploy guestbook -n guestbook -w
 Argo CD polls Git every ~3 minutes by default. Configure a **webhook** from GitHub to `https://<argocd>/api/webhook` for instant syncs.
 
 ## Helm and Kustomize sources
+
+> **In simple words:** Argo CD can also deploy ready-made Helm packages, and Kustomize lets you keep one base setup with small changes per environment (dev vs prod).
 
 ### Helm chart from a repository
 
@@ -287,6 +353,8 @@ Point an Application's `path` at `envs/prod`. Argo CD detects Kustomize automati
 
 ## App of Apps and ApplicationSets
 
+> **In simple words:** Ways to manage many apps at once: one "parent" app that creates all the others, or a template that creates an app per folder or cluster.
+
 Managing dozens of Application objects by hand doesn't scale.
 
 ### App of Apps
@@ -353,6 +421,8 @@ Add a new folder under `envs/`, and a new environment deploys automatically. Oth
 
 ## Private repos, projects and access
 
+> **In simple words:** Connect private Git repositories and other clusters, and limit what each team is allowed to deploy, and where.
+
 ```bash
 # Private Git repo over SSH
 argocd repo add git@github.com:<org>/gitops-private.git --ssh-private-key-path ~/.ssh/argocd_deploy_key
@@ -383,6 +453,8 @@ spec:
 Production checklist: SSO (OIDC with Okta, Entra ID or Google) via `argocd-cm`, RBAC in `argocd-rbac-cm`, admin disabled, TLS Ingress for the UI, and notifications (Slack/Teams) via **argocd-notifications**.
 
 ## Rollback and troubleshooting
+
+> **In simple words:** How to go back to a previous version (undo the commit), and how to find out why an app won't sync or isn't healthy.
 
 ### Rolling back
 
@@ -417,6 +489,8 @@ kubectl logs -n argocd statefulset/argocd-application-controller
 ```
 
 ## Lab: full GitOps loop
+
+> **In simple words:** Practice time: deploy your own app the GitOps way, from a Git push all the way to a running app.
 
 1. Install Argo CD on your kind cluster and log in with the CLI.
 2. In your GitOps repo, add your Helm chart from the Kubernetes lab, or plain manifests for your `hello-docker` image.
