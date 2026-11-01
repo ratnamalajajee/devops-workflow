@@ -81,21 +81,50 @@
   }
 
   // ---------- sidebar ----------
+  // Sections are collapsible. navOpen remembers what the reader opened or closed;
+  // sections never toggled start collapsed, and route() opens the one being read.
+  const navOpen = store.get('dl-nav-open', {});
+  const saveNavOpen = () => store.set('dl-nav-open', navOpen);
+
   function renderSidebar(activeId) {
     sidebar.innerHTML =
       `<a href="#/" class="nav-home ${!activeId ? 'active' : ''}">🏠 Home &amp; roadmap</a>` +
       `<a href="#/lab" class="nav-home ${activeId === 'lab' ? 'active' : ''}">🖥️ Practice lab</a>` +
-      TOOLS.map((t, i) => `
-        ${i === 0 || t.section !== TOOLS[i - 1].section
-          ? `<div class="nav-label" style="--s:${sectionOf(t.section).color}">${sectionOf(t.section).icon} ${esc(t.section || 'Learning path')}</div>`
-          : ''}
-        <a href="#/tool/${t.id}" class="nav-item ${t.id === activeId ? 'active' : ''}" style="--c:${t.color}">
-          <span class="badge" style="--c:${t.color}">${esc(t.badge)}</span>
-          <span class="nav-text"><span class="nav-title">${i}. ${esc(t.title)}</span>
-          <span class="mini-bar"><span style="width:${pct(t.id)}%"></span></span></span>
-          <span class="nav-pct">${pct(t.id)}%</span>
-        </a>`).join('');
+      groupTools().map((g) => {
+        const sec = sectionOf(g.name);
+        const open = !!navOpen[g.name];
+        const hasActive = g.items.some(({ t }) => t.id === activeId);
+        return `
+        <div class="nav-group ${open ? 'open' : ''} ${hasActive ? 'has-active' : ''}" data-section="${esc(g.name)}" style="--s:${sec.color}">
+          <button type="button" class="nav-label" aria-expanded="${open}">
+            <span class="nav-label-text" title="${esc(g.name)}">${sec.icon} ${esc(sec.short || g.name)}</span>
+            <span class="nav-line" aria-hidden="true"></span>
+            <span class="nav-count" title="${g.items.length} guides">${g.items.length}</span>
+            <span class="nav-chevron" aria-hidden="true">›</span>
+          </button>
+          <div class="nav-group-items"><div>
+            ${g.items.map(({ t, i }) => `
+            <a href="#/tool/${t.id}" class="nav-item ${t.id === activeId ? 'active' : ''}" style="--c:${t.color}">
+              <span class="badge" style="--c:${t.color}">${esc(t.badge)}</span>
+              <span class="nav-text"><span class="nav-title">${i}. ${esc(t.title)}</span>
+              <span class="mini-bar"><span style="width:${pct(t.id)}%"></span></span></span>
+              <span class="nav-pct">${pct(t.id)}%</span>
+            </a>`).join('')}
+          </div></div>
+        </div>`;
+      }).join('');
   }
+
+  sidebar.addEventListener('click', (e) => {
+    const btn = e.target.closest('.nav-label');
+    if (!btn) return;
+    const group = btn.closest('.nav-group');
+    const open = !group.classList.contains('open');
+    group.classList.toggle('open', open);
+    btn.setAttribute('aria-expanded', String(open));
+    navOpen[group.dataset.section] = open;
+    saveNavOpen();
+  });
 
   // ---------- pages ----------
   function renderHome() {
@@ -438,6 +467,11 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
     if (loadError && !Object.keys(guides).length) { renderSidebar(); return renderLoadError(); }
     const parts = location.hash.replace(/^#\/?/, '').split('/');
     if (parts[0] === 'tool' && parts[1]) {
+      const tool = TOOLS.find((t) => t.id === parts[1]);
+      if (tool && tool.section && !navOpen[tool.section]) {   // reveal the guide being read
+        navOpen[tool.section] = true;
+        saveNavOpen();
+      }
       renderSidebar(parts[1]);
       renderTool(parts[1], parts[2]);
     } else if (parts[0] === 'lab') {

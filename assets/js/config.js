@@ -4,11 +4,11 @@
 window.DEVOPS_CONFIG = {
   // GitHub repo (owner/name) used for the "Open lab machine" Codespaces button.
   repo: 'ratnamalajajee/devops-workflow',
-  // Colour and icon for each section heading (sidebar + roadmap).
+  // Colour and icon for each section heading (sidebar + roadmap); `short` is the sidebar label if the name is long.
   sections: {
     'Foundations': { color: '#f59e0b', icon: '🧱' },
     'AWS': { color: '#f97316', icon: '☁️' },
-    'Infrastructure as Code': { color: '#8b5cf6', icon: '🏗️' },
+    'Infrastructure as Code': { color: '#8b5cf6', icon: '🏗️', short: 'Infra as Code' },
     'Kubernetes': { color: '#3b82f6', icon: '☸️' },
     'CI/CD': { color: '#10b981', icon: '🔁' },
     'Final project': { color: '#a855f7', icon: '🏆' }
