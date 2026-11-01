@@ -70,8 +70,8 @@
     sidebar.innerHTML =
       `<a href="#/" class="nav-home ${!activeId ? 'active' : ''}">🏠 Home &amp; roadmap</a>` +
       `<a href="#/lab" class="nav-home ${activeId === 'lab' ? 'active' : ''}">🖥️ Practice lab</a>` +
-      '<div class="nav-label">Learning path</div>' +
       TOOLS.map((t, i) => `
+        ${i === 0 || t.section !== TOOLS[i - 1].section ? `<div class="nav-label">${esc(t.section || 'Learning path')}</div>` : ''}
         <a href="#/tool/${t.id}" class="nav-item ${t.id === activeId ? 'active' : ''}">
           <span class="badge" style="--c:${t.color}">${esc(t.badge)}</span>
           <span class="nav-text"><span class="nav-title">${i}. ${esc(t.title)}</span>
@@ -113,7 +113,7 @@
             <a href="#/tool/${t.id}">
               <div class="road-top">
                 <span class="badge big" style="--c:${t.color}">${esc(t.badge)}</span>
-                <span class="step-chip">Step ${i}</span>
+                <span class="step-chip">${t.section ? esc(t.section) + ' · ' : ''}Step ${i}</span>
               </div>
               <h3>${esc(t.title)}</h3>
               <p>${esc(t.desc)}</p>

@@ -1,4 +1,5 @@
 // Learning path. Order here = order on the roadmap and in the sidebar.
+// `section` groups guides under a heading; consecutive guides with the same section share it.
 // To add a new tool: create content/<id>.md and add an entry below.
 window.DEVOPS_CONFIG = {
   // GitHub repo (owner/name) used for the "Open lab machine" Codespaces button.
@@ -6,6 +7,7 @@ window.DEVOPS_CONFIG = {
   tools: [
     {
       id: 'setup',
+      section: 'Foundations',
       title: 'Workstation Setup',
       badge: '00',
       color: '#64748b',
@@ -15,6 +17,7 @@ window.DEVOPS_CONFIG = {
     },
     {
       id: 'linux',
+      section: 'Foundations',
       title: 'Linux',
       badge: 'LX',
       color: '#eab308',
@@ -24,6 +27,7 @@ window.DEVOPS_CONFIG = {
     },
     {
       id: 'docker',
+      section: 'Foundations',
       title: 'Docker',
       badge: 'DK',
       color: '#2496ed',
@@ -33,6 +37,7 @@ window.DEVOPS_CONFIG = {
     },
     {
       id: 'aws',
+      section: 'Cloud & infrastructure',
       title: 'AWS',
       badge: 'AWS',
       color: '#ff9900',
@@ -42,6 +47,7 @@ window.DEVOPS_CONFIG = {
     },
     {
       id: 'ec2-website',
+      section: 'Cloud & infrastructure',
       title: 'AWS Lab: Website on EC2',
       badge: 'EC2',
       color: '#d45b07',
@@ -51,6 +57,7 @@ window.DEVOPS_CONFIG = {
     },
     {
       id: 'terraform',
+      section: 'Cloud & infrastructure',
       title: 'Terraform',
       badge: 'TF',
       color: '#7b42bc',
@@ -60,6 +67,7 @@ window.DEVOPS_CONFIG = {
     },
     {
       id: 'kubernetes',
+      section: 'Kubernetes',
       title: 'Kubernetes',
       badge: 'K8s',
       color: '#326ce5',
@@ -68,16 +76,58 @@ window.DEVOPS_CONFIG = {
       desc: 'Pods, Deployments, Services, config, storage, Ingress, Helm and debugging.'
     },
     {
+      id: 'cicd-basics',
+      section: 'CI/CD',
+      title: 'CI/CD Basics',
+      badge: 'CI',
+      color: '#0d9488',
+      level: 'Beginner',
+      hours: 2,
+      desc: 'What CI/CD is, how pipelines work, the tools compared, and the sample app every CI/CD guide uses.'
+    },
+    {
+      id: 'jenkins',
+      section: 'CI/CD',
+      title: 'Jenkins',
+      badge: 'JK',
+      color: '#d33833',
+      level: 'Intermediate',
+      hours: 8,
+      desc: 'Install Jenkins from scratch, then Freestyle jobs, Jenkinsfiles, credentials, multibranch, agents.'
+    },
+    {
+      id: 'github-actions',
+      section: 'CI/CD',
+      title: 'GitHub Actions',
+      badge: 'GHA',
+      color: '#24292f',
+      level: 'Intermediate',
+      hours: 6,
+      desc: 'Workflows, matrix CI, secrets and environments, GHCR images, AWS OIDC and GitOps hand-off.'
+    },
+    {
+      id: 'gitlab-ci',
+      section: 'CI/CD',
+      title: 'GitLab CI/CD',
+      badge: 'GL',
+      color: '#fc6d26',
+      level: 'Intermediate',
+      hours: 6,
+      desc: '.gitlab-ci.yml, stages and rules, container registry, environments, and your own runners.'
+    },
+    {
       id: 'argocd',
+      section: 'CI/CD',
       title: 'Argo CD',
       badge: 'CD',
       color: '#ef7b4d',
       level: 'Advanced',
-      hours: 6,
-      desc: 'GitOps: install Argo CD, deploy apps from Git, sync policies, app-of-apps.'
+      hours: 8,
+      desc: 'GitOps: installation methods, deploying from Git, sync policies, and a full commit-to-pod sample flow.'
     },
     {
       id: 'capstone',
+      section: 'Final project',
       title: 'Capstone Project',
       badge: '★',
       color: '#16a34a',

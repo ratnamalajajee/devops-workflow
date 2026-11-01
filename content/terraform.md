@@ -488,9 +488,9 @@ jobs:
       run:
         working-directory: envs/dev
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
-      - uses: aws-actions/configure-aws-credentials@v4
+      - uses: actions/checkout@v7
+      - uses: hashicorp/setup-terraform@v4
+      - uses: aws-actions/configure-aws-credentials@v6
         with:
           role-to-assume: arn:aws:iam::123456789012:role/github-terraform
           aws-region: us-east-1

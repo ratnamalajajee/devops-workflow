@@ -105,6 +105,103 @@ You should see the `argocd-server`, `argocd-repo-server`, `argocd-application-co
 
 > **Tip:** For production, install with the official Helm chart (`helm repo add argo https://argoproj.github.io/argo-helm`, then `helm install argocd argo/argo-cd -n argocd`) so Argo CD's own config lives in Git too.
 
+## Installation methods compared
+
+> **In simple words:** There are several ways to install Argo CD. They differ in how much is included (web UI or not), how resilient it is, and how you manage its settings. Pick one based on where you are: laptop, team cluster, or production.
+
+| Method | What you get | Use it for |
+|---|---|---|
+| **Standard manifest** (`install.yaml`) | Everything (UI, API, SSO server) with one copy of each component | Learning, small clusters. This is what the previous step installed |
+| **High availability** (`ha/install.yaml`) | Several copies of each component plus Redis HA | Production. Needs **3 or more nodes** |
+| **Core only** (`core-install.yaml`) | Just the GitOps engine: **no web UI, no API server, no SSO** | Small or locked-down clusters managed by platform teams with `kubectl` |
+| **Helm chart** (`argo/argo-cd`) | Same components, fully configurable through a values file | Teams that manage Argo CD's own settings in Git (recommended) |
+
+### Pin a version
+
+`stable` always means "the latest release", which changes under you. In real environments, install a **specific version** so upgrades are deliberate:
+
+```bash
+ARGOCD_VERSION=v3.5.6     # check https://github.com/argoproj/argo-cd/releases
+kubectl apply -n argocd --server-side --force-conflicts \
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml
+```
+
+### High availability
+
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd --server-side --force-conflicts \
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/ha/install.yaml
+```
+
+### Core only (no UI)
+
+```bash
+kubectl create namespace argocd
+kubectl apply -n argocd --server-side --force-conflicts \
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/core-install.yaml
+
+# Use the CLI directly against Kubernetes (no API server needed)
+kubectl config set-context --current --namespace=argocd
+argocd login --core
+argocd app list
+argocd admin dashboard -n argocd     # temporary local UI at http://localhost:8080
+```
+
+### Helm chart (recommended for teams)
+
+Put the settings in a `values.yaml` file, commit it, and install:
+
+```yaml
+global:
+  domain: argocd.example.com          # the URL people will use
+
+configs:
+  params:
+    server.insecure: true             # TLS is handled by the Ingress in front
+
+server:
+  ingress:
+    enabled: true
+    ingressClassName: nginx
+
+# For production HA, also scale controller, repoServer and server replicas and enable redis-ha
+```
+
+```bash
+helm repo add argo https://argoproj.github.io/argo-helm
+helm repo update
+helm search repo argo/argo-cd --versions | head -5        # pick a chart version to pin
+helm upgrade --install argocd argo/argo-cd \
+  -n argocd --create-namespace -f values.yaml --version <CHART_VERSION>
+```
+
+### How to reach the UI
+
+| Option | Command | When |
+|---|---|---|
+| Port-forward | `kubectl port-forward svc/argocd-server -n argocd 8080:443` | Laptops and quick access. Nothing exposed |
+| LoadBalancer | `kubectl patch svc argocd-server -n argocd -p '{"spec":{"type":"LoadBalancer"}}'` | Cloud clusters (on EKS this creates an AWS load balancer, which costs money) |
+| Ingress | Helm `server.ingress.enabled: true`, or your own Ingress | Teams: a proper URL with TLS and SSO |
+
+### Upgrade and uninstall
+
+```bash
+# Upgrade: apply the newer version's manifest (read the release notes first)
+kubectl apply -n argocd --server-side --force-conflicts \
+  -f https://raw.githubusercontent.com/argoproj/argo-cd/<NEW_VERSION>/manifests/install.yaml
+
+# Uninstall: delete your Applications first, then Argo CD itself
+kubectl delete applications --all -n argocd
+kubectl delete -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/${ARGOCD_VERSION}/manifests/install.yaml
+kubectl delete namespace argocd
+# (Helm installs: helm uninstall argocd -n argocd)
+```
+
+> **Tip:** Once Argo CD is installed, it can manage **itself**: create an Application that points at your Helm values in Git, and upgrades become a pull request. Tools like **Argo CD Autopilot** set this up for you.
+
+Official docs: [Installation](https://argo-cd.readthedocs.io/en/stable/operator-manual/installation/)
+
 ## Access the UI and CLI
 
 > **In simple words:** Open Argo CD's web dashboard and log in, and connect the `argocd` command, so you can watch and control deployments.
@@ -487,6 +584,229 @@ argocd app get guestbook --show-operation
 kubectl logs -n argocd deploy/argocd-repo-server
 kubectl logs -n argocd statefulset/argocd-application-controller
 ```
+
+## Sample application flow: from commit to running pod
+
+> **In simple words:** This step connects everything. A developer changes the app, the **CI tool** (Jenkins, GitHub Actions or GitLab) tests it and builds a new image, CI writes the new image tag into the **GitOps repo**, and **Argo CD** deploys it to Kubernetes. Nobody runs `kubectl` by hand.
+
+```text
+ 1. developer pushes code to hello-app
+      │
+      ▼
+ 2. CI (GitHub Actions / GitLab CI / Jenkins)
+      test → build image → push to registry (ghcr.io / GitLab / Docker Hub)
+      │
+      ▼
+ 3. CI commits the new image tag to the gitops repo
+      apps/hello/overlays/dev/kustomization.yaml   newTag: sha-1a2b3c4
+      │
+      ▼
+ 4. Argo CD notices the commit (polls ~3 min, or instantly with a webhook)
+      │
+      ▼
+ 5. Argo CD syncs → Kubernetes rolling update → new pods with the new image
+      │
+      ▼
+ 6. verify:  curl → {"version": "1a2b3c4…"}      rollback: git revert in gitops
+```
+
+You need: the kind cluster with Argo CD from earlier, the **sample app** from [CI/CD Basics](#/tool/cicd-basics), and a CI pipeline that pushes its image from one of the [GitHub Actions](#/tool/github-actions), [GitLab CI](#/tool/gitlab-ci) or [Jenkins](#/tool/jenkins) guides.
+
+### 1. Create the GitOps repository
+
+Create a new repo called `gitops` (on GitHub or GitLab) with this layout:
+
+```text
+gitops/
+├── apps/
+│   └── hello/
+│       ├── base/
+│       │   ├── deployment.yaml
+│       │   ├── service.yaml
+│       │   └── kustomization.yaml
+│       └── overlays/
+│           └── dev/
+│               └── kustomization.yaml   ◀ CI changes the image tag here
+└── argocd/
+    └── hello-dev.yaml                   ◀ the Argo CD Application
+```
+
+`apps/hello/base/deployment.yaml`:
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: hello
+  template:
+    metadata:
+      labels:
+        app: hello
+    spec:
+      containers:
+        - name: hello
+          image: hello-app            # placeholder: the overlay sets the real image and tag
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              memory: 128Mi
+```
+
+`apps/hello/base/service.yaml`:
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello
+spec:
+  selector:
+    app: hello
+  ports:
+    - port: 80
+      targetPort: 8000
+```
+
+`apps/hello/base/kustomization.yaml`:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - deployment.yaml
+  - service.yaml
+```
+
+`apps/hello/overlays/dev/kustomization.yaml`. Set `newName` to **your** registry path, and `newTag` to a tag that already exists:
+
+```yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: hello-dev
+resources:
+  - ../../base
+images:
+  - name: hello-app
+    newName: ghcr.io/<you>/hello-app          # GitLab: registry.gitlab.com/<you>/hello-app · Docker Hub: <user>/hello-app
+    newTag: sha-1a2b3c4                       # CI updates this line
+```
+
+Check that it renders before committing:
+
+```bash
+kubectl kustomize apps/hello/overlays/dev | grep image:
+```
+
+### 2. Create the Argo CD Application
+
+`argocd/hello-dev.yaml`:
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: hello-dev
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/<you>/gitops.git
+    targetRevision: main
+    path: apps/hello/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: hello-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+```
+
+```bash
+git add . && git commit -m "hello app: base, dev overlay, Argo CD application" && git push
+kubectl apply -f argocd/hello-dev.yaml
+argocd app wait hello-dev --health --timeout 180
+kubectl get pods -n hello-dev
+```
+
+> **Note:** If the image is in a **private** registry, the cluster needs pull credentials. The easiest fix for learning is to make the GHCR package public (package → **Package settings → Change visibility**). Otherwise create a secret with `kubectl create secret docker-registry regcred -n hello-dev --docker-server=… --docker-username=… --docker-password=<token>`, and add `imagePullSecrets: [{name: regcred}]` to the pod spec.
+
+### 3. Connect your CI tool
+
+Add the "hand over to Argo CD" job from your CI guide. Each one updates `apps/hello/overlays/dev/kustomization.yaml` with `kustomize edit set image`:
+
+| CI tool | Job to add | Tag it writes |
+|---|---|---|
+| GitHub Actions | `bump-gitops` in the [GitHub Actions guide](#/tool/github-actions) | `ghcr.io/<you>/hello-app:sha-<short>` |
+| GitLab CI | `bump-gitops` in the [GitLab guide](#/tool/gitlab-ci) | `registry.gitlab.com/<you>/hello-app:<short-sha>` |
+| Jenkins | Add a stage after **Push** that clones `gitops`, runs `kustomize edit set image …:$BUILD_NUMBER`, commits and pushes (store a Git token as a Jenkins credential) | `<user>/hello-app:<build-number>` |
+
+### 4. Make a change and watch it flow
+
+```bash
+cd ~/code/hello-app
+sed -i 's/Hello from CI\/CD!/Hello from GitOps!/' app.py test_app.py
+git commit -am "New greeting" && git push
+```
+
+Now follow it through each stage:
+
+| Where | What you should see |
+|---|---|
+| CI tool | Pipeline runs: tests ✓, image pushed ✓, gitops bumped ✓ |
+| `gitops` repo history | A new commit: *"hello-app: deploy sha-…"* |
+| Argo CD UI | `hello-dev` goes **OutOfSync → Syncing → Synced, Healthy** |
+| Cluster | New pods replace old ones: `kubectl get pods -n hello-dev -w` |
+
+Don't want to wait for the ~3 minute poll? Run `argocd app get hello-dev --refresh`.
+
+Verify the new version is live:
+
+```bash
+kubectl port-forward -n hello-dev svc/hello 8081:80 &
+curl -s localhost:8081/        # {"message": "Hello from GitOps!", "version": "<new sha>", ...}
+kill %1
+```
+
+### 5. Roll back
+
+The new version is broken? Undo the deploy commit in the **gitops** repo, not in the cluster:
+
+```bash
+cd ~/code/gitops
+git pull
+git log --oneline -3                 # find the "hello-app: deploy …" commit
+git revert --no-edit HEAD && git push
+argocd app get hello-dev --refresh   # Argo CD rolls the pods back to the previous image
+```
+
+The app code in `hello-app` is untouched. Fix it at your own pace, and the next CI run deploys the fix.
+
+### 6. Promote to production
+
+Add `apps/hello/overlays/prod/kustomization.yaml` (namespace `hello-prod`, `replicas` patched to 3) and an Application `hello-prod`. Promotion is then **a pull request that copies the tested tag** from `overlays/dev` to `overlays/prod`. The review is your approval gate, and Git records who promoted what and when.
+
+> **Tip:** Instead of CI committing tags, **Argo CD Image Updater** can watch the registry and update tags for you. It's handy when you have many apps, but the explicit CI commit shown here is easier to understand and debug.
 
 ## Lab: full GitOps loop
 
