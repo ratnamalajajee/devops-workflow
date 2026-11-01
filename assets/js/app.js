@@ -11,15 +11,13 @@
     get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* ignore */ } }
   };
-  let progressKey = 'dl-progress';   // becomes per-user once signed in (see loadUser)
-  let progress = store.get(progressKey, {});
-  const saveProgress = () => store.set(progressKey, progress);
+  let progress = store.get('dl-progress', {});
   const doneSet = (id) => new Set(progress[id] || []);
   function setDone(id, slug, on) {
     const s = doneSet(id);
     on ? s.add(slug) : s.delete(slug);
     progress[id] = [...s];
-    saveProgress();
+    store.set('dl-progress', progress);
   }
   function pct(id) {
     const g = guides[id];
@@ -187,7 +185,7 @@
     $('#resetBtn').addEventListener('click', () => {
       if (!confirm('Reset progress for ' + t.title + '?')) return;
       progress[id] = [];
-      saveProgress();
+      store.set('dl-progress', progress);
       renderTool(id);
       renderSidebar(id);
     });
@@ -503,37 +501,8 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
   });
   scrim.addEventListener('click', closeMenu);
 
-  // ---------- user (Cloudflare Access) ----------
-  // When the site sits behind Cloudflare Access, this endpoint returns the signed-in
-  // identity as JSON. Anywhere else (local dev, unprotected deploy) it 404s or returns
-  // the HTML fallback page, and the site works anonymously.
-  async function loadUser() {
-    let user;
-    try {
-      const res = await fetch('/cdn-cgi/access/get-identity', { credentials: 'same-origin' });
-      if (!res.ok) return;
-      user = JSON.parse(await res.text());
-    } catch (e) {
-      return;
-    }
-    if (!user || !user.email) return;
-
-    progressKey = 'dl-progress:' + user.email.toLowerCase();
-    const mine = store.get(progressKey, null);
-    progress = mine || store.get('dl-progress', {});   // first sign-in adopts anonymous progress
-    if (!mine) saveProgress();
-
-    const name = user.name || user.email.split('@')[0];
-    const box = $('#user');
-    box.innerHTML = `
-      <span class="avatar" aria-hidden="true">${esc(name.charAt(0).toUpperCase())}</span>
-      <span class="user-email" title="${esc(user.email)}">${esc(user.email)}</span>
-      <a class="btn logout" href="/cdn-cgi/access/logout">Log out</a>`;
-    box.hidden = false;
-  }
-
   // ---------- boot ----------
   main.innerHTML = '<div class="empty"><p>Loading guides…</p></div>';
   window.addEventListener('hashchange', route);
-  Promise.all([loadAll(), loadUser()]).then(route);
+  loadAll().then(route);
 })();

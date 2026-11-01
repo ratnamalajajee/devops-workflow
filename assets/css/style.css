@@ -78,14 +78,6 @@ main:focus { outline: none; }
 }
 .icon-btn:hover { background: var(--surface-2); }
 .menu-btn { display: none; }
-.user { display: flex; align-items: center; gap: 8px; flex: none; }
-.user[hidden] { display: none; }
-.avatar {
-  display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
-  background: var(--accent); color: #fff; font-weight: 700; font-size: 14px;
-}
-.user-email { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13.5px; color: var(--muted); }
-.btn.logout { padding: 7px 12px; font-size: 13.5px; }
 
 /* ---------- layout ---------- */
 .layout { display: grid; grid-template-columns: 270px minmax(0, 1fr) 230px; max-width: 1480px; margin: 0 auto; }
@@ -254,7 +246,6 @@ th { background: var(--surface-2); font-weight: 600; }
   .scrim { position: fixed; inset: var(--topbar-h) 0 0 0; background: rgba(0,0,0,.35); z-index: 20; }
   .main { padding: 22px 16px 60px; }
   .brand span:last-child { display: none; }
-  .user-email { display: none; }
   .stats { grid-template-columns: repeat(2, 1fr); }
   .step { padding: 4px 16px 12px; }
   .step-head { flex-wrap: wrap; }

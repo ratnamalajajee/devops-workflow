@@ -40,25 +40,6 @@ The site is connected to Cloudflare Pages through Git, so every push to `main` r
 
 Response headers (caching and security) are set in `_headers`.
 
-## Login and logout (Cloudflare Access)
-
-Sign-in is handled by Cloudflare Access in front of the site, so nobody can reach the pages or guides without logging in. The site itself does three things:
-
-- When someone is signed in, it shows their email and a **Log out** button (`/cdn-cgi/access/logout`).
-- It saves progress separately for each user (`dl-progress:<email>`).
-- With no Access in front of it (for example on `localhost`), it hides the user chip and works as before.
-
-To turn it on:
-
-1. Cloudflare dashboard → **Zero Trust**. The first time, pick a team name and the **Free** plan (up to 50 users).
-2. **Settings → Authentication → Login methods**: keep **One-time PIN** (a code sent by email). Optionally add Google, GitHub or Microsoft Entra ID.
-3. Protect the site:
-   - **Pages:** project → **Settings → General → Access policy → Enable**, then edit the policy.
-   - **Worker:** worker → **Settings → Domains & Routes** → enable **Cloudflare Access** on the `workers.dev` route.
-4. In the policy, choose who can log in. Use a rule **Emails ending in** `@yourcompany.com`, or **Emails** to list specific people.
-
-Logged-out visitors now see the Cloudflare login page before the site loads.
-
 ## Practice lab
 
 The **Practice lab** page (`#/lab`) gives learners two places to run commands:
