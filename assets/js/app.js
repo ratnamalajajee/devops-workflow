@@ -65,14 +65,31 @@
     }));
   }
 
+  // ---------- sections ----------
+  const SECTIONS = window.DEVOPS_CONFIG.sections || {};
+  const sectionOf = (name) => SECTIONS[name] || { color: 'var(--accent)', icon: '📘' };
+
+  // Consecutive tools with the same `section` form one group, keeping their path index.
+  function groupTools() {
+    const groups = [];
+    TOOLS.forEach((t, i) => {
+      const last = groups[groups.length - 1];
+      if (!last || last.name !== t.section) groups.push({ name: t.section || 'Learning path', items: [] });
+      groups[groups.length - 1].items.push({ t, i });
+    });
+    return groups;
+  }
+
   // ---------- sidebar ----------
   function renderSidebar(activeId) {
     sidebar.innerHTML =
       `<a href="#/" class="nav-home ${!activeId ? 'active' : ''}">🏠 Home &amp; roadmap</a>` +
       `<a href="#/lab" class="nav-home ${activeId === 'lab' ? 'active' : ''}">🖥️ Practice lab</a>` +
       TOOLS.map((t, i) => `
-        ${i === 0 || t.section !== TOOLS[i - 1].section ? `<div class="nav-label">${esc(t.section || 'Learning path')}</div>` : ''}
-        <a href="#/tool/${t.id}" class="nav-item ${t.id === activeId ? 'active' : ''}">
+        ${i === 0 || t.section !== TOOLS[i - 1].section
+          ? `<div class="nav-label" style="--s:${sectionOf(t.section).color}">${sectionOf(t.section).icon} ${esc(t.section || 'Learning path')}</div>`
+          : ''}
+        <a href="#/tool/${t.id}" class="nav-item ${t.id === activeId ? 'active' : ''}" style="--c:${t.color}">
           <span class="badge" style="--c:${t.color}">${esc(t.badge)}</span>
           <span class="nav-text"><span class="nav-title">${i}. ${esc(t.title)}</span>
           <span class="mini-bar"><span style="width:${pct(t.id)}%"></span></span></span>
@@ -99,37 +116,41 @@
           <a class="btn" href="#/tool/capstone">See the final project</a>
         </div>
         <div class="stats">
-          <div><strong>${TOOLS.length}</strong><span>guides</span></div>
-          <div><strong>${total}</strong><span>steps</span></div>
-          <div><strong>~${hours}h</strong><span>total effort</span></div>
-          <div><strong>${overall}%</strong><span>your progress</span></div>
+          <div style="--c:#6366f1"><strong>${TOOLS.length}</strong><span>📚 guides</span></div>
+          <div style="--c:#ec4899"><strong>${total}</strong><span>🪜 steps</span></div>
+          <div style="--c:#f59e0b"><strong>~${hours}h</strong><span>⏱️ total effort</span></div>
+          <div style="--c:#10b981"><strong>${overall}%</strong><span>🎯 your progress</span></div>
         </div>
       </section>
 
-      <h2 class="section-title">Your roadmap</h2>
-      <ol class="roadmap">
-        ${TOOLS.map((t, i) => `
-          <li class="road-card" style="--c:${t.color}">
-            <a href="#/tool/${t.id}">
-              <div class="road-top">
-                <span class="badge big" style="--c:${t.color}">${esc(t.badge)}</span>
-                <span class="step-chip">${t.section ? esc(t.section) + ' · ' : ''}Step ${i}</span>
-              </div>
-              <h3>${esc(t.title)}</h3>
-              <p>${esc(t.desc)}</p>
-              <div class="road-meta"><span>${esc(t.level)}</span><span>~${t.hours}h</span>
-                <span>${guides[t.id] ? guides[t.id].sections.length + ' steps' : ''}</span></div>
-              <div class="bar"><span style="width:${pct(t.id)}%"></span></div>
-            </a>
-          </li>`).join('')}
-      </ol>
+      <h2 class="section-title">🗺️ Your roadmap</h2>
+      ${groupTools().map((g) => `
+        <div class="road-group" style="--s:${sectionOf(g.name).color}">
+          <h3 class="road-group-title"><span class="road-group-icon">${sectionOf(g.name).icon}</span>${esc(g.name)}</h3>
+          <ol class="roadmap">
+            ${g.items.map(({ t, i }) => `
+              <li class="road-card" style="--c:${t.color}">
+                <a href="#/tool/${t.id}">
+                  <div class="road-top">
+                    <span class="badge big" style="--c:${t.color}">${esc(t.badge)}</span>
+                    <span class="step-chip">Step ${i}</span>
+                  </div>
+                  <h3>${esc(t.title)}</h3>
+                  <p>${esc(t.desc)}</p>
+                  <div class="road-meta"><span>${esc(t.level)}</span><span>~${t.hours}h</span>
+                    <span>${guides[t.id] ? guides[t.id].sections.length + ' steps' : ''}</span></div>
+                  <div class="bar"><span style="width:${pct(t.id)}%"></span></div>
+                </a>
+              </li>`).join('')}
+          </ol>
+        </div>`).join('')}
 
-      <h2 class="section-title">How to use this site</h2>
+      <h2 class="section-title">🧭 How to use this site</h2>
       <div class="howto">
-        <div><h3>1 · Set up once</h3><p>Do <a href="#/tool/setup">Workstation Setup</a> first. Every later guide assumes a Linux shell (WSL2 on Windows) with the CLIs installed.</p></div>
-        <div><h3>2 · Type, don't just read</h3><p>Run every command yourself, on your machine or in the <a href="#/lab">Practice lab</a>. Break things on purpose, then use the troubleshooting sections to fix them.</p></div>
-        <div><h3>3 · Finish each lab</h3><p>Each guide ends with a hands-on lab. Do it without looking back at the steps before moving on.</p></div>
-        <div><h3>4 · Watch the bill</h3><p>AWS steps that cost money are marked <span class="pill cost">Cost</span>. Always run the cleanup steps.</p></div>
+        <div style="--c:#6366f1"><span class="howto-icon">🛠️</span><h3>1 · Set up once</h3><p>Do <a href="#/tool/setup">Workstation Setup</a> first. Every later guide assumes a Linux shell (WSL2 on Windows) with the CLIs installed.</p></div>
+        <div style="--c:#ec4899"><span class="howto-icon">⌨️</span><h3>2 · Type, don't just read</h3><p>Run every command yourself, on your machine or in the <a href="#/lab">Practice lab</a>. Break things on purpose, then use the troubleshooting sections to fix them.</p></div>
+        <div style="--c:#10b981"><span class="howto-icon">🧪</span><h3>3 · Finish each lab</h3><p>Each guide ends with a hands-on lab. Do it without looking back at the steps before moving on.</p></div>
+        <div style="--c:#f59e0b"><span class="howto-icon">💰</span><h3>4 · Watch the bill</h3><p>AWS steps that cost money are marked <span class="pill cost">Cost</span>. Always run the cleanup steps.</p></div>
       </div>`;
     toc.innerHTML = '';
     document.title = 'DevOps Launchpad';
@@ -148,7 +169,7 @@
         <header class="doc-head">
           <span class="badge big" style="--c:${t.color}">${esc(t.badge)}</span>
           <div>
-            <p class="eyebrow">Step ${idx} · ${esc(t.level)} · ~${t.hours}h</p>
+            <p class="eyebrow">${sectionOf(t.section).icon} ${esc(t.section || '')} · Step ${idx} · ${esc(t.level)} · ~${t.hours}h</p>
             <h1>${esc(g.title)}</h1>
           </div>
         </header>
@@ -173,6 +194,7 @@
         </nav>
       </article>`;
 
+    toc.style.setProperty('--c', t.color);
     toc.innerHTML = '<div class="toc-label">On this page</div>' + g.sections.map((s) =>
       `<a href="#/tool/${id}/${s.slug}" data-slug="${s.slug}" class="${done.has(s.slug) ? 'done' : ''}">${esc(s.title)}</a>`).join('');
 

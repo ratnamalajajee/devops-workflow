@@ -4,13 +4,21 @@
 window.DEVOPS_CONFIG = {
   // GitHub repo (owner/name) used for the "Open lab machine" Codespaces button.
   repo: 'ratnamalajajee/devops-workflow',
+  // Colour and icon for each section heading (sidebar + roadmap).
+  sections: {
+    'Foundations': { color: '#f59e0b', icon: '🧱' },
+    'Cloud & infrastructure': { color: '#f97316', icon: '☁️' },
+    'Kubernetes': { color: '#3b82f6', icon: '☸️' },
+    'CI/CD': { color: '#10b981', icon: '🔁' },
+    'Final project': { color: '#a855f7', icon: '🏆' }
+  },
   tools: [
     {
       id: 'setup',
       section: 'Foundations',
       title: 'Workstation Setup',
       badge: '00',
-      color: '#64748b',
+      color: '#db2777',
       level: 'Start here',
       hours: 2,
       desc: 'WSL2 / macOS, VS Code, Git, SSH keys and every CLI you will need.'
@@ -100,7 +108,7 @@ window.DEVOPS_CONFIG = {
       section: 'CI/CD',
       title: 'GitHub Actions',
       badge: 'GHA',
-      color: '#24292f',
+      color: '#4f46e5',
       level: 'Intermediate',
       hours: 6,
       desc: 'Workflows, matrix CI, secrets and environments, GHCR images, AWS OIDC and GitOps hand-off.'

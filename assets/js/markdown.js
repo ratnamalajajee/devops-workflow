@@ -21,7 +21,8 @@
   function codeBlock(lang, code) {
     let html = esc(code);
     if (COMMENT_LANGS.test(lang)) html = html.replace(/^(\s*#.*)$/gm, '<span class="c">$1</span>');
-    return `<div class="code"><div class="code-head"><span>${esc(lang || 'text')}</span>` +
+    return `<div class="code" data-lang="${esc(lang || 'text')}"><div class="code-head">` +
+      `<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="lang">${esc(lang || 'text')}</span>` +
       `<button class="copy" type="button">Copy</button></div><pre><code>${html}</code></pre></div>`;
   }
 
