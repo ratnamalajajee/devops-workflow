@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DevOps Launchpad</title>
+  <meta name="description" content="Step-by-step DevOps learning guides: Linux, Docker, AWS, Terraform, Kubernetes and Argo CD — from scratch.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∞</text></svg>">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <button id="menuBtn" class="icon-btn menu-btn" aria-label="Open navigation">☰</button>
+    <a href="#/" class="brand"><span class="logo">∞</span><span>DevOps Launchpad</span></a>
+    <div class="search">
+      <input id="search" type="search" placeholder="Search guides…  (press /)" autocomplete="off" aria-label="Search guides">
+      <div id="results" class="results" hidden></div>
+    </div>
+    <button id="themeBtn" class="icon-btn" aria-label="Toggle dark mode" title="Toggle theme">◐</button>
+  </header>
+
+  <div class="layout">
+    <nav id="sidebar" class="sidebar" aria-label="Guides"></nav>
+    <main id="main" class="main" tabindex="-1"></main>
+    <aside id="toc" class="toc" aria-label="On this page"></aside>
+  </div>
+  <div id="scrim" class="scrim" hidden></div>
+
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/markdown.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
