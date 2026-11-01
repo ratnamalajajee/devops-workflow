@@ -41,6 +41,15 @@ window.DEVOPS_CONFIG = {
       desc: 'Secure account, IAM, CLI, VPC, EC2, S3, ECR, EKS and cost control.'
     },
     {
+      id: 'ec2-website',
+      title: 'AWS Lab: Website on EC2',
+      badge: 'EC2',
+      color: '#d45b07',
+      level: 'Beginner lab',
+      hours: 3,
+      desc: 'Launch an EC2 server, install a web page with user data, open it by URL, and learn every service involved.'
+    },
+    {
       id: 'terraform',
       title: 'Terraform',
       badge: 'TF',

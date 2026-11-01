@@ -146,6 +146,8 @@ aws ec2 describe-subnets --query 'Subnets[].[SubnetId,AvailabilityZone,CidrBlock
 
 ## EC2: launch a server from the CLI
 
+> **Tip:** New to EC2? Do the step-by-step [AWS Lab: Website on EC2](#/tool/ec2-website) first. It walks through the console, explains every service involved, and links to the AWS docs for each one.
+
 ```bash
 export AWS_REGION=us-east-1
 
