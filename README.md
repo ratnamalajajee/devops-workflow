@@ -13,9 +13,9 @@ Features:
 
 ## Author
 
-Created and maintained by **Ratnamala Prabhu** ([@ratnamalajajee](https://github.com/ratnamalajajee)).
+Created and maintained by **Ratnamala Prabhu**.
 
-The author's name and link shown on the site come from `author` in `assets/js/config.js`.
+The author's name shown on the site comes from `author` in `assets/js/config.js`.
 
 ## Run locally
 

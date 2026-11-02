@@ -72,11 +72,10 @@
     : esc(AUTHOR.name || '');
   const byline = (cls) => AUTHOR.name ? `<p class="byline ${cls || ''}">✍️ Created by ${authorLink()}</p>` : '';
   function footerHtml() {
-    const repo = window.DEVOPS_CONFIG.repo;
     return `
       <footer class="site-footer">
         ${AUTHOR.name ? `<p>Created and maintained by <strong>${authorLink()}</strong></p>` : ''}
-        <p>© ${new Date().getFullYear()} DevOps Launchpad${repo ? ` · <a href="https://github.com/${esc(repo)}" target="_blank" rel="noopener">Source on GitHub</a>` : ''}</p>
+        <p>© ${new Date().getFullYear()} DevOps Launchpad</p>
       </footer>`;
   }
 

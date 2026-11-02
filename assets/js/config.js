@@ -4,8 +4,7 @@
 window.DEVOPS_CONFIG = {
   // Shown as the author on the home page, every guide and the footer.
   author: {
-    name: 'Ratnamala Prabhu',
-    url: 'https://github.com/ratnamalajajee'
+    name: 'Ratnamala Prabhu'
   },
   // GitHub repo (owner/name) used for the "Open lab machine" Codespaces button.
   repo: 'ratnamalajajee/devops-workflow',
