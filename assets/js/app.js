@@ -65,6 +65,21 @@
     }));
   }
 
+  // ---------- author ----------
+  const AUTHOR = window.DEVOPS_CONFIG.author || {};
+  const authorLink = () => AUTHOR.url
+    ? `<a href="${esc(AUTHOR.url)}" target="_blank" rel="noopener author">${esc(AUTHOR.name)}</a>`
+    : esc(AUTHOR.name || '');
+  const byline = (cls) => AUTHOR.name ? `<p class="byline ${cls || ''}">✍️ Created by ${authorLink()}</p>` : '';
+  function footerHtml() {
+    const repo = window.DEVOPS_CONFIG.repo;
+    return `
+      <footer class="site-footer">
+        ${AUTHOR.name ? `<p>Created and maintained by <strong>${authorLink()}</strong></p>` : ''}
+        <p>© ${new Date().getFullYear()} DevOps Launchpad${repo ? ` · <a href="https://github.com/${esc(repo)}" target="_blank" rel="noopener">Source on GitHub</a>` : ''}</p>
+      </footer>`;
+  }
+
   // ---------- sections ----------
   const SECTIONS = window.DEVOPS_CONFIG.sections || {};
   const sectionOf = (name) => SECTIONS[name] || { color: 'var(--accent)', icon: '📘' };
@@ -146,6 +161,7 @@
         <h1>Learn DevOps from a blank laptop to GitOps on Kubernetes.</h1>
         <p class="lead">Follow the path in order. Every guide starts from scratch, explains <em>why</em> before <em>how</em>,
           and every command has a copy button. Tick off steps as you go — your progress is saved in this browser.</p>
+        ${byline('hero-byline')}
         <div class="hero-actions">
           <a class="btn primary" href="#/tool/${next.id}">${overall ? 'Continue' : 'Start'}: ${esc(next.title)} →</a>
           <a class="btn" href="#/tool/capstone">See the final project</a>
@@ -186,7 +202,8 @@
         <div style="--c:#ec4899"><span class="howto-icon">⌨️</span><h3>2 · Type, don't just read</h3><p>Run every command yourself, on your machine or in the <a href="#/lab">Practice lab</a>. Break things on purpose, then use the troubleshooting sections to fix them.</p></div>
         <div style="--c:#10b981"><span class="howto-icon">🧪</span><h3>3 · Finish each lab</h3><p>Each guide ends with a hands-on lab. Do it without looking back at the steps before moving on.</p></div>
         <div style="--c:#f59e0b"><span class="howto-icon">💰</span><h3>4 · Watch the bill</h3><p>AWS steps that cost money are marked <span class="pill cost">Cost</span>. Always run the cleanup steps.</p></div>
-      </div>`;
+      </div>
+      ${footerHtml()}`;
     toc.innerHTML = '';
     document.title = 'DevOps Launchpad';
   }
@@ -206,6 +223,7 @@
           <div>
             <p class="eyebrow">${sectionOf(t.section).icon} ${esc(t.section || '')} · Step ${idx} · ${esc(t.level)} · ~${t.hours}h</p>
             <h1>${esc(g.title)}</h1>
+            ${AUTHOR.name ? `<p class="doc-author">by ${authorLink()}</p>` : ''}
           </div>
         </header>
         <div class="progress-row">
@@ -227,7 +245,8 @@
           ${prev ? `<a href="#/tool/${prev.id}" class="btn">← ${esc(prev.title)}</a>` : '<span></span>'}
           ${next ? `<a href="#/tool/${next.id}" class="btn primary">Next: ${esc(next.title)} →</a>` : '<a href="#/" class="btn primary">Back to roadmap</a>'}
         </nav>
-      </article>`;
+      </article>
+      ${footerHtml()}`;
 
     toc.style.setProperty('--c', t.color);
     toc.innerHTML = '<div class="toc-label">On this page</div>' + g.sections.map((s) =>
@@ -459,7 +478,8 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
               <a href="https://github.com/codespaces" target="_blank" rel="noopener">github.com/codespaces</a>.</p></div>
           </div>
         </section>
-      </article>`;
+      </article>
+      ${footerHtml()}`;
     toc.innerHTML = '';
     document.title = 'Practice lab · DevOps Launchpad';
     if (!vm.el) vm.el = buildVm();

@@ -366,6 +366,20 @@ th { background: color-mix(in srgb, var(--c) 14%, var(--surface)); font-weight: 
 tbody tr:nth-child(even) td { background: color-mix(in srgb, var(--c) 4%, transparent); }
 
 .pager { display: flex; justify-content: space-between; gap: 12px; margin-top: 36px; flex-wrap: wrap; }
+
+/* author */
+.byline { margin: -6px 0 20px; font-size: 14.5px; font-weight: 600; }
+.hero .byline { color: rgba(255,255,255,.92); }
+.hero .byline a { color: #fff; text-decoration: underline; text-decoration-color: rgba(255,255,255,.5); text-underline-offset: 3px; }
+.doc-author { margin: 4px 0 0; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,.88); }
+.doc-author a { color: #fff; text-decoration: underline; text-decoration-color: rgba(255,255,255,.5); text-underline-offset: 3px; }
+.site-footer {
+  max-width: 860px; margin-top: 48px; padding: 18px 0 0; text-align: center; font-size: 13.5px; color: var(--muted);
+  border-top: 3px solid transparent;
+  border-image: var(--rainbow) 1;
+}
+.site-footer p { margin: 4px 0; }
+.site-footer strong a { color: var(--text); }
 .doc .pager .btn.primary { background: linear-gradient(120deg, var(--c), color-mix(in oklab, var(--c) 60%, #7c3aed)); border-color: transparent; }
 .empty { max-width: 640px; padding: 40px 0; }
 

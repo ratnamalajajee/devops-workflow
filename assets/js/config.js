@@ -2,6 +2,11 @@
 // `section` groups guides under a heading; consecutive guides with the same section share it.
 // To add a new tool: create content/<id>.md and add an entry below.
 window.DEVOPS_CONFIG = {
+  // Shown as the author on the home page, every guide and the footer.
+  author: {
+    name: 'Ratnamala Prabhu',
+    url: 'https://github.com/ratnamalajajee'
+  },
   // GitHub repo (owner/name) used for the "Open lab machine" Codespaces button.
   repo: 'ratnamalajajee/devops-workflow',
   // Colour and icon for each section heading (sidebar + roadmap); `short` is the sidebar label if the name is long.

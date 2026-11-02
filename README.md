@@ -11,6 +11,12 @@ Features:
 - Light and dark themes, works on mobile
 - No build step and no dependencies: plain HTML, CSS and JavaScript, with guides written in Markdown
 
+## Author
+
+Created and maintained by **Ratnamala Prabhu** ([@ratnamalajajee](https://github.com/ratnamalajajee)).
+
+The author's name and link shown on the site come from `author` in `assets/js/config.js`.
+
 ## Run locally
 
 The guides are fetched as Markdown files, so serve the folder over HTTP. Opening `index.html` directly won't work.
