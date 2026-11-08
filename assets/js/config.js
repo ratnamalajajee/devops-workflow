@@ -11,6 +11,7 @@ window.DEVOPS_CONFIG = {
   // Colour and icon for each section heading (sidebar + roadmap); `short` is the sidebar label if the name is long.
   sections: {
     'Foundations': { color: '#f59e0b', icon: '🧱' },
+    'Scripting': { color: '#22c55e', icon: '📜' },
     'AWS': { color: '#f97316', icon: '☁️' },
     'Infrastructure as Code': { color: '#8b5cf6', icon: '🏗️', short: 'Infra as Code' },
     'Kubernetes': { color: '#3b82f6', icon: '☸️' },
@@ -47,6 +48,26 @@ window.DEVOPS_CONFIG = {
       level: 'Beginner',
       hours: 8,
       desc: 'Images, containers, Dockerfiles, volumes, networks, Compose and registries.'
+    },
+    {
+      id: 'bash-scripting',
+      section: 'Scripting',
+      title: 'Bash Scripting for DevOps',
+      badge: 'SH',
+      color: '#4eaa25',
+      level: 'Beginner',
+      hours: 6,
+      desc: 'What to learn, scripts from first line to robust automation, 8 example programs, resources and interview questions.'
+    },
+    {
+      id: 'python-devops',
+      section: 'Scripting',
+      title: 'Python for DevOps',
+      badge: 'PY',
+      color: '#3776ab',
+      level: 'Beginner',
+      hours: 8,
+      desc: 'Python basics for automation, boto3 and other key modules, example programs, testing with moto, interview questions.'
     },
     {
       id: 'aws',

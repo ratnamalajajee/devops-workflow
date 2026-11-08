@@ -342,6 +342,8 @@ Harden the server in `/etc/ssh/sshd_config`: `PasswordAuthentication no`, `Permi
 
 > **In simple words:** A script is a text file of commands that run one after another, so you can automate a task instead of typing it every time.
 
+> **Tip:** Go deeper in the **Scripting** section: [Bash Scripting for DevOps](#/tool/bash-scripting) (8 ready-to-use scripts and interview questions) and [Python for DevOps](#/tool/python-devops) (boto3 and automation).
+
 A script is a file of commands with a shebang line. This one has the patterns you will reuse everywhere:
 
 ```bash
