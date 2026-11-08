@@ -4,7 +4,7 @@ AWS is the most widely used cloud platform. This guide sets up an account **safe
 
 > **Cost:** Several steps create billable resources (NAT gateways, EKS, load balancers). Those steps are marked. **Always run the cleanup step** when you finish, and set up a budget alert first.
 
-> **Tip:** This guide is the **overview**. Each service also has its own step-by-step deep dive: [IAM](#/tool/aws-iam) · [VPC](#/tool/aws-vpc) · [EC2 website lab](#/tool/ec2-website) · [S3](#/tool/aws-s3) · [KMS](#/tool/aws-kms) · [Route 53](#/tool/aws-route53) · [Load Balancers](#/tool/aws-elb) · [ECR](#/tool/aws-ecr) · [ECS](#/tool/aws-ecs).
+> **Tip:** This guide is the **overview**. Each service also has its own step-by-step deep dive: [Create your account](#/tool/aws-account) · [IAM](#/tool/aws-iam) · [VPC](#/tool/aws-vpc) · [EC2 website lab](#/tool/ec2-website) · [S3](#/tool/aws-s3) · [KMS](#/tool/aws-kms) · [Route 53](#/tool/aws-route53) · [Load Balancers](#/tool/aws-elb) · [ECR](#/tool/aws-ecr) · [ECS](#/tool/aws-ecs).
 
 ## Start here: AWS and the cloud in simple words
 
@@ -90,7 +90,7 @@ Services you will use most:
 
 > **In simple words:** Lock the front door before moving in: add MFA, set a spending alert, and stop using the all-powerful "root" login.
 
-If you have a company account, your platform team gives you access. Skip to the CLI step. If you are using a **personal learning account**, do this immediately after signing up:
+If you have a company account, your platform team gives you access. Skip to the CLI step. If you are using a **personal learning account**, do this immediately after signing up. (No account yet? [Create your AWS account](#/tool/aws-account) walks through sign-up and these steps screen by screen.)
 
 1. **Enable MFA on the root user:** account menu → **Security credentials** → **Assign MFA device**.
 2. **Never use root day to day.** Lock the password and MFA device away.

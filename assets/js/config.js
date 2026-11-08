@@ -100,6 +100,16 @@ window.DEVOPS_CONFIG = {
       desc: '18 interview-style programs: logs, disk, ports, processes, boto3, Kubernetes, SRE scenarios, with how to run each one.'
     },
     {
+      id: 'aws-account',
+      section: 'AWS',
+      title: 'Create Your AWS Account',
+      badge: 'ACC',
+      color: '#d97706',
+      level: 'Beginner',
+      hours: 1,
+      desc: 'Sign up step by step: new vs advanced sign-up, Free vs Paid plan, card, phone and India checks, then root MFA, a budget alert, an admin user and aws login.'
+    },
+    {
       id: 'aws',
       section: 'AWS',
       title: 'AWS',
@@ -375,6 +385,7 @@ window.DEVOPS_CONFIG = {
       why: 'Most companies run their apps on a cloud provider. Learn one deeply first: the ideas (accounts, networks, servers, storage, permissions) are the same on every cloud.',
       learn: ['Accounts, regions and Availability Zones', 'IAM: users, roles and policies', 'Networking: VPC, subnets, route tables, NAT', 'Servers (EC2) and storage (S3)', 'DNS, load balancers and encryption keys', 'Cost control and clean-up'],
       rows: [
+        { label: 'First: open your account', then: ['aws-account'] },
         { label: 'Pick one cloud', pick: ['aws', { title: 'Azure', badge: 'AZ', color: '#0078d4', url: 'https://learn.microsoft.com/en-us/azure/architecture/aws-professional/', note: 'Microsoft Learn: Azure for AWS professionals' }] },
         { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'ec2-website', 'aws-s3', 'aws-route53', 'aws-elb', 'aws-kms'] }
       ],
