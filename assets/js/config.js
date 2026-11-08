@@ -180,6 +180,26 @@ window.DEVOPS_CONFIG = {
       desc: 'Buckets, storage classes, lifecycle, versioning, bucket policies, encryption, presigned URLs, static sites.'
     },
     {
+      id: 'aws-efs-fsx',
+      section: 'AWS',
+      title: 'Amazon EFS and FSx',
+      badge: 'EFS',
+      color: '#0e7490',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'Block vs file vs object storage, then Amazon EFS (mount targets, TLS, access points, lifecycle, ECS and EKS) and FSx for NetApp ONTAP step by step.'
+    },
+    {
+      id: 'aws-backup',
+      section: 'AWS',
+      title: 'AWS Backup and DataSync',
+      badge: 'BAK',
+      color: '#4d7c0f',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'Protect AWS data with backup vaults, plans, restores, cross-Region copies and Vault Lock, then move files between S3, EFS and on-premises with DataSync.'
+    },
+    {
       id: 'aws-kms',
       section: 'AWS',
       title: 'AWS KMS',
@@ -467,7 +487,7 @@ window.DEVOPS_CONFIG = {
       rows: [
         { label: 'First: open your account', then: ['aws-account'] },
         { label: 'Pick one cloud', pick: ['aws', { title: 'Azure', badge: 'AZ', color: '#0078d4', url: 'https://learn.microsoft.com/en-us/azure/architecture/aws-professional/', note: 'Microsoft Learn: Azure for AWS professionals' }] },
-        { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'aws-privatelink', 'ec2-website', 'aws-ssm', 'aws-s3', 'aws-route53', 'aws-elb', 'aws-rds', 'aws-lambda', 'aws-kms', 'aws-secrets'] }
+        { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'aws-privatelink', 'ec2-website', 'aws-ssm', 'aws-s3', 'aws-efs-fsx', 'aws-backup', 'aws-route53', 'aws-elb', 'aws-rds', 'aws-lambda', 'aws-kms', 'aws-secrets'] }
       ],
       ready: 'You can build a VPC, run a website on a server behind a load balancer, and give it only the IAM permissions it needs.'
     },
