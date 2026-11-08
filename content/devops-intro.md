@@ -130,7 +130,7 @@ AWS docs: [What is DevOps?](https://aws.amazon.com/devops/what-is-devops/) · Mi
 | 5 | **Release** | Mark a tested version ready, store it in a registry | Git tags, Amazon ECR | [ECR](#/tool/aws-ecr) |
 | 6 | **Deploy** | Roll the new version out to servers or Kubernetes | Argo CD, Helm, Jenkins | [Argo CD](#/tool/argocd) |
 | 7 | **Operate** | Keep it running, scale it, patch it | Kubernetes, Terraform, AWS | [Kubernetes](#/tool/kubernetes) · [Terraform](#/tool/terraform) |
-| 8 | **Monitor** | Watch errors, speed and cost; alert on problems | CloudWatch, Prometheus, Grafana | [AWS: CloudWatch](#/tool/aws/cloudwatch-and-cost-control) |
+| 8 | **Monitor** | Watch errors, speed and cost; alert on problems | CloudWatch, Prometheus, Grafana | [CloudWatch](#/tool/aws-cloudwatch) |
 
 ## The real DevOps flow: from code to users
 

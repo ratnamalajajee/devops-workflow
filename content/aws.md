@@ -4,7 +4,7 @@ AWS is the most widely used cloud platform. This guide sets up an account **safe
 
 > **Cost:** Several steps create billable resources (NAT gateways, EKS, load balancers). Those steps are marked. **Always run the cleanup step** when you finish, and set up a budget alert first.
 
-> **Tip:** This guide is the **overview**. Each service also has its own step-by-step deep dive: [Create your account](#/tool/aws-account) · [IAM](#/tool/aws-iam) · [VPC](#/tool/aws-vpc) · [EC2 website lab](#/tool/ec2-website) · [S3](#/tool/aws-s3) · [KMS](#/tool/aws-kms) · [Route 53](#/tool/aws-route53) · [Load Balancers](#/tool/aws-elb) · [ECR](#/tool/aws-ecr) · [ECS](#/tool/aws-ecs).
+> **Tip:** This guide is the **overview**. Each service also has its own step-by-step deep dive: [Create your account](#/tool/aws-account) · [IAM](#/tool/aws-iam) · [VPC](#/tool/aws-vpc) · [EC2 website lab](#/tool/ec2-website) · [S3](#/tool/aws-s3) · [KMS](#/tool/aws-kms) · [Route 53](#/tool/aws-route53) · [Load Balancers](#/tool/aws-elb) · [ECR](#/tool/aws-ecr) · [ECS](#/tool/aws-ecs) · [Secrets Manager](#/tool/aws-secrets) · [RDS and Aurora](#/tool/aws-rds) · [Lambda and EventBridge](#/tool/aws-lambda) · [CloudWatch](#/tool/aws-cloudwatch).
 
 ## Start here: AWS and the cloud in simple words
 

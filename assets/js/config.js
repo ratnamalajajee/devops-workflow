@@ -170,6 +170,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Encryption keys: key types, encrypt/decrypt, envelope encryption, key policies, rotation, safe deletion.'
     },
     {
+      id: 'aws-secrets',
+      section: 'AWS',
+      title: 'AWS Secrets Manager',
+      badge: 'SM',
+      color: '#9d174d',
+      level: 'Beginner',
+      hours: 3,
+      desc: 'Keep passwords and API keys out of code: create, read and rotate secrets, KMS encryption, IAM and cross-account access, ECS, Lambda and EKS.'
+    },
+    {
       id: 'aws-route53',
       section: 'AWS',
       title: 'Amazon Route 53',
@@ -190,6 +200,16 @@ window.DEVOPS_CONFIG = {
       desc: 'ALB vs NLB vs GWLB vs Classic, then build an ALB with path routing and HTTPS, and an NLB.'
     },
     {
+      id: 'aws-rds',
+      section: 'AWS',
+      title: 'Amazon RDS and Aurora',
+      badge: 'RDS',
+      color: '#c2410c',
+      level: 'Intermediate',
+      hours: 4,
+      desc: 'Managed databases: create PostgreSQL with Secrets Manager credentials, connect privately, Multi-AZ, replicas, Aurora, backups, alarms.'
+    },
+    {
       id: 'aws-ecr',
       section: 'AWS',
       title: 'Amazon ECR',
@@ -208,6 +228,26 @@ window.DEVOPS_CONFIG = {
       level: 'Intermediate',
       hours: 4,
       desc: 'Run containers on Fargate behind an ALB: task definitions, services, deployments, scaling, ECS Exec.'
+    },
+    {
+      id: 'aws-lambda',
+      section: 'AWS',
+      title: 'AWS Lambda and EventBridge',
+      badge: 'λ',
+      color: '#7e22ce',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'Serverless automation: build and test a Python function, then stop tagged EC2 on Friday and start it on Monday with EventBridge Scheduler.'
+    },
+    {
+      id: 'aws-cloudwatch',
+      section: 'AWS',
+      title: 'Amazon CloudWatch',
+      badge: 'CW',
+      color: '#047857',
+      level: 'Beginner',
+      hours: 4,
+      desc: 'Metrics, the CloudWatch agent, alarms to SNS, log groups, Logs Insights, metric filters, dashboards and EventBridge rules.'
     },
     {
       id: 'atlantis-aws',
@@ -397,7 +437,7 @@ window.DEVOPS_CONFIG = {
       rows: [
         { label: 'First: open your account', then: ['aws-account'] },
         { label: 'Pick one cloud', pick: ['aws', { title: 'Azure', badge: 'AZ', color: '#0078d4', url: 'https://learn.microsoft.com/en-us/azure/architecture/aws-professional/', note: 'Microsoft Learn: Azure for AWS professionals' }] },
-        { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'ec2-website', 'aws-s3', 'aws-route53', 'aws-elb', 'aws-kms'] }
+        { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'ec2-website', 'aws-s3', 'aws-route53', 'aws-elb', 'aws-rds', 'aws-lambda', 'aws-kms', 'aws-secrets'] }
       ],
       ready: 'You can build a VPC, run a website on a server behind a load balancer, and give it only the IAM permissions it needs.'
     },
@@ -440,7 +480,7 @@ window.DEVOPS_CONFIG = {
       tools: [['Gitleaks', 'secrets'], ['SonarQube', 'SAST'], ['Trivy', 'images & libraries'], ['Checkov', 'IaC'], ['OWASP ZAP', 'DAST'], ['AWS IAM & KMS', 'access & encryption']],
       rows: [
         { label: 'Secure pipeline', then: ['jenkins-devsecops'] },
-        { label: 'Secure the cloud', then: ['aws-iam', 'aws-kms'] }
+        { label: 'Secure the cloud', then: ['aws-iam', 'aws-kms', 'aws-secrets'] }
       ],
       ready: 'Your pipeline fails the build on a leaked secret or a critical vulnerability, and every service runs with only the permissions it needs.'
     },
@@ -450,7 +490,7 @@ window.DEVOPS_CONFIG = {
       learn: ['Metrics, logs and traces: what each one tells you', 'CloudWatch: metrics, alarms, logs and dashboards', 'Prometheus and Grafana for Kubernetes', 'Good alerts: only when users are affected', 'Reading pod logs and events to find a problem', 'On-call basics and blameless incident reviews'],
       tools: [['CloudWatch', 'AWS metrics, logs & alarms'], ['Prometheus', 'metrics & alerts'], ['Grafana', 'dashboards'], ['kubectl logs / events', 'pod problems']],
       rows: [
-        { label: 'On this site', links: [{ title: 'CloudWatch & cost', badge: 'CW', color: '#e8590c', url: '#/tool/aws/cloudwatch-and-cost-control', note: 'Section of the AWS guide' }, 'k8s-troubleshooting'] },
+        { label: 'On this site', links: ['aws-cloudwatch', 'k8s-troubleshooting'] },
         { label: 'Official docs', links: [
           { title: 'Prometheus', badge: 'PR', color: '#e6522c', url: 'https://prometheus.io/docs/introduction/overview/', note: 'Overview' },
           { title: 'Grafana', badge: 'GF', color: '#f46800', url: 'https://grafana.com/docs/grafana/latest/', note: 'Documentation' },
