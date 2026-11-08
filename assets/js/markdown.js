@@ -18,11 +18,23 @@
 
   const COMMENT_LANGS = /^(bash|sh|shell|yaml|yml|hcl|terraform|dockerfile|python|text|ini|conf)$/;
 
-  function codeBlock(lang, code) {
+  // Code starts collapsed behind a "Show code" bar (Copy still works while collapsed).
+  // Text diagrams (box/arrow characters, folder trees) and blocks marked ```lang open start expanded.
+  const DIAGRAM = /[│┌└├─▶▼→↓┐┘╱╲]|-->|==>|\+--/;
+  function codeBlock(lang, code, flags = []) {
     let html = esc(code);
     if (COMMENT_LANGS.test(lang)) html = html.replace(/^(\s*#.*)$/gm, '<span class="c">$1</span>');
-    return `<div class="code" data-lang="${esc(lang || 'text')}"><div class="code-head">` +
-      `<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="lang">${esc(lang || 'text')}</span>` +
+    const l = esc(lang || 'text');
+    const diagram = (!lang || lang === 'text') && DIAGRAM.test(code);
+    const open = diagram || flags.includes('open');
+    const noun = diagram ? 'diagram' : (!lang || lang === 'text') ? 'text' : 'code';
+    const n = code.split('\n').length;
+    return `<div class="code${open ? ' is-open' : ''}${diagram ? ' is-diagram' : ''}" data-lang="${l}"><div class="code-head">` +
+      `<button class="code-toggle" type="button" aria-expanded="${open}">` +
+      `<span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="lang">${l}</span>` +
+      `<span class="code-hint"><span class="chev" aria-hidden="true">▸</span>` +
+      `<span class="when-closed">Show ${noun}</span><span class="when-open">Hide ${noun}</span>` +
+      `<span class="n">· ${n} line${n === 1 ? '' : 's'}</span></span></button>` +
       `<button class="copy" type="button">Copy</button></div><pre><code>${html}</code></pre></div>`;
   }
 
@@ -75,7 +87,7 @@
         else if (lang === 'compare') out.push(compareBlock(code));
         // inline SVG drawn by the guide authors (trusted repo content); text after "svg" is the caption
         else if (lang === 'svg') out.push(`<figure class="diagram">${code}${info.length > 4 ? `<figcaption>${inline(info.slice(4))}</figcaption>` : ''}</figure>`);
-        else out.push(codeBlock(lang, code));
+        else out.push(codeBlock(lang, code, info.split(/\s+/).slice(1).map((f) => f.toLowerCase())));
       } else if ((m = l.match(/^(#{3,6}) (.*)/))) {
         const n = m[1].length;
         out.push(`<h${n}>${inline(m[2])}</h${n}>`);

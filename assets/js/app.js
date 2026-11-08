@@ -352,6 +352,7 @@
         <div class="progress-row">
           <div class="bar"><span id="docBar" style="width:${pct(id)}%"></span></div>
           <span id="docPct">${pct(id)}% complete</span>
+          <button class="link-btn code-all" id="codeAllBtn" type="button" hidden>Show all code</button>
           <button class="link-btn" id="resetBtn" type="button">Reset</button>
         </div>
         <div class="intro">${render(g.intro)}</div>
@@ -390,6 +391,7 @@
     });
 
     document.title = g.title + ' · DevOps Launchpad';
+    syncCodeAll();
     watchActive();
     if (sectionSlug) {
       const el = document.getElementById('s-' + sectionSlug);
@@ -417,7 +419,7 @@
         <p>The guides are Markdown files fetched by the browser, so the site must be served over HTTP
            (opening <code>index.html</code> directly from disk blocks this).</p>
         <p>From the project folder, run one of:</p>
-        <div class="code"><div class="code-head"><span>bash</span><button class="copy" type="button">Copy</button></div><pre><code>python -m http.server 8080
+        <div class="code is-open"><div class="code-head"><span>bash</span><button class="copy" type="button">Copy</button></div><pre><code>python -m http.server 8080
 # or
 npx serve -l 8080 .
 # or
@@ -678,6 +680,38 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
   document.addEventListener('click', (e) => { if (!e.target.closest('.search')) hideResults(); });
   document.addEventListener('keydown', (e) => {
     if (e.key === '/' && !/INPUT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); searchInput.focus(); }
+  });
+
+  // ---------- show / hide code ----------
+  function setCodeOpen(block, open) {
+    block.classList.toggle('is-open', open);
+    const t = block.querySelector('.code-toggle');
+    if (t) t.setAttribute('aria-expanded', String(open));
+  }
+  // "Show all code" covers code blocks only; diagrams keep their own state.
+  const codeBlocks = () => [...main.querySelectorAll('.code:not(.is-diagram)')].filter((b) => b.querySelector('.code-toggle'));
+  function syncCodeAll() {
+    const btn = $('#codeAllBtn');
+    if (!btn) return;
+    const blocks = codeBlocks();
+    btn.hidden = !blocks.length;
+    const allOpen = blocks.length && blocks.every((b) => b.classList.contains('is-open'));
+    btn.textContent = allOpen ? 'Hide all code' : 'Show all code';
+    btn.setAttribute('aria-pressed', String(!!allOpen));
+  }
+  main.addEventListener('click', (e) => {
+    const t = e.target.closest('.code-toggle');
+    if (t) {
+      const block = t.closest('.code');
+      setCodeOpen(block, !block.classList.contains('is-open'));
+      syncCodeAll();
+      return;
+    }
+    if (e.target.closest('#codeAllBtn')) {
+      const open = !codeBlocks().every((b) => b.classList.contains('is-open'));
+      codeBlocks().forEach((b) => setCodeOpen(b, open));
+      syncCodeAll();
+    }
   });
 
   // ---------- copy buttons ----------
