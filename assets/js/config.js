@@ -147,7 +147,7 @@ window.DEVOPS_CONFIG = {
       color: '#0369a1',
       level: 'Intermediate',
       hours: 3,
-      desc: 'Reach AWS services and other teams' services privately: free S3/DynamoDB gateway endpoints, interface endpoints, private DNS, and PrivateLink sharing.'
+      desc: 'Reach AWS services and services owned by other teams privately: free S3/DynamoDB gateway endpoints, interface endpoints, private DNS, and PrivateLink sharing.'
     },
     {
       id: 'ec2-website',
