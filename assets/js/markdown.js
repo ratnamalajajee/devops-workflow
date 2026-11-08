@@ -109,6 +109,8 @@
           '</tbody></table></div>');
       } else if (/^\s*([-*]|\d+\.) /.test(l)) {
         const ordered = /^\s*\d+\. /.test(l);
+        // a numbered list that continues after a table or code block keeps its numbering (e.g. "5.")
+        const start = ordered ? parseInt(l.match(/^\s*(\d+)\./)[1], 10) : 1;
         const items = [];
         while (i < L.length && (/^\s*([-*]|\d+\.) /.test(L[i]) || (L[i].startsWith('  ') && L[i].trim() && items.length))) {
           if (/^\s*([-*]|\d+\.) /.test(L[i])) items.push(L[i].replace(/^\s*([-*]|\d+\.) /, ''));
@@ -116,7 +118,7 @@
           i++;
         }
         const tag = ordered ? 'ol' : 'ul';
-        out.push(`<${tag}>` + items.map((t) => `<li>${inline(t)}</li>`).join('') + `</${tag}>`);
+        out.push(`<${tag}${start !== 1 ? ` start="${start}"` : ''}>` + items.map((t) => `<li>${inline(t)}</li>`).join('') + `</${tag}>`);
       } else {
         const buf = [];
         while (i < L.length && L[i].trim() && !isBlockStart(L[i])) buf.push(L[i++]);

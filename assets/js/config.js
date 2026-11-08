@@ -210,6 +210,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Run containers on Fargate behind an ALB: task definitions, services, deployments, scaling, ECS Exec.'
     },
     {
+      id: 'atlantis-aws',
+      section: 'AWS',
+      title: 'Atlantis on AWS: Manual Setup',
+      badge: 'ATL',
+      color: '#4338ca',
+      level: 'Advanced',
+      hours: 5,
+      desc: 'Terraform from pull requests, built by hand: ECS Fargate, ALB + ACM, Route 53, Secrets Manager, Parameter Store, cross-account IAM roles, S3 state, and a Bitbucket Cloud webhook.'
+    },
+    {
       id: 'terraform',
       section: 'Infrastructure as Code',
       title: 'Terraform',
@@ -405,7 +415,10 @@ window.DEVOPS_CONFIG = {
       id: 'iac', short: 'Terraform', icon: '🏗️', title: 'Infrastructure as Code: Terraform', color: '#8b5cf6', time: '2–3 weeks',
       why: 'Clicking in the console is slow and easy to get wrong. With Terraform you describe infrastructure in code, review it like code, and rebuild a whole environment with one command.',
       learn: ['Providers, resources and variables', 'plan, apply and destroy', 'State and remote state (S3)', 'Modules and reusing code', 'Separate dev, staging and prod'],
-      rows: [{ label: 'Do in order', then: ['terraform'] }],
+      rows: [
+        { label: 'Do in order', then: ['terraform'] },
+        { label: 'Then: Terraform from pull requests', then: ['atlantis-aws'] }
+      ],
       ready: 'You can create a VPC and a server with terraform apply, change it safely, and remove it with terraform destroy.'
     },
     {
