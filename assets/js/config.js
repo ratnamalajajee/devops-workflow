@@ -189,6 +189,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Install Jenkins from scratch, then Freestyle jobs, Jenkinsfiles, credentials, multibranch, agents.'
     },
     {
+      id: 'jenkins-devsecops',
+      section: 'CI/CD',
+      title: 'Jenkins DevSecOps Pipeline',
+      badge: 'SEC',
+      color: '#be123c',
+      level: 'Intermediate',
+      hours: 4,
+      desc: 'Build, scan and push to ECR: Gitleaks, SonarQube (SAST), Trivy (SCA, IaC, image), OWASP ZAP (DAST).'
+    },
+    {
       id: 'github-actions',
       section: 'CI/CD',
       title: 'GitHub Actions',

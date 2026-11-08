@@ -486,6 +486,8 @@ Logs of Jenkins itself: `docker logs jenkins`, or `journalctl -u jenkins` on Ubu
 
 > **In simple words:** Practice time: build a complete pipeline for the sample app, end to end, without looking back.
 
+> **Tip:** Ready for security scanning? The [Jenkins DevSecOps Pipeline](#/tool/jenkins-devsecops) adds Gitleaks, SonarQube, Trivy and OWASP ZAP, and pushes to ECR only when every gate passes.
+
 1. Install Jenkins with Docker and create your admin user.
 2. Add a `Jenkinsfile` to `hello-app` with stages **Test → Build image → Smoke test → Push**.
 3. Store your Docker Hub token as a credential and push `hello-app:<build-number>`.
