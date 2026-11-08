@@ -376,6 +376,8 @@ See the Argo CD guide's **Sample application flow** for the `gitops` repo layout
 
 > **In simple words:** Open the failed job, read the log from the first error, and check the **Pipeline editor** for YAML mistakes.
 
+> **Tip:** More real-world failures (controller down, local-vs-CI builds, dev-vs-prod differences, ECR push errors) are covered in [CI/CD Troubleshooting](#/tool/cicd-troubleshooting).
+
 | Problem | Fix |
 |---|---|
 | No pipeline runs at all | The file must be named exactly `.gitlab-ci.yml` at the repo root; check `workflow: rules` |

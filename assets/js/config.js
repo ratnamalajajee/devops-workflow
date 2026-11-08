@@ -259,6 +259,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Copy-paste runbook: install Argo CD on EKS, internal load balancer, Bitbucket over SSH, Helm app.'
     },
     {
+      id: 'cicd-troubleshooting',
+      section: 'CI/CD',
+      title: 'CI/CD Troubleshooting',
+      badge: 'FIX',
+      color: '#e8590c',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'Jenkins down, stuck queues, GitHub Actions and GitLab issues, local-vs-CI and dev-vs-prod builds, ECR push errors.'
+    },
+    {
       id: 'capstone',
       section: 'Final project',
       title: 'Capstone Project',

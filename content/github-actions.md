@@ -407,6 +407,8 @@ Add a self-hosted runner: repo → **Settings → Actions → Runners → New se
 
 > **In simple words:** Open the failed run, expand the red step, and read the first error. Most problems are YAML indentation, permissions or a wrong path.
 
+> **Tip:** More real-world failures (controller down, local-vs-CI builds, dev-vs-prod differences, ECR push errors) are covered in [CI/CD Troubleshooting](#/tool/cicd-troubleshooting).
+
 | Problem | Fix |
 |---|---|
 | Workflow doesn't appear | The file must be in `.github/workflows/` on the default branch, ending in `.yml` or `.yaml` |

@@ -468,6 +468,8 @@ Set **Manage Jenkins → Nodes → Built-In Node → Number of executors** to `0
 
 > **In simple words:** When a build fails, open **Console Output** and read from the **first** red error, not the last line.
 
+> **Tip:** More real-world failures (controller down, local-vs-CI builds, dev-vs-prod differences, ECR push errors) are covered in [CI/CD Troubleshooting](#/tool/cicd-troubleshooting).
+
 | Problem | Fix |
 |---|---|
 | Can't find the initial admin password | `docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword` |
