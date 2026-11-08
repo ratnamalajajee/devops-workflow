@@ -16,6 +16,7 @@ window.DEVOPS_CONFIG = {
     'Infrastructure as Code': { color: '#8b5cf6', icon: '🏗️', short: 'Infra as Code' },
     'Kubernetes': { color: '#3b82f6', icon: '☸️' },
     'CI/CD': { color: '#10b981', icon: '🔁' },
+    'Monitoring': { color: '#06b6d4', icon: '📈' },
     'Final project': { color: '#a855f7', icon: '🏆' }
   },
   tools: [
@@ -460,6 +461,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Jenkins down, stuck queues, GitHub Actions and GitLab issues, local-vs-CI and dev-vs-prod builds, ECR push errors.'
     },
     {
+      id: 'prometheus-grafana',
+      section: 'Monitoring',
+      title: 'Prometheus and Grafana',
+      badge: 'PROM',
+      color: '#e6522c',
+      level: 'Intermediate',
+      hours: 5,
+      desc: 'Monitoring theory in simple words, then install Prometheus, Grafana and Alertmanager with Docker, on a Linux server and on Kubernetes with Helm; PromQL, dashboards, Slack alerts.'
+    },
+    {
       id: 'capstone',
       section: 'Final project',
       title: 'Capstone Project',
@@ -561,6 +572,7 @@ window.DEVOPS_CONFIG = {
       learn: ['Metrics, logs and traces: what each one tells you', 'CloudWatch: metrics, alarms, logs and dashboards', 'Prometheus and Grafana for Kubernetes', 'Good alerts: only when users are affected', 'Reading pod logs and events to find a problem', 'On-call basics and blameless incident reviews'],
       tools: [['CloudWatch', 'AWS metrics, logs & alarms'], ['Prometheus', 'metrics & alerts'], ['Grafana', 'dashboards'], ['kubectl logs / events', 'pod problems']],
       rows: [
+        { label: 'Start here', then: ['prometheus-grafana'] },
         { label: 'On this site', links: ['aws-cloudwatch', 'aws-sns-ses', 'aws-opensearch', 'k8s-troubleshooting'] },
         { label: 'Official docs', links: [
           { title: 'Prometheus', badge: 'PR', color: '#e6522c', url: 'https://prometheus.io/docs/introduction/overview/', note: 'Overview' },
