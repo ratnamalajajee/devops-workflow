@@ -509,6 +509,8 @@ Inside templates, values are referenced like `{{ .Values.image.repository }}:{{ 
 
 > **In simple words:** A step-by-step routine to find out why a pod isn't working: look at its status, its events, then its logs.
 
+> **Tip:** For a deep dive into every common error (CrashLoopBackOff, Pending, ImagePullBackOff, timeouts, OOMKilled and more) with a break-and-fix lab, see [Kubernetes Troubleshooting](#/tool/k8s-troubleshooting).
+
 When something is wrong, work from the outside in:
 
 ```bash

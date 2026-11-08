@@ -159,6 +159,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Pods, Deployments, Services, config, storage, Ingress, Helm and debugging.'
     },
     {
+      id: 'k8s-troubleshooting',
+      section: 'Kubernetes',
+      title: 'Kubernetes Troubleshooting',
+      badge: 'FIX',
+      color: '#e03131',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'CrashLoopBackOff, Pending, ImagePullBackOff, timeouts, OOMKilled, probes, stuck rollouts, plus a break-and-fix lab.'
+    },
+    {
       id: 'helm-environments',
       section: 'Kubernetes',
       title: 'Helm: App per Environment',
