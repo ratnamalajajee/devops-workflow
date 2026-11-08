@@ -110,6 +110,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Users, groups, roles and policies by hand, plus EKS service account permissions with Pod Identity and IRSA.'
     },
     {
+      id: 'aws-vpc',
+      section: 'AWS',
+      title: 'AWS VPC: Step-by-Step',
+      badge: 'VPC',
+      color: '#0284c7',
+      level: 'Beginner',
+      hours: 3,
+      desc: 'Choose a CIDR, build a VPC with public and private subnets, IGW, NAT and route tables, then connect VPCs with a Transit Gateway.'
+    },
+    {
       id: 'ec2-website',
       section: 'AWS',
       title: 'AWS Lab: Website on EC2',

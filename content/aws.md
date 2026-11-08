@@ -4,7 +4,7 @@ AWS is the most widely used cloud platform. This guide sets up an account **safe
 
 > **Cost:** Several steps create billable resources (NAT gateways, EKS, load balancers). Those steps are marked. **Always run the cleanup step** when you finish, and set up a budget alert first.
 
-> **Tip:** This guide is the **overview**. Each service also has its own step-by-step deep dive: [IAM](#/tool/aws-iam) · [EC2 website lab](#/tool/ec2-website) · [S3](#/tool/aws-s3) · [KMS](#/tool/aws-kms) · [Route 53](#/tool/aws-route53) · [Load Balancers](#/tool/aws-elb) · [ECR](#/tool/aws-ecr) · [ECS](#/tool/aws-ecs).
+> **Tip:** This guide is the **overview**. Each service also has its own step-by-step deep dive: [IAM](#/tool/aws-iam) · [VPC](#/tool/aws-vpc) · [EC2 website lab](#/tool/ec2-website) · [S3](#/tool/aws-s3) · [KMS](#/tool/aws-kms) · [Route 53](#/tool/aws-route53) · [Load Balancers](#/tool/aws-elb) · [ECR](#/tool/aws-ecr) · [ECS](#/tool/aws-ecs).
 
 ## Start here: AWS and the cloud in simple words
 
@@ -182,6 +182,8 @@ cat ~/.aws/config                    # profiles live here
 ## VPC networking
 
 > **In simple words:** A VPC is your private network in AWS. Subnets are its rooms, the internet gateway is the front door, and security groups are the locks on each server.
+
+> **Tip:** Step-by-step: choosing a CIDR, public and private subnets, NAT, route tables and Transit Gateway are covered in the [VPC deep dive](#/tool/aws-vpc).
 
 A **VPC** is your private network in AWS. Understanding it is essential: EC2, RDS, EKS, and load balancers all live inside one.
 
