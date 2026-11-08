@@ -209,6 +209,16 @@ window.DEVOPS_CONFIG = {
       desc: 'GitOps: installation methods, deploying from Git, sync policies, and a full commit-to-pod sample flow.'
     },
     {
+      id: 'argocd-eks',
+      section: 'CI/CD',
+      title: 'Argo CD on EKS: Runbook',
+      badge: 'EKS',
+      color: '#dd6b20',
+      level: 'Runbook',
+      hours: 2,
+      desc: 'Copy-paste runbook: install Argo CD on EKS, internal load balancer, Bitbucket over SSH, Helm app.'
+    },
+    {
       id: 'capstone',
       section: 'Final project',
       title: 'Capstone Project',

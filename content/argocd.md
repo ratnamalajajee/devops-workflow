@@ -92,6 +92,8 @@ Key Argo CD terms:
 
 > **In simple words:** Install Argo CD into your cluster. It runs as a few small apps inside Kubernetes itself.
 
+> **Tip:** Installing on **EKS** with a **Bitbucket** repository? Follow the step-by-step [Argo CD on EKS runbook](#/tool/argocd-eks): CLI, install, login, internal load balancer, SSH repo access and a Helm Application.
+
 ```bash
 kubectl create namespace argocd
 kubectl apply -n argocd --server-side --force-conflicts \
