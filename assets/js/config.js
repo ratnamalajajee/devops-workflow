@@ -159,6 +159,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Pods, Deployments, Services, config, storage, Ingress, Helm and debugging.'
     },
     {
+      id: 'helm-environments',
+      section: 'Kubernetes',
+      title: 'Helm: App per Environment',
+      badge: 'HELM',
+      color: '#1c7ed6',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'Build a Helm chart for the sample app and deploy it to dev, staging and prod with per-environment values.'
+    },
+    {
       id: 'eks-cluster',
       section: 'Kubernetes',
       title: 'EKS Cluster Setup: Runbook',

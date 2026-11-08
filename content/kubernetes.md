@@ -476,6 +476,8 @@ curl http://web.localtest.me      # *.localtest.me resolves to 127.0.0.1
 
 > **In simple words:** Helm installs complete apps (like a database) into Kubernetes with one command, the way an app store installs apps on a phone.
 
+> **Tip:** Want to write your own chart and deploy it to dev, staging and prod with different settings? Follow [Helm: App per Environment](#/tool/helm-environments).
+
 Helm packages a set of templated manifests as a **chart**, so you can install complex apps with one command and configure them with values.
 
 ```bash

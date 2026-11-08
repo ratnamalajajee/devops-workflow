@@ -235,8 +235,8 @@ kind version
 ### Helm
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-helm version
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-4 | bash
+helm version          # v4.x (Helm 3 is still maintained if your team needs it: use get-helm-3)
 ```
 
 ### eksctl
