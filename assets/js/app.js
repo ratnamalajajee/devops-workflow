@@ -104,7 +104,8 @@
 
   function renderSidebar(activeId) {
     sidebar.innerHTML =
-      `<a href="#/" class="nav-home ${!activeId ? 'active' : ''}">🏠 Home &amp; roadmap</a>` +
+      `<a href="#/" class="nav-home ${!activeId ? 'active' : ''}">🏠 Home</a>` +
+      `<a href="#/roadmap" class="nav-home ${activeId === 'roadmap' ? 'active' : ''}">🧭 How to start: roadmap</a>` +
       `<a href="#/lab" class="nav-home ${activeId === 'lab' ? 'active' : ''}">🖥️ Practice lab</a>` +
       groupTools().map((g) => {
         const sec = sectionOf(g.name);
@@ -173,7 +174,12 @@
         </div>
       </section>
 
-      <h2 class="section-title">🗺️ Your roadmap</h2>
+      ${ROADMAP.length ? `
+      <h2 class="section-title">🧭 How to start DevOps</h2>
+      ${flowStrip()}
+      <p class="rm-more"><a href="#/roadmap">See the full roadmap: what to learn at each stage and when you're ready to move on →</a></p>` : ''}
+
+      <h2 class="section-title">📚 All guides, in order</h2>
       ${groupTools().map((g) => `
         <div class="road-group" style="--s:${sectionOf(g.name).color}">
           <h3 class="road-group-title"><span class="road-group-icon">${sectionOf(g.name).icon}</span>${esc(g.name)}</h3>
@@ -205,6 +211,121 @@
       ${footerHtml()}`;
     toc.innerHTML = '';
     document.title = 'DevOps Launchpad';
+  }
+
+  // ---------- roadmap: "how to start DevOps" ----------
+  const ROADMAP = window.DEVOPS_CONFIG.roadmap || [];
+  const toolById = (id) => TOOLS.find((t) => t.id === id);
+  const rowItems = (r) => r.then || r.pick || [];
+
+  // Average of the stage's guides; a "pick one" row counts once, as its best-progressed choice.
+  function stagePct(st) {
+    const parts = [];
+    st.rows.forEach((r) => {
+      const ids = rowItems(r).filter((x) => typeof x === 'string' && guides[x]);
+      if (!ids.length) return;
+      if (r.pick) parts.push(Math.max(...ids.map(pct)));
+      else ids.forEach((x) => parts.push(pct(x)));
+    });
+    return parts.length ? Math.round(parts.reduce((a, b) => a + b, 0) / parts.length) : 0;
+  }
+
+  function rmGuide(x) {
+    if (typeof x === 'string') {
+      const t = toolById(x);
+      if (!t) return '';
+      return `<a class="rm-guide" href="#/tool/${t.id}" style="--c:${t.color}">
+        <span class="badge" style="--c:${t.color}">${esc(t.badge)}</span>
+        <span class="rm-guide-title">${esc(t.title)}</span>
+        <span class="rm-guide-pct">${pct(t.id)}%</span></a>`;
+    }
+    return `<a class="rm-guide" href="${esc(x.url)}" target="_blank" rel="noopener" style="--c:${x.color}">
+      <span class="badge" style="--c:${x.color}">${esc(x.badge)}</span>
+      <span class="rm-guide-title">${esc(x.title)}${x.note ? `<small>${esc(x.note)}</small>` : ''}</span>
+      <span class="rm-guide-pct" aria-label="opens in a new tab">↗</span></a>`;
+  }
+
+  function flowStrip() {
+    return `<ol class="rm-flow">${ROADMAP.map((st, i) => `
+      <li style="--c:${st.color}"><a href="#/roadmap/${st.id}">
+        <span class="rm-flow-num">${i + 1}</span><span aria-hidden="true">${st.icon}</span>${esc(st.short || st.title)}</a></li>`).join('')}
+    </ol>`;
+  }
+
+  function renderRoadmap(stageId) {
+    // total time from "2–3 weeks" style strings
+    const range = ROADMAP.reduce((a, st) => {
+      const n = (st.time.match(/\d+/g) || []).map(Number);
+      return [a[0] + (n[0] || 0), a[1] + (n[1] || n[0] || 0)];
+    }, [0, 0]);
+    const line = ROADMAP.map((st) => st.color).join(', ');
+
+    main.innerHTML = `
+      <section class="hero">
+        <p class="eyebrow">Roadmap · Where to start</p>
+        <h1>How to start DevOps: the roadmap</h1>
+        <p class="lead">${ROADMAP.length} stages, in order. Each stage tells you <em>why</em> it matters, what to learn,
+          which guides to follow and how to know you're ready for the next one. Plan about
+          <strong>${range[0]}–${range[1]} weeks</strong> at 1–2 hours a day.</p>
+        ${byline('hero-byline')}
+      </section>
+
+      <h2 class="section-title">🗺️ The flow at a glance</h2>
+      ${flowStrip()}
+
+      <ol class="rm-stages" style="--rm-line:linear-gradient(180deg, ${line})">
+        ${ROADMAP.map((st, i) => `
+        <li class="rm-stage" id="rm-${st.id}" data-slug="${st.id}" style="--c:${st.color}">
+          <div class="rm-marker" aria-hidden="true">${i + 1}</div>
+          <div class="rm-card">
+            <header class="rm-head">
+              <span class="rm-icon" aria-hidden="true">${st.icon}</span>
+              <div class="rm-head-text">
+                <p class="rm-kicker">Stage ${i + 1} · ${esc(st.time)}</p>
+                <h2><a href="#/roadmap/${st.id}">${esc(st.title)}</a></h2>
+              </div>
+              <span class="rm-pct" title="Your progress in this stage's guides">${stagePct(st)}%</span>
+            </header>
+            <p class="rm-why">${esc(st.why)}</p>
+            <div class="rm-cols">
+              <div>
+                <h3 class="rm-sub">📌 What to learn</h3>
+                <ul class="rm-learn">${st.learn.map((l) => `<li>${esc(l)}</li>`).join('')}</ul>
+              </div>
+              <div>
+                <h3 class="rm-sub">📘 Follow these guides</h3>
+                ${st.rows.map((r) => `
+                <div class="rm-row">
+                  <p class="rm-row-label">${esc(r.label)}${r.pick ? '<span class="rm-pick">choose one</span>' : ''}</p>
+                  <div class="rm-path">${rowItems(r).map(rmGuide).filter(Boolean)
+                    .map((html, n) => n === 0 ? html : `<span class="rm-step">${r.pick
+                      ? '<span class="rm-join or">or</span>' : '<span class="rm-join" aria-hidden="true">→</span>'}${html}</span>`)
+                    .join('')}</div>
+                </div>`).join('')}
+              </div>
+            </div>
+            ${st.tools ? `
+            <h3 class="rm-sub rm-tools-title">🧰 Tools you'll use</h3>
+            <div class="rm-tools">${st.tools.map(([n, w]) => `<span class="rm-tool"><strong>${esc(n)}</strong> <small>${esc(w)}</small></span>`).join('')}</div>` : ''}
+            <p class="rm-ready"><strong>✅ Ready for the next stage when:</strong> ${esc(st.ready)}</p>
+          </div>
+        </li>`).join('')}
+      </ol>
+      ${footerHtml()}`;
+
+    toc.style.setProperty('--c', 'var(--accent)');
+    toc.innerHTML = '<div class="toc-label">Stages</div>' + ROADMAP.map((st, i) =>
+      `<a href="#/roadmap/${st.id}" data-slug="${st.id}">${i + 1}. ${esc(st.short || st.title)}</a>`).join('');
+    document.title = 'DevOps Roadmap · DevOps Launchpad';
+    watchActive('.rm-stage');
+
+    const target = stageId && document.getElementById('rm-' + stageId);
+    if (target) {
+      requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+      target.classList.add('rm-target');
+    } else {
+      window.scrollTo(0, 0);
+    }
   }
 
   function renderTool(id, sectionSlug) {
@@ -305,7 +426,7 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
 
   // Highlight the section currently in view in the right-hand TOC.
   let observer;
-  function watchActive() {
+  function watchActive(selector = '.step') {
     if (observer) observer.disconnect();
     if (!('IntersectionObserver' in window)) return;
     observer = new IntersectionObserver((entries) => {
@@ -314,7 +435,7 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
         toc.querySelectorAll('a').forEach((a) => a.classList.toggle('active', a.dataset.slug === e.target.dataset.slug));
       });
     }, { rootMargin: '-80px 0px -70% 0px' });
-    main.querySelectorAll('.step').forEach((s) => observer.observe(s));
+    main.querySelectorAll(selector).forEach((s) => observer.observe(s));
   }
 
   // ---------- practice lab ----------
@@ -495,6 +616,9 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
     if (parts[0] === 'tool' && parts[1]) {
       renderSidebar(parts[1]);
       renderTool(parts[1], parts[2]);
+    } else if (parts[0] === 'roadmap') {
+      renderSidebar('roadmap');
+      renderRoadmap(parts[1]);
     } else if (parts[0] === 'lab') {
       renderSidebar('lab');
       renderLab();

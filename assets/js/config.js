@@ -329,5 +329,85 @@ window.DEVOPS_CONFIG = {
       hours: 8,
       desc: 'Put it all together: Terraform → EKS → Docker image in ECR → Argo CD deploy.'
     }
+  ],
+
+  // "How to start DevOps" roadmap page (#/roadmap). Each stage lists guide rows:
+  //   { label, then: [ids] }  guides to do in order (shown with →)
+  //   { label, pick: [ids or {title, badge, color, url, note}] }  choose one (shown with "or")
+  roadmap: [
+    {
+      id: 'linux', short: 'Linux & Git', icon: '🐧', title: 'Linux & Git', color: '#f59e0b', time: '2–3 weeks',
+      why: 'Servers, containers and pipelines almost all run on Linux, and Git is how every team shares code and config. Everything after this stage builds on it.',
+      learn: ['Files, folders and permissions', 'Users, processes and services (systemd)', 'Reading logs to find problems', 'Networking basics: IP, DNS, ports, SSH', 'Git: clone, commit, branch, merge, pull request'],
+      rows: [{ label: 'Do in order', then: ['setup', 'linux'] }],
+      ready: 'You can SSH into a server, find out from the logs why a service failed, and push a change to Git.'
+    },
+    {
+      id: 'scripting', short: 'Scripting', icon: '📜', title: 'Scripting: Bash & Python', color: '#22c55e', time: '3–4 weeks',
+      why: 'DevOps means automating repeated work. Bash glues Linux commands together; Python handles bigger jobs like calling AWS, parsing JSON and writing reports.',
+      learn: ['Bash: variables, if, loops, functions', 'Text tools: grep, awk, sed, find', 'Python: lists, dicts, files, functions, errors', 'Python modules: os, subprocess, json, requests, boto3', 'Common interview programs'],
+      rows: [
+        { label: 'Bash first', then: ['bash-scripting'] },
+        { label: 'Then Python', then: ['python-basics', 'python-devops', 'python-programs'] }
+      ],
+      ready: 'You can turn a manual daily task (a health check, log report or backup) into a script that runs on its own.'
+    },
+    {
+      id: 'cloud', short: 'Cloud', icon: '☁️', title: 'Cloud: AWS or Azure', color: '#f97316', time: '4–6 weeks',
+      why: 'Most companies run their apps on a cloud provider. Learn one deeply first: the ideas (accounts, networks, servers, storage, permissions) are the same on every cloud.',
+      learn: ['Accounts, regions and Availability Zones', 'IAM: users, roles and policies', 'Networking: VPC, subnets, route tables, NAT', 'Servers (EC2) and storage (S3)', 'DNS, load balancers and encryption keys', 'Cost control and clean-up'],
+      rows: [
+        { label: 'Pick one cloud', pick: ['aws', { title: 'Azure', badge: 'AZ', color: '#0078d4', url: 'https://learn.microsoft.com/en-us/azure/architecture/aws-professional/', note: 'Microsoft Learn: Azure for AWS professionals' }] },
+        { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'ec2-website', 'aws-s3', 'aws-route53', 'aws-elb', 'aws-kms'] }
+      ],
+      ready: 'You can build a VPC, run a website on a server behind a load balancer, and give it only the IAM permissions it needs.'
+    },
+    {
+      id: 'containers', short: 'Containers', icon: '🐳', title: 'Containers: Docker & Kubernetes', color: '#3b82f6', time: '5–6 weeks',
+      why: 'Containers package an app with everything it needs, so it runs the same on a laptop and in production. Kubernetes runs many containers, restarts them when they fail and scales them.',
+      learn: ['Images, containers, Dockerfile, volumes', 'Pushing images to a registry (ECR)', 'Pods, Deployments, Services, Ingress', 'ConfigMaps, Secrets, probes, scaling', 'Helm charts per environment', 'Debugging CrashLoopBackOff, Pending, ImagePullBackOff'],
+      rows: [
+        { label: 'Core path', then: ['docker', 'kubernetes'] },
+        { label: 'Go further', then: ['aws-ecr', 'aws-ecs', 'helm-environments', 'eks-cluster', 'k8s-troubleshooting'] }
+      ],
+      ready: 'You can containerize an app, deploy it to Kubernetes with Helm, and fix a pod that will not start.'
+    },
+    {
+      id: 'iac', short: 'Terraform', icon: '🏗️', title: 'Infrastructure as Code: Terraform', color: '#8b5cf6', time: '2–3 weeks',
+      why: 'Clicking in the console is slow and easy to get wrong. With Terraform you describe infrastructure in code, review it like code, and rebuild a whole environment with one command.',
+      learn: ['Providers, resources and variables', 'plan, apply and destroy', 'State and remote state (S3)', 'Modules and reusing code', 'Separate dev, staging and prod'],
+      rows: [{ label: 'Do in order', then: ['terraform'] }],
+      ready: 'You can create a VPC and a server with terraform apply, change it safely, and remove it with terraform destroy.'
+    },
+    {
+      id: 'cicd', short: 'CI/CD', icon: '🔁', title: 'CI/CD: Jenkins, GitHub Actions, GitLab & Argo CD', color: '#10b981', time: '4–5 weeks',
+      why: 'CI/CD builds, tests and deploys every change automatically, so releases are small, frequent and boring. CI builds the image; Argo CD (GitOps) deploys what is in Git to Kubernetes.',
+      learn: ['Pipeline stages: build, test, scan, push, deploy', 'Credentials and secrets in pipelines', 'Build and push Docker images to ECR', 'GitOps: Git as the source of truth', 'Rollbacks and troubleshooting failed pipelines'],
+      rows: [
+        { label: 'Start with the basics', then: ['cicd-basics'] },
+        { label: 'Pick one CI tool', pick: ['jenkins', 'github-actions', 'gitlab-ci'] },
+        { label: 'Then deploy with GitOps', then: ['argocd', 'argocd-eks'] },
+        { label: 'When it breaks', then: ['cicd-troubleshooting'] }
+      ],
+      ready: 'A push to Git builds and tests your app, pushes the image, and Argo CD deploys it to Kubernetes without you touching the cluster.'
+    },
+    {
+      id: 'security', short: 'Security', icon: '🛡️', title: 'Security tools (DevSecOps)', color: '#e11d48', time: '2–3 weeks',
+      why: 'Security is part of every stage, not a last-minute check. Scanners in the pipeline catch leaked secrets, vulnerable libraries and risky images before they reach production ("shift left").',
+      learn: ['Secret scanning in code', 'SAST: static code analysis', 'SCA and image scanning for known vulnerabilities', 'IaC scanning for Terraform and Kubernetes files', 'DAST: testing the running app', 'Least-privilege IAM and encryption with KMS'],
+      tools: [['Gitleaks', 'secrets'], ['SonarQube', 'SAST'], ['Trivy', 'images & libraries'], ['Checkov', 'IaC'], ['OWASP ZAP', 'DAST'], ['AWS IAM & KMS', 'access & encryption']],
+      rows: [
+        { label: 'Secure pipeline', then: ['jenkins-devsecops'] },
+        { label: 'Secure the cloud', then: ['aws-iam', 'aws-kms'] }
+      ],
+      ready: 'Your pipeline fails the build on a leaked secret or a critical vulnerability, and every service runs with only the permissions it needs.'
+    },
+    {
+      id: 'project', short: 'Final project', icon: '🏆', title: 'Final project', color: '#a855f7', time: '1–2 weeks',
+      why: 'Put every stage together in one real project. This is what you show in interviews.',
+      learn: ['Terraform builds the network and the EKS cluster', 'CI builds, scans and pushes the image to ECR', 'Argo CD deploys it with Helm', 'Write a README that explains your design'],
+      rows: [{ label: 'Build it', then: ['capstone'] }],
+      ready: 'You can explain, and demo, how a code change travels from Git to production on Kubernetes.'
+    }
   ]
 };
