@@ -20,6 +20,16 @@ window.DEVOPS_CONFIG = {
   },
   tools: [
     {
+      id: 'devops-intro',
+      section: 'Foundations',
+      title: 'What is DevOps and the Cloud?',
+      badge: '101',
+      color: '#6366f1',
+      level: 'Start here',
+      hours: 2,
+      desc: 'The big picture with diagrams: the DevOps loop, a real code-to-production flow, what the cloud is, and cloud vs on-premises.'
+    },
+    {
       id: 'setup',
       section: 'Foundations',
       title: 'Workstation Setup',
@@ -334,11 +344,19 @@ window.DEVOPS_CONFIG = {
   // "How to start DevOps" roadmap page (#/roadmap). Each stage lists guide rows:
   //   { label, then: [ids] }  guides to do in order (shown with →)
   //   { label, pick: [ids or {title, badge, color, url, note}] }  choose one (shown with "or")
+  //   { label, links: [...] }  related references, no order (url starting with # stays on this site)
   roadmap: [
     {
-      id: 'linux', short: 'Linux & Git', icon: '🐧', title: 'Linux & Git', color: '#f59e0b', time: '2–3 weeks',
-      why: 'Servers, containers and pipelines almost all run on Linux, and Git is how every team shares code and config. Everything after this stage builds on it.',
-      learn: ['Files, folders and permissions', 'Users, processes and services (systemd)', 'Reading logs to find problems', 'Networking basics: IP, DNS, ports, SSH', 'Git: clone, commit, branch, merge, pull request'],
+      id: 'basics', short: 'DevOps & cloud', icon: '💡', title: 'Understand DevOps & the cloud', color: '#6366f1', time: '1 week',
+      why: 'Before touching tools, know what problem DevOps solves, how a real change travels from code to users, and why companies use the cloud instead of their own servers.',
+      learn: ['What DevOps is: culture, practices, tools', 'The DevOps loop: plan, code, build, test, release, deploy, operate, monitor', 'The real flow: Git → CI → registry → Argo CD → Kubernetes → monitoring', 'What the cloud is: regions, AZs, pay-as-you-go', 'Cloud vs on-premises, IaaS / PaaS / SaaS, shared responsibility'],
+      rows: [{ label: 'Read first', then: ['devops-intro'] }],
+      ready: 'You can explain DevOps and the cloud to a friend, and draw the code-to-production flow from memory.'
+    },
+    {
+      id: 'linux', short: 'Linux & Git', icon: '🐧', title: 'Linux, networking & Git', color: '#f59e0b', time: '3–4 weeks',
+      why: 'Servers, containers and pipelines almost all run on Linux, networking decides who can talk to whom, and Git is how every team shares code and config. Everything after this stage builds on it.',
+      learn: ['Files, folders and permissions', 'Users, processes and services (systemd)', 'Reading logs to find problems', 'Networking: IP addresses, subnets (CIDR), DNS, ports, HTTP/HTTPS, SSH', 'Git: clone, commit, branch, merge, pull request'],
       rows: [{ label: 'Do in order', then: ['setup', 'linux'] }],
       ready: 'You can SSH into a server, find out from the logs why a service failed, and push a change to Git.'
     },
@@ -401,6 +419,21 @@ window.DEVOPS_CONFIG = {
         { label: 'Secure the cloud', then: ['aws-iam', 'aws-kms'] }
       ],
       ready: 'Your pipeline fails the build on a leaked secret or a critical vulnerability, and every service runs with only the permissions it needs.'
+    },
+    {
+      id: 'monitoring', short: 'Monitoring', icon: '📈', title: 'Monitoring & logging', color: '#06b6d4', time: '2–3 weeks',
+      why: 'Deploying is only half the job: you must know when users are having problems before they tell you. Metrics, logs and alerts close the DevOps loop and feed the next plan.',
+      learn: ['Metrics, logs and traces: what each one tells you', 'CloudWatch: metrics, alarms, logs and dashboards', 'Prometheus and Grafana for Kubernetes', 'Good alerts: only when users are affected', 'Reading pod logs and events to find a problem', 'On-call basics and blameless incident reviews'],
+      tools: [['CloudWatch', 'AWS metrics, logs & alarms'], ['Prometheus', 'metrics & alerts'], ['Grafana', 'dashboards'], ['kubectl logs / events', 'pod problems']],
+      rows: [
+        { label: 'On this site', links: [{ title: 'CloudWatch & cost', badge: 'CW', color: '#e8590c', url: '#/tool/aws/cloudwatch-and-cost-control', note: 'Section of the AWS guide' }, 'k8s-troubleshooting'] },
+        { label: 'Official docs', links: [
+          { title: 'Prometheus', badge: 'PR', color: '#e6522c', url: 'https://prometheus.io/docs/introduction/overview/', note: 'Overview' },
+          { title: 'Grafana', badge: 'GF', color: '#f46800', url: 'https://grafana.com/docs/grafana/latest/', note: 'Documentation' },
+          { title: 'Amazon CloudWatch', badge: 'CW', color: '#e7157b', url: 'https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html', note: 'User guide' }
+        ] }
+      ],
+      ready: 'An alarm tells you when your app is slow or failing, and you can find the cause from dashboards and logs.'
     },
     {
       id: 'project', short: 'Final project', icon: '🏆', title: 'Final project', color: '#a855f7', time: '1–2 weeks',

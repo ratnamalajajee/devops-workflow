@@ -261,6 +261,79 @@ main:focus { outline: none; }
 .howto p { margin: 0; color: var(--muted); font-size: 14.5px; }
 .pill { font-size: 12px; font-weight: 700; padding: 1px 8px; border-radius: 999px; }
 
+/* ---------- diagram blocks in guides: ```flow, ```compare, ```svg ---------- */
+/* flow: numbered steps on a coloured line; a dashed bracket on the right marks a loop */
+.flow { margin: 20px 0; }
+figure.flow > ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; position: relative; }
+figure.flow > ol::before {
+  content: ""; position: absolute; left: 14px; top: 18px; bottom: 18px; width: 3px; border-radius: 3px;
+  background: linear-gradient(180deg, #6366f1, #ec4899, #f59e0b, #10b981, #06b6d4); opacity: .55;
+}
+figure.flow > ol > li { max-width: none; margin: 0; display: grid; grid-template-columns: 31px minmax(0, 1fr); gap: 10px; align-items: center; position: relative; }
+.flow-num {
+  display: grid; place-items: center; width: 31px; height: 31px; border-radius: 50%; z-index: 1;
+  font-size: 13.5px; font-weight: 800; color: #fff;
+  background: linear-gradient(135deg, var(--fc), color-mix(in oklab, var(--fc) 62%, #000));
+  box-shadow: 0 0 0 4px var(--surface);
+}
+.flow-card {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; border-radius: 12px;
+  background: linear-gradient(110deg, color-mix(in srgb, var(--fc) 13%, var(--surface)), var(--surface) 75%);
+  border: 1px solid color-mix(in srgb, var(--fc) 36%, var(--border)); border-left: 4px solid var(--fc);
+}
+.flow-icon {
+  display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 10px; font-size: 20px;
+  background: color-mix(in srgb, var(--fc) 18%, var(--surface));
+}
+.flow-body { min-width: 0; font-size: 14.5px; line-height: 1.5; }
+.flow-body strong { display: block; font-size: 15.5px; color: color-mix(in srgb, var(--fc) 62%, var(--text)); }
+.flow-body > span { color: var(--muted); }
+.flow-body > span strong { display: inline; font-size: inherit; color: var(--text); }
+figure.flow.is-loop > ol { padding-right: 30px; }
+figure.flow.is-loop > ol::after {
+  content: ""; position: absolute; right: 4px; top: 20px; bottom: 20px; width: 18px;
+  border: 3px dashed color-mix(in srgb, var(--accent) 55%, transparent); border-left: 0; border-radius: 0 16px 16px 0;
+}
+.flow-back {
+  margin: 12px 0 0 41px; padding: 8px 12px; border-radius: 10px; font-size: 14px;
+  background: var(--accent-soft); color: var(--text); border: 1px dashed color-mix(in srgb, var(--accent) 50%, transparent);
+}
+
+/* compare: two coloured columns with a VS badge; stacks on phones */
+.compare { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 14px; align-items: stretch; margin: 20px 0; }
+.cmp-col {
+  --k: #f97316; padding: 14px 16px; border-radius: 14px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--k) 13%, var(--surface)), var(--surface) 70%);
+  border: 1px solid color-mix(in srgb, var(--k) 40%, var(--border)); border-top: 5px solid var(--k);
+}
+.cmp-b { --k: #10b981; }
+.compare .cmp-col h4 { margin: 0 0 8px; font-size: 16.5px; color: color-mix(in srgb, var(--k) 70%, var(--text)); }
+.compare .cmp-col ul { margin: 0; padding-left: 18px; font-size: 14.5px; }
+.compare .cmp-col li { margin: 5px 0; max-width: none; }
+.compare .cmp-col li::marker { color: var(--k); }
+.cmp-vs {
+  align-self: center; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
+  font-size: 13px; font-weight: 900; color: #fff; background: var(--hero); box-shadow: 0 6px 16px rgba(124, 58, 237, .3);
+}
+
+/* svg: hand-drawn diagrams; dg-* classes give theme-aware fills */
+.diagram { margin: 20px 0; padding: 16px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--border); }
+.diagram svg { display: block; width: 100%; max-width: 620px; height: auto; margin: 0 auto; font-family: var(--font); }
+.diagram figcaption { margin-top: 10px; text-align: center; font-size: 13.5px; color: var(--muted); }
+.dg-text { fill: var(--text); }
+.dg-muted { fill: var(--muted); }
+.dg-b { font-weight: 800; }
+.dg-pill, .dg-box { fill: var(--surface); }
+.dg-region { fill: color-mix(in srgb, #f97316 8%, var(--surface)); stroke: #f97316; stroke-width: 2.5; }
+
+@media (max-width: 640px) {
+  .compare { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .cmp-vs { justify-self: center; width: 38px; height: 38px; }
+  .flow-card { gap: 10px; padding: 9px 12px 9px 9px; }
+  .flow-icon { width: 34px; height: 34px; font-size: 18px; }
+  .diagram { padding: 8px; margin-inline: -8px; }   /* a little more width for drawings on phones */
+}
+
 /* ---------- roadmap: "how to start DevOps" ---------- */
 .rm-flow { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-items: center; row-gap: 10px; }
 .rm-flow li { display: flex; align-items: center; }

@@ -48,7 +48,9 @@
     const sections = parts.map((p) => {
       const nl = p.indexOf('\n');
       const t = (nl === -1 ? p : p.slice(0, nl)).trim();
-      return { title: t, slug: slugify(t), body: nl === -1 ? '' : p.slice(nl + 1) };
+      const body = nl === -1 ? '' : p.slice(nl + 1);
+      // search text: body without inline SVG drawings
+      return { title: t, slug: slugify(t), body, text: body.replace(/^```svg[^\n]*\n[\s\S]*?^```/gm, '') };
     });
     return { id, title, intro, sections };
   }
@@ -216,7 +218,7 @@
   // ---------- roadmap: "how to start DevOps" ----------
   const ROADMAP = window.DEVOPS_CONFIG.roadmap || [];
   const toolById = (id) => TOOLS.find((t) => t.id === id);
-  const rowItems = (r) => r.then || r.pick || [];
+  const rowItems = (r) => r.then || r.pick || r.links || [];
 
   // Average of the stage's guides; a "pick one" row counts once, as its best-progressed choice.
   function stagePct(st) {
@@ -239,10 +241,11 @@
         <span class="rm-guide-title">${esc(t.title)}</span>
         <span class="rm-guide-pct">${pct(t.id)}%</span></a>`;
     }
-    return `<a class="rm-guide" href="${esc(x.url)}" target="_blank" rel="noopener" style="--c:${x.color}">
+    const local = x.url.startsWith('#');   // a page or section on this site
+    return `<a class="rm-guide" href="${esc(x.url)}" ${local ? '' : 'target="_blank" rel="noopener"'} style="--c:${x.color}">
       <span class="badge" style="--c:${x.color}">${esc(x.badge)}</span>
       <span class="rm-guide-title">${esc(x.title)}${x.note ? `<small>${esc(x.note)}</small>` : ''}</span>
-      <span class="rm-guide-pct" aria-label="opens in a new tab">↗</span></a>`;
+      ${local ? '' : '<span class="rm-guide-pct" aria-label="opens in a new tab">↗</span>'}</a>`;
   }
 
   function flowStrip() {
@@ -298,7 +301,7 @@
                 <div class="rm-row">
                   <p class="rm-row-label">${esc(r.label)}${r.pick ? '<span class="rm-pick">choose one</span>' : ''}</p>
                   <div class="rm-path">${rowItems(r).map(rmGuide).filter(Boolean)
-                    .map((html, n) => n === 0 ? html : `<span class="rm-step">${r.pick
+                    .map((html, n) => n === 0 || r.links ? html : `<span class="rm-step">${r.pick
                       ? '<span class="rm-join or">or</span>' : '<span class="rm-join" aria-hidden="true">→</span>'}${html}</span>`)
                     .join('')}</div>
                 </div>`).join('')}
@@ -645,12 +648,12 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
       if (!g) return;
       g.sections.forEach((s) => {
         const inTitle = s.title.toLowerCase().includes(q);
-        const pos = s.body.toLowerCase().indexOf(q);
+        const pos = s.text.toLowerCase().indexOf(q);
         if (!inTitle && pos === -1) return;
         let snippet = '';
         if (pos !== -1) {
           const start = Math.max(0, pos - 40);
-          snippet = (start ? '…' : '') + s.body.slice(start, pos + q.length + 60).replace(/[`#*>|]/g, '').replace(/\s+/g, ' ') + '…';
+          snippet = (start ? '…' : '') + s.text.slice(start, pos + q.length + 60).replace(/[`#*>|]/g, '').replace(/\s+/g, ' ') + '…';
         }
         hits.push({ t, s, snippet, score: inTitle ? 0 : 1 });
       });

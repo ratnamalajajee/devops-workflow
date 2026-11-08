@@ -1,7 +1,7 @@
 // Minimal, dependency-free Markdown renderer covering what the guides use:
 // headings (###+), paragraphs, ul/ol lists, fenced code, tables, callouts
 // (> **Tip:** / **Note:** / **Warning:** / **Cost:** / **Why:** / **In simple words:**),
-// `code`, **bold**, *italic*, [links](url).
+// `code`, **bold**, *italic*, [links](url), and diagram fences: ```flow, ```compare, ```svg.
 (function () {
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -28,6 +28,30 @@
 
   // Table cells split on unescaped pipes; write \| for a literal pipe inside a cell.
   const splitRow = (r) => r.trim().replace(/^\||\|$/g, '').split(/(?<!\\)\|/).map((c) => c.trim().replace(/\\\|/g, '|'));
+
+  // ---------- diagram blocks ----------
+  const PALETTE = ['#6366f1', '#8b5cf6', '#ec4899', '#f97316', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6', '#e11d48'];
+  const lines = (code) => code.split('\n').filter((l) => l.trim());
+
+  // ```flow — one step per line: "icon | Title | description". A last line starting with ↻ marks a cycle.
+  function flowBlock(code) {
+    const all = lines(code);
+    const back = all.filter((l) => l.trim().startsWith('↻')).map((l) => l.trim().slice(1).trim())[0];
+    const steps = all.filter((l) => !l.trim().startsWith('↻')).map(splitRow);
+    return `<figure class="flow${back ? ' is-loop' : ''}"><ol>` + steps.map(([icon, title, desc], n) =>
+      `<li style="--fc:${PALETTE[n % PALETTE.length]}"><span class="flow-num">${n + 1}</span><span class="flow-card">` +
+      `<span class="flow-icon" aria-hidden="true">${esc(icon || '')}</span>` +
+      `<span class="flow-body"><strong>${inline(title || '')}</strong>${desc ? `<span>${inline(desc)}</span>` : ''}</span></span></li>`).join('') +
+      `</ol>${back ? `<figcaption class="flow-back">↻ ${inline(back)}</figcaption>` : ''}</figure>`;
+  }
+
+  // ```compare — first line "Left title | Right title", then one "left point | right point" per line.
+  function compareBlock(code) {
+    const [head, ...rows] = lines(code).map(splitRow);
+    const col = (k, cls) => `<div class="cmp-col ${cls}"><h4>${inline(head[k] || '')}</h4><ul>` +
+      rows.filter((r) => r[k]).map((r) => `<li>${inline(r[k])}</li>`).join('') + '</ul></div>';
+    return `<figure class="compare">${col(0, 'cmp-a')}<div class="cmp-vs" aria-hidden="true">VS</div>${col(1, 'cmp-b')}</figure>`;
+  }
   const isBlockStart = (l) => /^(```|#{1,6} |>|\s*[-*] |\s*\d+\. )/.test(l) || /^\|/.test(l);
 
   function render(src) {
@@ -40,12 +64,18 @@
       if (!l.trim()) { i++; continue; }
 
       if (l.startsWith('```')) {
-        const lang = l.slice(3).trim().toLowerCase();
+        const info = l.slice(3).trim();
+        const lang = info.split(/\s+/)[0].toLowerCase();
         const buf = [];
         i++;
         while (i < L.length && !L[i].startsWith('```')) buf.push(L[i++]);
         i++;
-        out.push(codeBlock(lang, buf.join('\n')));
+        const code = buf.join('\n');
+        if (lang === 'flow') out.push(flowBlock(code));
+        else if (lang === 'compare') out.push(compareBlock(code));
+        // inline SVG drawn by the guide authors (trusted repo content); text after "svg" is the caption
+        else if (lang === 'svg') out.push(`<figure class="diagram">${code}${info.length > 4 ? `<figcaption>${inline(info.slice(4))}</figcaption>` : ''}</figure>`);
+        else out.push(codeBlock(lang, code));
       } else if ((m = l.match(/^(#{3,6}) (.*)/))) {
         const n = m[1].length;
         out.push(`<h${n}>${inline(m[2])}</h${n}>`);
