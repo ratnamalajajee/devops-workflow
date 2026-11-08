@@ -620,51 +620,211 @@ def test_bucket_names():
 
 ## Interview questions
 
-> **In simple words:** Python questions DevOps interviewers really ask, from basics to boto3, with short answers. Run the snippets yourself and explain them out loud.
+> **In simple words:** Common Python questions from DevOps interviews, with **short, simple answers** and a small example. Run each example once, then try to explain the answer in your own words.
 
-### Python fundamentals
+### Basic questions
 
-| Question | Short answer |
-|---|---|
-| List vs tuple? | Lists are mutable (`[]`); tuples are immutable (`()`), so they're hashable and usable as dict keys |
-| List vs set vs dict? | Ordered sequence / unique unordered values with fast membership tests / key → value mapping |
-| What's a list comprehension? | A compact loop that builds a list: `[s for s in servers if s.startswith("web")]` |
-| What are `*args` and `**kwargs`? | Extra positional arguments as a tuple, and extra keyword arguments as a dict |
-| Why is `def f(x=[])` a bug? | The default list is created **once** and shared between calls. Use `x=None`, then `x = x or []` |
-| What does `with open(...)` do? | A context manager: it closes the file even if an error happens |
-| What does `if __name__ == "__main__":` mean? | The code runs only when the file is executed directly, not when it's imported |
-| `is` vs `==`? | `==` compares values; `is` checks whether two names point to the same object (use it for `None`) |
-| Shallow vs deep copy? | `copy.copy` copies the outer object only; `copy.deepcopy` copies nested objects too |
-| What's a generator? | A function using `yield` that produces items lazily, e.g. reading a huge log without loading it all |
-| How do you handle errors? | `try` / `except SpecificError` / `finally`. Catch specific exceptions, not a bare `except:` |
-| What's a decorator? | A function that wraps another to add behaviour (retries, timing, logging), applied with `@name` |
+#### 1. Why do DevOps engineers use Python?
+To automate work that is too big or complex for a shell script: calling AWS, reading JSON or YAML, checking many servers, and creating reports.
 
-### Python for automation
+#### 2. What's the difference between a list and a tuple?
+A **list** can be changed after it's created. A **tuple** can't.
 
-| Question | Short answer |
-|---|---|
-| Why use a virtual environment? | It isolates each project's packages and versions; recreate it with `requirements.txt` |
-| `subprocess.run` vs `os.system`? | `subprocess.run` captures output, gives the exit code, raises on failure with `check=True` and avoids the shell. `os.system` does none of that |
-| How do you read a 10 GB log file? | Iterate line by line (`for line in f:`), never `f.read()` |
-| How do you parse JSON and YAML? | `json.loads` / `json.load`; `yaml.safe_load` (never plain `yaml.load` on untrusted input) |
-| Threads vs processes vs asyncio? | Threads or asyncio for I/O-bound work (HTTP, AWS calls); processes for CPU-bound work, because of the GIL |
-| `logging` vs `print`? | `logging` has levels, timestamps, formats and outputs, and can be silenced or redirected |
-| How do you pass secrets to a script? | Environment variables, or fetch them from AWS Secrets Manager or SSM at runtime. Never hard-code or commit them |
-| How do you schedule a Python script? | cron or a systemd timer on a server; a Kubernetes CronJob; EventBridge Scheduler with Lambda |
+```python
+servers = ["web1", "web2"]     # list
+servers.append("web3")         # OK
+point = ("10.0.0.1", 22)       # tuple: can't add or change items
+```
 
-### boto3 and AWS
+#### 3. What is a dictionary?
+A collection of **key → value** pairs, like a small JSON object.
 
-| Question | Short answer |
-|---|---|
-| Client vs resource in boto3? | A client is a low-level 1:1 mapping of the AWS API (recommended); a resource is an object-oriented wrapper that gets no new features |
-| How does boto3 find credentials? | Code parameters → env vars → assume-role / web identity → SSO → `~/.aws` files → container credentials → EC2 instance role |
-| Why use paginators? | List calls return results in pages (e.g. 1,000 S3 keys). Paginators fetch every page |
-| How do you handle throttling (`Rate exceeded`)? | `botocore.config.Config(retries={"mode": "adaptive", "max_attempts": 10})`, plus backoff in your own loops |
-| How do you catch AWS errors? | `except ClientError as e: e.response["Error"]["Code"]` |
-| How do you test boto3 code without AWS? | Mock AWS with `moto` (`@mock_aws`), or stub responses with `botocore.stub.Stubber` |
-| What's `DryRun=True` for? | EC2 checks permissions and returns `DryRunOperation` without making changes |
-| How do you work across accounts or regions? | `boto3.Session(profile_name=...)`, or `sts.assume_role` and build a session from the temporary credentials; loop over `describe_regions()` |
-| What are waiters? | Helpers that poll until a state is reached: `ec2.get_waiter("instance_running").wait(InstanceIds=[...])` |
+```python
+server = {"name": "web1", "port": 80}
+print(server["name"])          # web1
+```
+
+#### 4. What is a set?
+A collection that keeps **only unique values**, so it's handy for removing duplicates.
+
+```python
+ips = ["10.0.0.1", "10.0.0.2", "10.0.0.1"]
+print(set(ips))                # {'10.0.0.1', '10.0.0.2'}
+```
+
+#### 5. How do you write a function?
+
+```python
+def greet(name):
+    return f"Hello, {name}"
+
+print(greet("DevOps"))
+```
+
+#### 6. How do you handle errors?
+Put risky code in `try`, and say what to do on an error in `except`.
+
+```python
+try:
+    number = int("abc")
+except ValueError:
+    print("That is not a number")
+```
+
+#### 7. How do you read a file?
+
+```python
+with open("app.log") as f:
+    for line in f:
+        print(line.strip())
+```
+
+#### 8. What does `with` do?
+It opens a file and **closes it automatically** when the block ends, even if an error happens.
+
+#### 9. What does `if __name__ == "__main__":` mean?
+The code under it runs only when you run the file directly (`python script.py`), not when another file imports it.
+
+#### 10. What is a virtual environment (venv)?
+A separate folder of packages for one project, so different projects don't mix up their versions.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+#### 11. What is pip?
+The tool that installs Python packages.
+
+```bash
+pip install requests
+```
+
+#### 12. How do you read values passed to a script?
+Use `sys.argv`: `sys.argv[1]` is the first value after the script name.
+
+```python
+import sys
+print("Environment:", sys.argv[1])      # python deploy.py prod
+```
+
+#### 13. How do you read an environment variable?
+
+```python
+import os
+region = os.environ.get("AWS_REGION", "us-east-1")   # default if not set
+```
+
+#### 14. What is a list comprehension?
+A short way to build a list in one line.
+
+```python
+servers = ["web1", "web2", "db1"]
+web = [s for s in servers if s.startswith("web")]    # ['web1', 'web2']
+```
+
+### Automation questions
+
+#### 15. How do you run a Linux command from Python?
+
+```python
+import subprocess
+result = subprocess.run(["df", "-h"], capture_output=True, text=True)
+print(result.stdout)
+```
+
+#### 16. How do you read a JSON file?
+
+```python
+import json
+with open("config.json") as f:
+    config = json.load(f)
+```
+
+#### 17. How do you read a YAML file?
+
+```python
+import yaml          # pip install pyyaml
+with open("deployment.yaml") as f:
+    data = yaml.safe_load(f)
+```
+
+#### 18. How do you check if a website is up?
+
+```python
+import requests
+response = requests.get("https://example.com", timeout=5)
+print(response.status_code)          # 200 means OK
+```
+
+#### 19. How do you read a very large log file?
+Read it **line by line** in a loop. Don't use `f.read()`: that loads the whole file into memory.
+
+#### 20. Why use `logging` instead of `print`?
+`logging` adds the time and the level (INFO, WARNING, ERROR) to each message, and it can write to a file.
+
+```python
+import logging
+logging.basicConfig(level=logging.INFO)
+logging.info("Backup started")
+```
+
+#### 21. How do you run a Python script automatically every day?
+With cron (`crontab -e`). This runs at 2 a.m. every day:
+
+```bash
+0 2 * * * /usr/bin/python3 /home/ops/backup.py
+```
+
+### AWS (boto3) questions
+
+#### 22. What is boto3?
+The official Python library for AWS. With it, Python can create, list and manage AWS resources, just like the AWS CLI.
+
+#### 23. How does boto3 log in to AWS?
+It uses the same credentials as the AWS CLI: `aws configure`, an SSO profile, or the **IAM role** of the server. You never write access keys in the code.
+
+#### 24. How do you list S3 buckets?
+
+```python
+import boto3
+s3 = boto3.client("s3")
+for bucket in s3.list_buckets()["Buckets"]:
+    print(bucket["Name"])
+```
+
+#### 25. How do you list EC2 instances?
+
+```python
+import boto3
+ec2 = boto3.client("ec2", region_name="us-east-1")
+for reservation in ec2.describe_instances()["Reservations"]:
+    for instance in reservation["Instances"]:
+        print(instance["InstanceId"], instance["State"]["Name"])
+```
+
+#### 26. What is a paginator?
+AWS returns big results in **pages**. A paginator collects all the pages for you, so you don't miss anything.
+
+```python
+paginator = ec2.get_paginator("describe_instances")
+for page in paginator.paginate():
+    print(len(page["Reservations"]))
+```
+
+#### 27. How do you handle AWS errors?
+Catch `ClientError` and read the error code.
+
+```python
+from botocore.exceptions import ClientError
+try:
+    s3.head_bucket(Bucket="no-such-bucket-12345")
+except ClientError as err:
+    print("AWS error:", err.response["Error"]["Code"])
+```
+
+#### 28. How do you test boto3 code without using real AWS?
+Use the **moto** library. It creates a fake AWS inside your test, so nothing real is created and nothing costs money.
 
 ### Practice tasks
 

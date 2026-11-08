@@ -476,33 +476,184 @@ systemctl list-timers | grep backup
 
 ## Interview questions
 
-> **In simple words:** Questions DevOps interviewers really ask about shell scripting, with short answers. Practise saying the answers out loud, and run every example yourself.
+> **In simple words:** Common shell scripting questions from DevOps interviews, with **short, simple answers** and a small example. Read the answer, run the example once, then try to explain it in your own words.
 
-| Question | Short answer |
-|---|---|
-| What does `#!/usr/bin/env bash` do? | The shebang: it tells the OS to run the file with Bash, found via `PATH` |
-| What's `$?`? | The exit code of the last command. `0` means success, anything else means failure |
-| Difference between `$@` and `$*`? | Quoted, `"$@"` keeps each argument separate; `"$*"` joins them into one string. Use `"$@"` |
-| What does `set -euo pipefail` do? | Exit on error (`-e`), error on unset variables (`-u`), and a pipeline fails if any part fails |
-| `[ ]` vs `[[ ]]`? | `[` is the POSIX test command; `[[` is a Bash keyword with safer quoting, `&&`/`\|\|` and pattern matching |
-| How do you read a file line by line? | `while IFS= read -r line; do …; done < file` |
-| How do you redirect stdout and stderr to one file? | `cmd > out.log 2>&1` (or `&> out.log` in Bash) |
-| Sourcing vs executing a script? | `source x.sh` runs it in the **current** shell, so variables persist; `./x.sh` runs in a child process |
-| What does `export` do? | Makes a variable visible to child processes |
-| How do you debug a script? | `bash -x script.sh`, or `set -x` / `set +x` around a section, plus `shellcheck` |
-| How do you run a script on a schedule? | cron (`crontab -e`) or a systemd timer |
-| How do you find and delete logs older than 7 days? | `find /var/log/app -name '*.log' -mtime +7 -delete` |
-| How do you replace text in a file in place? | `sed -i 's/old/new/g' file` |
-| How do you print the 3rd column of output? | `awk '{print $3}'`, or `cut -d' ' -f3` for single-space separated data |
-| How do you count unique IPs in a log? | `awk '{print $1}' access.log \| sort -u \| wc -l` |
-| How do you check if a port is listening? | `ss -tulpn \| grep :8080`, or test remotely with `nc -zv host 8080` |
-| How do you kill a process by name? | `pkill -f myapp` (or `kill $(pgrep -f myapp)`); prefer SIGTERM before `-9` |
-| What's `trap` used for? | Run a command on signals or exit, e.g. clean up temp files: `trap 'rm -rf $tmp' EXIT` |
-| What's a here-document? | Multi-line input to a command: `cat <<EOF … EOF` (quote `'EOF'` to stop variable expansion) |
-| Hard link vs soft link? | A hard link is another name for the same inode (same filesystem only); a symlink points to a path and breaks if the target moves |
-| How do you make a script idempotent? | Check before acting (`[[ -d dir ]] \|\| mkdir dir`), use `mkdir -p`, `kubectl apply`, "create if not exists" |
-| How do you run a long job after logout? | `nohup ./job.sh > job.log 2>&1 &`, or `tmux` / `screen`, or a systemd service |
-| How do you pass secrets safely to a script? | Environment variables or files from a secrets manager. Never as command-line arguments (visible in `ps`) or hard-coded |
+### Basic questions
+
+#### 1. What is a shell script?
+A text file with Linux commands that run one after another. Instead of typing the same commands every day, you put them in a script and run the script.
+
+#### 2. What is the first line `#!/usr/bin/env bash`?
+It's called the **shebang**. It tells Linux which program should run the file: here, Bash.
+
+#### 3. How do you run a script?
+Make it executable once, then run it:
+
+```bash
+chmod +x myscript.sh
+./myscript.sh
+```
+
+#### 4. How do you create and use a variable?
+Write the name, `=` and the value, with **no spaces** around `=`. Put `$` in front to use it.
+
+```bash
+env="dev"
+echo "Deploying to $env"
+```
+
+#### 5. How do you read the values passed to a script?
+`$1` is the first value, `$2` the second, `$#` is how many were passed.
+
+```bash
+# ./deploy.sh prod 3
+echo "Environment: $1, replicas: $2"
+```
+
+#### 6. What is `$?`?
+The result of the last command: **0 means it worked**, any other number means it failed.
+
+```bash
+ls /not-there
+echo $?        # prints 2 (failed)
+```
+
+#### 7. How do you write an `if` condition?
+
+```bash
+if [[ -f /etc/hosts ]]; then
+  echo "File exists"
+else
+  echo "File not found"
+fi
+```
+
+#### 8. How do you write a `for` loop?
+
+```bash
+for server in web1 web2 web3; do
+  echo "Checking $server"
+done
+```
+
+#### 9. How do you read a file line by line?
+
+```bash
+while read -r line; do
+  echo "Line: $line"
+done < servers.txt
+```
+
+#### 10. What's the difference between `>` and `>>`?
+`>` replaces the file's content. `>>` adds to the end of the file.
+
+```bash
+echo "first"  > out.txt     # file has: first
+echo "second" >> out.txt    # file has: first, second
+```
+
+#### 11. What does `2>&1` mean?
+Send error messages to the same place as normal output, for example both into one log file.
+
+```bash
+./backup.sh > backup.log 2>&1
+```
+
+#### 12. How do you search for a word in a file?
+Use `grep`. `-i` ignores upper/lower case, and `-c` counts matching lines.
+
+```bash
+grep "ERROR" app.log
+grep -c "ERROR" app.log     # how many lines have ERROR
+```
+
+#### 13. How do you replace text in a file?
+
+```bash
+sed -i 's/old/new/g' config.txt
+```
+
+#### 14. How do you print only one column?
+`awk` splits each line into columns: `$1` is the first, `$2` the second.
+
+```bash
+awk '{print $1}' access.log     # first column (the IP address)
+```
+
+#### 15. How do you run a script automatically every day?
+Use **cron**. Run `crontab -e` and add a line. This one runs at 2 a.m. every day:
+
+```bash
+0 2 * * * /home/ops/backup.sh
+```
+
+### More advanced questions
+
+#### 16. What does `set -e` do?
+It stops the script as soon as any command fails, so a broken step doesn't carry on. Most scripts start with `set -euo pipefail` for extra safety.
+
+#### 17. How do you debug a script?
+Run it with `bash -x`. It prints every command before running it, so you can see where it goes wrong.
+
+```bash
+bash -x myscript.sh
+```
+
+#### 18. How do you find and delete log files older than 7 days?
+
+```bash
+find /var/log/myapp -name "*.log" -mtime +7 -delete
+```
+
+#### 19. How do you count unique IP addresses in a log?
+
+```bash
+awk '{print $1}' access.log | sort -u | wc -l
+```
+
+#### 20. How do you check if a service is running?
+
+```bash
+systemctl is-active nginx       # prints "active" or "inactive"
+```
+
+#### 21. How do you check if a port is open?
+
+```bash
+ss -tulpn | grep 8080           # on this machine
+nc -zv db-server 5432           # on another machine
+```
+
+#### 22. How do you stop a process by its name?
+
+```bash
+pkill -f myapp
+```
+
+#### 23. How do you keep a script running after you log out?
+
+```bash
+nohup ./long-job.sh > job.log 2>&1 &
+```
+
+#### 24. How do you write a function?
+
+```bash
+greet() {
+  echo "Hello, $1"
+}
+greet "DevOps"
+```
+
+#### 25. What's the difference between `./script.sh` and `source script.sh`?
+`./script.sh` runs in a **new** shell, so its variables disappear afterwards. `source` runs it in **your current** shell, so its variables stay (useful for loading settings).
+
+#### 26. How do you keep passwords out of scripts?
+Never write them inside the script. Read them from an environment variable, or from a secrets manager such as AWS Secrets Manager.
+
+```bash
+db_password="${DB_PASSWORD:?DB_PASSWORD is not set}"
+```
 
 ### Practice tasks
 
