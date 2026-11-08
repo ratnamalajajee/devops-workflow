@@ -4,6 +4,8 @@ AWS is the most widely used cloud platform. This guide sets up an account **safe
 
 > **Cost:** Several steps create billable resources (NAT gateways, EKS, load balancers). Those steps are marked. **Always run the cleanup step** when you finish, and set up a budget alert first.
 
+> **Tip:** Want to know **what each service is for** first? Read [AWS services in a real deployment](#/tool/aws-real-deployment): every service explained with one real online shop.
+
 > **Tip:** This guide is the **overview**. Each service also has its own step-by-step deep dive: [Create your account](#/tool/aws-account) · [IAM](#/tool/aws-iam) · [VPC](#/tool/aws-vpc) · [PrivateLink](#/tool/aws-privatelink) · [EC2 website lab](#/tool/ec2-website) · [Systems Manager](#/tool/aws-ssm) · [S3](#/tool/aws-s3) · [EFS and FSx](#/tool/aws-efs-fsx) · [Backup and DataSync](#/tool/aws-backup) · [KMS](#/tool/aws-kms) · [Route 53](#/tool/aws-route53) · [Load Balancers](#/tool/aws-elb) · [ECR](#/tool/aws-ecr) · [ECS](#/tool/aws-ecs) · [Secrets Manager](#/tool/aws-secrets) · [RDS and Aurora](#/tool/aws-rds) · [Lambda and EventBridge](#/tool/aws-lambda) · [CloudWatch](#/tool/aws-cloudwatch) · [SNS and SES](#/tool/aws-sns-ses) · [Firehose and OpenSearch](#/tool/aws-opensearch).
 
 ## Start here: AWS and the cloud in simple words

@@ -120,6 +120,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Secure account, IAM, CLI, VPC, EC2, S3, ECR, EKS and cost control.'
     },
     {
+      id: 'aws-real-deployment',
+      section: 'AWS',
+      title: 'AWS Services in a Real Deployment',
+      badge: 'LIVE',
+      color: '#f43f5e',
+      level: 'Beginner',
+      hours: 2,
+      desc: 'Every AWS service explained with one real online shop: what it is for, how the shop uses it, what breaks without it, plus a live release, a sale day and a 2 a.m. incident.'
+    },
+    {
       id: 'aws-iam',
       section: 'AWS',
       title: 'AWS IAM',
@@ -496,6 +506,7 @@ window.DEVOPS_CONFIG = {
       learn: ['Accounts, regions and Availability Zones', 'IAM: users, roles and policies', 'Networking: VPC, subnets, route tables, NAT', 'Servers (EC2) and storage (S3)', 'DNS, load balancers and encryption keys', 'Cost control and clean-up'],
       rows: [
         { label: 'First: open your account', then: ['aws-account'] },
+        { label: 'Big picture: every service in one real app', then: ['aws-real-deployment'] },
         { label: 'Pick one cloud', pick: ['aws', { title: 'Azure', badge: 'AZ', color: '#0078d4', url: 'https://learn.microsoft.com/en-us/azure/architecture/aws-professional/', note: 'Microsoft Learn: Azure for AWS professionals' }] },
         { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'aws-privatelink', 'ec2-website', 'aws-ssm', 'aws-s3', 'aws-efs-fsx', 'aws-backup', 'aws-route53', 'aws-elb', 'aws-rds', 'aws-lambda', 'aws-kms', 'aws-secrets'] }
       ],

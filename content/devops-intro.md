@@ -149,6 +149,8 @@ AWS docs: [What is DevOps?](https://aws.amazon.com/devops/what-is-devops/) · Mi
 ↻ What monitoring shows (bugs, slow pages, user feedback) becomes the next task in **Plan**, and the loop starts again.
 ```
 
+> **Tip:** To see every AWS service in this flow with a real use case, read [AWS services in a real deployment](#/tool/aws-real-deployment).
+
 **Underneath all of it:** **Terraform** creates the VPC, the EKS cluster, the ECR repositories and the IAM roles from code, so the whole platform can be rebuilt or copied to a new region with one command. **Linux** and **scripting** glue every step together.
 
 | Step | Guide on this site |
