@@ -300,6 +300,16 @@ window.DEVOPS_CONFIG = {
       desc: 'SNS alerts with topics, filters, KMS encryption and dead-letter queues, plus SES email: verified domains, DKIM/SPF/DMARC, sandbox, bounces and SMTP.'
     },
     {
+      id: 'aws-opensearch',
+      section: 'AWS',
+      title: 'Firehose and OpenSearch',
+      badge: 'LOGS',
+      color: '#9a3412',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'Ship logs from EKS and EC2 with Fluent Bit and Amazon Data Firehose into OpenSearch: secure domain, role mapping, Dashboards search, ISM retention and alarms.'
+    },
+    {
       id: 'atlantis-aws',
       section: 'AWS',
       title: 'Atlantis on AWS: Manual Setup',
@@ -540,7 +550,7 @@ window.DEVOPS_CONFIG = {
       learn: ['Metrics, logs and traces: what each one tells you', 'CloudWatch: metrics, alarms, logs and dashboards', 'Prometheus and Grafana for Kubernetes', 'Good alerts: only when users are affected', 'Reading pod logs and events to find a problem', 'On-call basics and blameless incident reviews'],
       tools: [['CloudWatch', 'AWS metrics, logs & alarms'], ['Prometheus', 'metrics & alerts'], ['Grafana', 'dashboards'], ['kubectl logs / events', 'pod problems']],
       rows: [
-        { label: 'On this site', links: ['aws-cloudwatch', 'aws-sns-ses', 'k8s-troubleshooting'] },
+        { label: 'On this site', links: ['aws-cloudwatch', 'aws-sns-ses', 'aws-opensearch', 'k8s-troubleshooting'] },
         { label: 'Official docs', links: [
           { title: 'Prometheus', badge: 'PR', color: '#e6522c', url: 'https://prometheus.io/docs/introduction/overview/', note: 'Overview' },
           { title: 'Grafana', badge: 'GF', color: '#f46800', url: 'https://grafana.com/docs/grafana/latest/', note: 'Documentation' },

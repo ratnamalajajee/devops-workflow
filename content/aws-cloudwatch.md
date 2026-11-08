@@ -597,9 +597,9 @@ AWS docs: [Metric filters](https://docs.aws.amazon.com/AmazonCloudWatch/latest/l
 | Destination | Typical use |
 |---|---|
 | **AWS Lambda** | Small custom actions, e.g. post each ERROR to a chat channel (see [Lambda and EventBridge](#/tool/aws-lambda)) |
-| **Amazon Data Firehose** | Deliver logs to S3, OpenSearch or a third-party tool, in batches (see [Firehose and OpenSearch](#/tool/aws-opensearch)) |
+| **Amazon Data Firehose** | Deliver logs to S3 or a third-party tool, in batches. Not to OpenSearch: Firehose can't deliver CloudWatch Logs there |
 | **Kinesis Data Streams** | Many consumers reading the same log stream |
-| **OpenSearch Service** | Full-text search and log dashboards |
+| **OpenSearch Service** | Full-text search and log dashboards, using CloudWatch's own **OpenSearch subscription filter** (see [Firehose and OpenSearch](#/tool/aws-opensearch)) |
 
 Each log group can have **up to 2** subscription filters. Lambda receives the data **gzip-compressed and base64-encoded** in the `awslogs.data` field. Example for an existing Lambda function called `my-log-processor`:
 
