@@ -2,6 +2,8 @@
 
 Python is the DevOps engineer's second language after Bash. Use it when a script outgrows the shell: talking to cloud APIs with **boto3**, parsing JSON and YAML, calling REST APIs, automating Kubernetes and Docker, and writing tools your team can test and maintain. This guide covers what to learn, the basics with DevOps examples, the **modules you'll use every day**, **easy example programs**, free resources and **interview questions**.
 
+> **Tip:** Two companion tabs: the [Python Basics & Module Cheat Sheet](#/tool/python-basics) for quick syntax and module look-ups, and [Python Interview Programs](#/tool/python-programs) with 18 interview-style programs and how to run them.
+
 > **Note:** You need Python 3.10 or newer (`python3 --version`). Every example runs on Linux, WSL, macOS and the cloud lab machine in the [Practice lab](#/lab). AWS examples need the AWS CLI configured (see the [AWS guide](#/tool/aws)).
 
 ## Start here: Python in simple words

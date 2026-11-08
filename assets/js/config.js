@@ -60,6 +60,16 @@ window.DEVOPS_CONFIG = {
       desc: 'What to learn, scripts from first line to robust automation, 8 example programs, resources and interview questions.'
     },
     {
+      id: 'python-basics',
+      section: 'Scripting',
+      title: 'Python Basics & Modules',
+      badge: 'REF',
+      color: '#306998',
+      level: 'Beginner',
+      hours: 3,
+      desc: 'Syntax cheat sheet plus how to use os, subprocess, json, re, logging, socket, requests, psutil, boto3 and more, with official docs.'
+    },
+    {
       id: 'python-devops',
       section: 'Scripting',
       title: 'Python for DevOps',
@@ -68,6 +78,16 @@ window.DEVOPS_CONFIG = {
       level: 'Beginner',
       hours: 8,
       desc: 'Python basics for automation, boto3 and other key modules, example programs, testing with moto, interview questions.'
+    },
+    {
+      id: 'python-programs',
+      section: 'Scripting',
+      title: 'Python Interview Programs',
+      badge: 'Q&A',
+      color: '#f59f00',
+      level: 'Intermediate',
+      hours: 4,
+      desc: '18 interview-style programs: logs, disk, ports, processes, boto3, Kubernetes, SRE scenarios, with how to run each one.'
     },
     {
       id: 'aws',
