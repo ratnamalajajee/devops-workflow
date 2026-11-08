@@ -159,6 +159,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Pods, Deployments, Services, config, storage, Ingress, Helm and debugging.'
     },
     {
+      id: 'eks-cluster',
+      section: 'Kubernetes',
+      title: 'EKS Cluster Setup: Runbook',
+      badge: 'EKS',
+      color: '#ff9900',
+      level: 'Runbook',
+      hours: 3,
+      desc: 'Copy-paste runbook: eksctl cluster in an existing VPC, Load Balancer Controller, EBS, EFS and Istio.'
+    },
+    {
       id: 'cicd-basics',
       section: 'CI/CD',
       title: 'CI/CD Basics',
@@ -212,7 +222,7 @@ window.DEVOPS_CONFIG = {
       id: 'argocd-eks',
       section: 'CI/CD',
       title: 'Argo CD on EKS: Runbook',
-      badge: 'EKS',
+      badge: 'ARGO',
       color: '#dd6b20',
       level: 'Runbook',
       hours: 2,

@@ -2,7 +2,7 @@
 
 A step-by-step runbook for installing Argo CD on an existing Amazon EKS cluster, exposing it inside the company network, connecting a **Bitbucket** repository over SSH, and deploying a **Helm chart** as an Argo CD Application. Every command is meant to be copied in order. Replace the example values with your own once, in the first step.
 
-> **Note:** This runbook assumes the EKS cluster already exists (created from your team's cluster README or Terraform), and that you have `aws`, `kubectl` and cluster-admin access. For the concepts behind each step, see the [Argo CD guide](#/tool/argocd).
+> **Note:** This runbook assumes the EKS cluster already exists (see the [EKS Cluster Setup runbook](#/tool/eks-cluster), or your team's Terraform), and that you have `aws`, `kubectl` and cluster-admin access. For the concepts behind each step, see the [Argo CD guide](#/tool/argocd).
 
 > **Warning:** Never write real passwords, tokens, private keys or internal IP addresses into runbooks, tickets or chat. Use the variables below, and keep secrets in a password manager or AWS Secrets Manager.
 
