@@ -140,6 +140,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Choose a CIDR, build a VPC with public and private subnets, IGW, NAT and route tables, then connect VPCs with a Transit Gateway.'
     },
     {
+      id: 'aws-privatelink',
+      section: 'AWS',
+      title: 'VPC Endpoints and PrivateLink',
+      badge: 'PVL',
+      color: '#0369a1',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'Reach AWS services and other teams' services privately: free S3/DynamoDB gateway endpoints, interface endpoints, private DNS, and PrivateLink sharing.'
+    },
+    {
       id: 'ec2-website',
       section: 'AWS',
       title: 'AWS Lab: Website on EC2',
@@ -148,6 +158,16 @@ window.DEVOPS_CONFIG = {
       level: 'Beginner lab',
       hours: 3,
       desc: 'Launch an EC2 server, install a web page with user data, open it by URL, and learn every service involved.'
+    },
+    {
+      id: 'aws-ssm',
+      section: 'AWS',
+      title: 'AWS Systems Manager',
+      badge: 'SSM',
+      color: '#15803d',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'Manage EC2 servers without SSH: Session Manager, Run Command, custom documents, State Manager, Automation runbooks, Parameter Store and Patch Manager.'
     },
     {
       id: 'aws-s3',
@@ -248,6 +268,16 @@ window.DEVOPS_CONFIG = {
       level: 'Beginner',
       hours: 4,
       desc: 'Metrics, the CloudWatch agent, alarms to SNS, log groups, Logs Insights, metric filters, dashboards and EventBridge rules.'
+    },
+    {
+      id: 'aws-sns-ses',
+      section: 'AWS',
+      title: 'Amazon SNS and SES',
+      badge: 'SNS',
+      color: '#a21caf',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'SNS alerts with topics, filters, KMS encryption and dead-letter queues, plus SES email: verified domains, DKIM/SPF/DMARC, sandbox, bounces and SMTP.'
     },
     {
       id: 'atlantis-aws',
@@ -437,7 +467,7 @@ window.DEVOPS_CONFIG = {
       rows: [
         { label: 'First: open your account', then: ['aws-account'] },
         { label: 'Pick one cloud', pick: ['aws', { title: 'Azure', badge: 'AZ', color: '#0078d4', url: 'https://learn.microsoft.com/en-us/azure/architecture/aws-professional/', note: 'Microsoft Learn: Azure for AWS professionals' }] },
-        { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'ec2-website', 'aws-s3', 'aws-route53', 'aws-elb', 'aws-rds', 'aws-lambda', 'aws-kms', 'aws-secrets'] }
+        { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'aws-privatelink', 'ec2-website', 'aws-ssm', 'aws-s3', 'aws-route53', 'aws-elb', 'aws-rds', 'aws-lambda', 'aws-kms', 'aws-secrets'] }
       ],
       ready: 'You can build a VPC, run a website on a server behind a load balancer, and give it only the IAM permissions it needs.'
     },
@@ -490,7 +520,7 @@ window.DEVOPS_CONFIG = {
       learn: ['Metrics, logs and traces: what each one tells you', 'CloudWatch: metrics, alarms, logs and dashboards', 'Prometheus and Grafana for Kubernetes', 'Good alerts: only when users are affected', 'Reading pod logs and events to find a problem', 'On-call basics and blameless incident reviews'],
       tools: [['CloudWatch', 'AWS metrics, logs & alarms'], ['Prometheus', 'metrics & alerts'], ['Grafana', 'dashboards'], ['kubectl logs / events', 'pod problems']],
       rows: [
-        { label: 'On this site', links: ['aws-cloudwatch', 'k8s-troubleshooting'] },
+        { label: 'On this site', links: ['aws-cloudwatch', 'aws-sns-ses', 'k8s-troubleshooting'] },
         { label: 'Official docs', links: [
           { title: 'Prometheus', badge: 'PR', color: '#e6522c', url: 'https://prometheus.io/docs/introduction/overview/', note: 'Overview' },
           { title: 'Grafana', badge: 'GF', color: '#f46800', url: 'https://grafana.com/docs/grafana/latest/', note: 'Documentation' },

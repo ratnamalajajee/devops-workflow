@@ -292,6 +292,8 @@ aws ec2 create-vpc-endpoint --vpc-id $VPC_ID --vpc-endpoint-type Gateway \
 
 AWS docs: [Gateway endpoints for S3](https://docs.aws.amazon.com/vpc/latest/privatelink/vpc-endpoints-s3.html)
 
+> **Tip:** Interface endpoints (for SSM, ECR, Secrets Manager and more) and sharing your own service privately with another account are covered in [VPC endpoints and PrivateLink](#/tool/aws-privatelink).
+
 ## Step 7: Security groups and network ACLs
 
 > **In simple words:** Route tables decide **where** traffic can go. **Security groups** decide **who is allowed in**, server by server. A good pattern is layers: the internet can reach only the web tier, the web tier only the app tier, the app tier only the database.
