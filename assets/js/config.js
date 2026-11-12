@@ -132,6 +132,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Every AWS service explained with one real online shop: what it is for, how the shop uses it, what breaks without it, plus a live release, a sale day and a 2 a.m. incident.'
     },
     {
+      id: 'deploy-your-app',
+      section: 'AWS',
+      title: 'Deploy Your App: EC2, ECS or EKS',
+      badge: 'GO',
+      color: '#059669',
+      level: 'Beginner',
+      hours: 5,
+      desc: 'One app deployed three ways, as simple chains: VPC → EC2 → ALB → Route 53, VPC → ECR → ECS Fargate → ALB, and VPC → EKS → Kubernetes → Ingress (ALB) → Route 53, then the pipeline and clean-up.'
+    },
+    {
       id: 'aws-iam',
       section: 'AWS',
       title: 'AWS IAM',
@@ -569,7 +579,9 @@ window.DEVOPS_CONFIG = {
       rows: [
         { label: 'First: open your account', then: ['aws-account'] },
         { label: 'Big picture: every service in one real app', then: ['aws-real-deployment'] },
+        { label: 'Then: deploy one app three ways (EC2, ECS, EKS)', then: ['deploy-your-app'] },
         { label: 'Pick one cloud', pick: ['aws', { title: 'Azure', badge: 'AZ', color: '#0078d4', url: 'https://learn.microsoft.com/en-us/azure/architecture/aws-professional/', note: 'Microsoft Learn: Azure for AWS professionals' }] },
+        { label: 'Compare clouds side by side', links: [{ title: 'AWS → Azure → GCP runbook', badge: 'MC', color: '#0d9488', url: 'multicloud/', note: '24 services: console steps, CLI scripts and docs for each cloud' }] },
         { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'aws-privatelink', 'ec2-website', 'aws-ssm', 'aws-s3', 'aws-efs-fsx', 'aws-backup', 'aws-route53', 'aws-elb', 'aws-rds', 'aws-lambda', 'aws-kms', 'aws-secrets'] }
       ],
       ready: 'You can build a VPC, run a website on a server behind a load balancer, and give it only the IAM permissions it needs.'
