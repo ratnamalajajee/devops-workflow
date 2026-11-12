@@ -1,6 +1,6 @@
 # SonarQube: Static Code Analysis (SAST)
 
-SonarQube reads your source code **without running it** and reports bugs, security vulnerabilities, security hotspots and code smells. A **quality gate** then gives one clear answer: pass or fail. This guide runs a SonarQube server, then analyses a Python repository step by step: from your laptop, from **GitLab CI** and from **Jenkins**. The settings are the ones that work in a real Python microservices project.
+SonarQube reads your source code **without running it** and reports bugs, security vulnerabilities, security hotspots and code smells. A **quality gate** then gives one clear answer: pass or fail. This guide runs a SonarQube server, then analyses a Python repository step by step: from your laptop, from **GitLab CI** and from **Jenkins**. The settings are the ones that work in a real Python microservices project, including SonarQube installed in its own namespace on Kubernetes (EKS) and the scan script that AWS CodeBuild runs.
 
 > **Note:** One guide per security tool: [Gitleaks](#/tool/gitleaks) · [SonarQube](#/tool/sonarqube) · [Trivy](#/tool/trivy) · [Snyk](#/tool/snyk) · [DAST with ZAP](#/tool/dast-zap). The [Jenkins DevSecOps Pipeline](#/tool/jenkins-devsecops) shows SonarQube for a Java (Maven) project.
 
@@ -57,8 +57,12 @@ Think of the spelling and grammar checker in a word processor: it underlines mis
 
 ```text
 your-repo/
-├── sonar-project.properties    what to analyse: folders, language version, exclusions
-├── services/                   one folder per Python service
+├── sonar-project.properties        what to analyse: folders, language version, exclusions
+├── cicd/
+│   ├── buildspec-sonarqube.yml     AWS CodeBuild: runs the script
+│   └── security/
+│       └── sonarqube-scan.sh       the scan: token, scanner, quality gate, report or enforce
+├── services/                       one folder per Python service
 │   ├── orders-service/
 │   └── billing-service/
 └── shared-lib/
@@ -66,8 +70,10 @@ your-repo/
 
 | Setting | Where it lives | Example |
 |---|---|---|
+| Server | Helm release in its own namespace on EKS, opened on an HTTPS URL through an ALB | `https://sonarqube.example.com` |
+| Runner | An AWS CodeBuild project that runs `cicd/security/sonarqube-scan.sh` (the same script runs in GitLab, Jenkins and on a laptop) | `aws codebuild start-build --project-name my-app-sonarqube` |
 | `SONAR_HOST_URL` | CI variable | `https://sonarqube.example.com` |
-| `SONAR_TOKEN` | CI **secret** (masked) | `sqp_…` project analysis token |
+| `SONAR_TOKEN` | CI **secret** (masked), or AWS Secrets Manager | `sqp_…` project analysis token, in secret `security/sonarqube-token` |
 | `-Dsonar.qualitygate.wait=true` | Scanner argument | The scanner waits for the gate and exits `1` if it fails |
 | Scanner image | Pinned | `sonarsource/sonar-scanner-cli:12.3.1.4302_8.3.1` |
 | Mode | Report by default, `SONAR_ENFORCE=true` to block | A failed gate first shows as a warning, later fails the pipeline |
@@ -151,26 +157,70 @@ docker compose up -d
 
 Put HTTPS in front of it (a load balancer or a reverse proxy), and make sure your **CI runners can reach the URL**.
 
-### On Kubernetes (Helm, as on EKS)
+### On Kubernetes (the team setup)
 
-The SonarQube Helm chart with an external PostgreSQL (for example Amazon RDS) and an internal ALB:
+Install it in its own namespace with Helm and open it on an HTTPS URL: see the next step, [Run SonarQube on Kubernetes and open it on a URL](#/tool/sonarqube/run-sonarqube-on-kubernetes-and-open-it-on-a-url).
 
-```bash
-helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
-helm repo update
-kubectl create namespace sonarqube
-kubectl -n sonarqube create secret generic sonarqube-db --from-literal=password='<database password>'
-kubectl -n sonarqube create secret generic sonarqube-monitoring --from-literal=passcode="$(openssl rand -hex 16)"
-helm upgrade --install sonarqube sonarqube/sonarqube -n sonarqube -f sonarqube-values.yaml
+## Run SonarQube on Kubernetes and open it on a URL
+
+> **In simple words:** This is the team setup used in the real project. SonarQube runs in its **own namespace** on the EKS cluster, is installed with Helm, keeps its data in Amazon RDS (PostgreSQL), and everyone opens it on one HTTPS URL through an AWS load balancer (ALB).
+
+```text
+ browser / CI runner ──HTTPS──► ALB (ACM certificate) ──► Service sonarqube-sonarqube:9000 ──► Pod sonarqube-sonarqube-0
+ https://sonarqube.example.com   created from the Ingress       (namespace "sonarqube")                  │
+                                                                                                           ▼
+                                                                          Amazon RDS PostgreSQL, database "sonarqube"
 ```
 
-`sonarqube-values.yaml`:
+### 1. Check what you need first
+
+| Need | Check with |
+|---|---|
+| An EKS cluster, and `kubectl` pointing at it | `kubectl get nodes` |
+| Helm 3 | `helm version` |
+| The AWS Load Balancer Controller (turns an Ingress into an ALB) | `kubectl -n kube-system get deploy aws-load-balancer-controller` |
+| A default StorageClass for the data volume (EBS CSI driver) | `kubectl get storageclass` |
+| An ACM certificate for the host name, for example `sonarqube.example.com` | `aws acm list-certificates` |
+| A node with about 4 GB of free memory | `kubectl top nodes` |
+| A PostgreSQL database the cluster can reach (RDS) | the next step |
+
+See the [EKS guide](#/tool/eks-cluster), [Load balancers](#/tool/aws-elb) and [RDS](#/tool/aws-rds) for these pieces.
+
+### 2. Create the database and a user for SonarQube
+
+From a temporary pod in the cluster (it can reach RDS when the RDS security group allows the nodes on port 5432):
+
+```bash
+kubectl run psql --rm -it --image=postgres:17 --restart=Never -- \
+  psql "host=<rds-endpoint> user=<admin user> dbname=postgres sslmode=require"
+```
+
+```sql
+CREATE USER sonar WITH PASSWORD '<strong password>';
+CREATE DATABASE sonarqube OWNER sonar;
+```
+
+> **Tip:** Give SonarQube its own database user instead of the RDS admin user. If SonarQube's password ever leaks, only the SonarQube database is exposed.
+
+### 3. Create the namespace and the secrets
+
+```bash
+kubectl create namespace sonarqube
+read -rsp "Database password for user sonar: " DBPW && echo
+kubectl -n sonarqube create secret generic sonarqube-db --from-literal=password="$DBPW"
+unset DBPW
+kubectl -n sonarqube create secret generic sonarqube-monitoring --from-literal=passcode="$(openssl rand -hex 16)"
+```
+
+### 4. Write the values file
+
+`sonarqube-values.yaml` (no passwords in it, so it can live in Git):
 
 ```yaml
 community:
   enabled: true                          # the free Community Build
 monitoringPasscodeSecretName: sonarqube-monitoring
-monitoringPasscodeSecretKey: passcode    # keep the passcode in a Secret, not in this file
+monitoringPasscodeSecretKey: passcode    # the passcode stays in a Secret, not in this file
 jdbcOverwrite:
   enabled: true
   jdbcUrl: jdbc:postgresql://<rds-endpoint>:5432/sonarqube    # CHANGE
@@ -187,18 +237,77 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: alb
-    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/scheme: internal              # only reachable inside the VPC (or over VPN)
+    # To share an ALB that already exists, instead of creating a new one:
+    # alb.ingress.kubernetes.io/group.name: <the other Ingress's group name>
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS": 443}]'
     alb.ingress.kubernetes.io/certificate-arn: <acm certificate arn>   # CHANGE
+    alb.ingress.kubernetes.io/ssl-policy: ELBSecurityPolicy-TLS13-1-2-2021-06
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/backend-protocol: HTTP
     alb.ingress.kubernetes.io/healthcheck-path: /api/system/status
   hosts:
-    - name: sonarqube.example.internal   # CHANGE
+    - name: sonarqube.example.com        # CHANGE
       path: /
       pathType: Prefix                   # the chart's default makes the ALB match "/" only
 ```
 
-See [Helm per environment](#/tool/helm-environments) and [Load balancers](#/tool/aws-elb) for the pieces around it.
+### 5. Install it with Helm
+
+```bash
+helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+helm repo update
+helm search repo sonarqube/sonarqube --versions | head -5     # pick a chart version, and pin it
+helm upgrade --install sonarqube sonarqube/sonarqube -n sonarqube \
+  -f sonarqube-values.yaml --version <chart version>
+```
+
+### 6. Watch it start
+
+```bash
+kubectl -n sonarqube get pods -w          # sonarqube-sonarqube-0: Init → Running → READY 1/1 (2 to 5 minutes)
+kubectl -n sonarqube logs -f sonarqube-sonarqube-0 -c sonarqube   # wait for "SonarQube is operational"
+```
+
+The chart starts a small privileged init container that sets `vm.max_map_count` on the node, so you don't have to.
+
+### 7. Open it on the URL
+
+The Ingress creates an ALB. Find its address:
+
+```bash
+kubectl -n sonarqube get ingress
+```
+
+The `ADDRESS` column shows the ALB's DNS name (for an internal ALB it starts with `internal-k8s-…elb.amazonaws.com`). Point your host name at it: in **Route 53 → Hosted zones →** your zone **→ Create record**, name `sonarqube`, **Alias** on, **Alias to Application Load Balancer**, your region, then that ALB. (If ExternalDNS runs in the cluster, it creates the record for you.)
+
+Check it from a machine in the VPC (or on the VPN):
+
+```bash
+curl -s https://sonarqube.example.com/api/system/status
+# {"id":"…","version":"…","status":"UP"}
+```
+
+Then open `https://sonarqube.example.com` in the browser, log in as `admin` / `admin`, and set a new password straight away.
+
+> **Note:** An **internal** ALB is only reachable from inside the VPC: your laptop needs the VPN, and the CI runners must run in the VPC too (a CodeBuild project with VPC settings, a self-managed GitLab runner, or a Jenkins agent in the VPC).
+
+### 8. No URL yet? Use a port-forward
+
+```bash
+kubectl -n sonarqube port-forward svc/sonarqube-sonarqube 9000:9000
+```
+
+Open `http://localhost:9000` while the command runs. Good for a first look, not for CI.
+
+### 9. Look after it
+
+| Task | How |
+|---|---|
+| Upgrade | Take an RDS snapshot, read the release notes, then `helm upgrade` with the new `--version`. If SonarQube says it's under maintenance, open `https://<your URL>/setup` to upgrade the database |
+| Backup | The data is in RDS: use RDS automated backups. The volume only holds search indexes that SonarQube rebuilds from the database |
+| Logs | `kubectl -n sonarqube logs sonarqube-sonarqube-0 -c sonarqube` |
+| Restart | `kubectl -n sonarqube rollout restart statefulset sonarqube-sonarqube` |
 
 ## Create the project and a token
 
@@ -500,6 +609,298 @@ stage('Quality gate') {
 }
 ```
 
+## Script integration with AWS CodeBuild (the working setup)
+
+> **In simple words:** In the real project the scan isn't written into each pipeline. It's **one script in the repository**. An AWS CodeBuild project runs it and reads the token from **AWS Secrets Manager**, and the same script also runs on a laptop, in GitLab and in Jenkins. One place to change, the same result everywhere.
+
+```text
+ aws codebuild start-build ──► CodeBuild project (privileged, inside the VPC)
+                                  │  buildspec: sh cicd/security/sonarqube-scan.sh
+                                  ▼
+                       sonarqube-scan.sh ──── reads the token ────► AWS Secrets Manager: security/sonarqube-token
+                                  │
+                                  ├── docker run sonar-scanner-cli ──HTTPS──► SonarQube on EKS (internal ALB)
+                                  │            waits for the quality gate ◄─────────────┘
+                                  ▼
+                       PASS / FINDINGS / ERROR ──► exit 0 (report mode) or exit 1 (SONAR_ENFORCE=true)
+```
+
+### 1. Add the script to the repository
+
+Save this as `cicd/security/sonarqube-scan.sh`. It's plain POSIX `sh`, so it also runs in small images without bash:
+
+```bash
+#!/bin/sh
+# =============================================================================
+# cicd/security/sonarqube-scan.sh — SAST: SonarQube analysis + quality gate.
+#
+# One script for every runner: your laptop, AWS CodeBuild, GitLab CI, Jenkins.
+# It analyses the repository root with sonar-project.properties, then waits
+# for the quality gate. Run it with: sh cicd/security/sonarqube-scan.sh
+#
+# Settings (environment variables):
+#   SONAR_HOST_URL      the server, e.g. https://sonarqube.example.com ("" = skipped)
+#   SONAR_TOKEN         the analysis token (sqp_...), or instead:
+#   SONAR_TOKEN_SECRET  an AWS Secrets Manager secret holding it: the plain token,
+#                       or JSON {"token": "..."} (needs the aws CLI; jq for JSON)
+#   SONAR_PROJECT_KEY   overrides sonar.projectKey
+#   SONAR_ENFORCE       "true" = a failed gate fails the run (exit 1).
+#                       Default: report mode (the result is printed, exit 0).
+#   SONAR_GATE_TIMEOUT  seconds to wait for the gate (default 600)
+#   SONAR_IMAGE         scanner image, used when sonar-scanner isn't installed
+#   SONAR_DOCKER_ARGS   extra "docker run" options, e.g. "--network host"
+#   AWS_REGION          region of SONAR_TOKEN_SECRET (default us-east-1)
+# Extra arguments go to the scanner, e.g. -Dsonar.verbose=true
+# =============================================================================
+set -eu
+
+IMAGE="${SONAR_IMAGE:-sonarsource/sonar-scanner-cli:12.3.1.4302_8.3.1}"
+REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+
+log() { echo "[sonarqube] $*"; }
+
+# finish <PASS|SKIPPED|FINDINGS|ERROR> <detail>: print the result and exit.
+finish() {
+  log "$1: $2"
+  case "$1" in PASS|SKIPPED) exit 0 ;; esac
+  if [ "${SONAR_ENFORCE:-false}" = "true" ]; then exit 1; fi
+  log "Report mode: the run continues. Set SONAR_ENFORCE=true to fail it instead."
+  exit 0
+}
+
+[ -n "${SONAR_HOST_URL:-}" ] || finish SKIPPED "SONAR_HOST_URL is not set"
+
+# --- The token: from SONAR_TOKEN, or from AWS Secrets Manager ---
+if [ -z "${SONAR_TOKEN:-}" ] && [ -n "${SONAR_TOKEN_SECRET:-}" ]; then
+  value="$(aws secretsmanager get-secret-value --region "${AWS_REGION:-us-east-1}" \
+             --secret-id "$SONAR_TOKEN_SECRET" --query SecretString --output text 2>/dev/null)" \
+    || finish ERROR "cannot read the secret ${SONAR_TOKEN_SECRET} (does it exist? may this role read it?)"
+  case "$value" in
+    "{"*) value="$(printf '%s' "$value" | jq -r '.token // empty')" \
+            || finish ERROR "the secret is JSON: install jq, or store only the token" ;;
+  esac
+  # A pasted value often has spaces or line breaks around it.
+  SONAR_TOKEN="$(printf '%s' "$value" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+fi
+[ -n "${SONAR_TOKEN:-}" ] || finish ERROR "no token: set SONAR_TOKEN or SONAR_TOKEN_SECRET"
+# A token is one word (sqp_...). Anything else is rejected here, because the
+# scanner prints a malformed token in full in its error message.
+case "$SONAR_TOKEN" in
+  *[!A-Za-z0-9_]*) finish ERROR "the token is not a bare token (spaces, quotes or a label?): store only the sqp_... value" ;;
+esac
+export SONAR_TOKEN SONAR_HOST_URL
+
+# --- Scanner arguments: yours first, then the quality-gate settings ---
+set -- "$@" -Dsonar.qualitygate.wait=true "-Dsonar.qualitygate.timeout=${SONAR_GATE_TIMEOUT:-600}"
+if [ -n "${SONAR_PROJECT_KEY:-}" ]; then set -- "$@" "-Dsonar.projectKey=${SONAR_PROJECT_KEY}"; fi
+
+cd "$REPO_ROOT"
+rc=0
+if command -v sonar-scanner >/dev/null 2>&1; then
+  log "Analysing ${REPO_ROOT} for ${SONAR_HOST_URL} (installed sonar-scanner)"
+  sonar-scanner "$@" || rc=$?
+else
+  cache="${SONAR_CACHE_DIR:-$HOME/.cache/sonar}"
+  mkdir -p "$cache"
+  log "Analysing ${REPO_ROOT} for ${SONAR_HOST_URL} (${IMAGE})"
+  # SONAR_DOCKER_ARGS is unquoted on purpose: it is a list of options.
+  docker run --rm ${SONAR_DOCKER_ARGS:-} -u "$(id -u):$(id -g)" -e SONAR_TOKEN -e SONAR_HOST_URL \
+    -v "$REPO_ROOT:/usr/src" -v "$cache:/tmp/sonar-cache" -w /usr/src "$IMAGE" \
+    -Dsonar.userHome=/tmp/sonar-cache -Dsonar.working.directory=/tmp/scannerwork "$@" || rc=$?
+fi
+
+# The dashboard link is in the scanner's log above.
+[ "$rc" -ne 0 ] || finish PASS "quality gate passed"
+finish FINDINGS "quality gate failed, or the analysis failed (scanner exit ${rc}; see the log above)"
+```
+
+What it does, in order:
+
+| Step | What happens |
+|---|---|
+| 1 | No `SONAR_HOST_URL`: prints SKIPPED and stops (exit 0) |
+| 2 | Gets the token from `SONAR_TOKEN`, or reads it from Secrets Manager (`SONAR_TOKEN_SECRET`) and trims spaces around it |
+| 3 | Refuses a token that isn't one word, such as a pasted label `Analyze "my-app": sqp_…`, before the scanner can print it |
+| 4 | Runs the scanner: the installed `sonar-scanner` if there is one (GitLab's scanner image), otherwise the pinned Docker image |
+| 5 | `-Dsonar.qualitygate.wait=true`: the scanner waits for the gate and exits 1 if it fails |
+| 6 | Prints PASS, FINDINGS or ERROR. Report mode exits 0; `SONAR_ENFORCE=true` exits 1 on FINDINGS or ERROR |
+
+Keep Unix line endings on scripts, or they fail with `$'\r': command not found` when the repository was committed from Windows:
+
+```bash
+echo '*.sh text eol=lf' >> .gitattributes
+git add .gitattributes cicd/security/sonarqube-scan.sh
+git commit -m "Add the SonarQube scan script"
+```
+
+### 2. Try it from your laptop
+
+Linux, macOS or WSL (on Windows, use WSL), from anywhere inside the repository:
+
+```bash
+export SONAR_HOST_URL=https://sonarqube.example.com      # your URL (VPN on, if it's internal)
+read -rsp "SonarQube token: " SONAR_TOKEN && export SONAR_TOKEN && echo
+
+sh cicd/security/sonarqube-scan.sh                       # report mode
+SONAR_ENFORCE=true sh cicd/security/sonarqube-scan.sh    # a failed gate exits 1
+
+# or read the token from AWS Secrets Manager (needs AWS credentials)
+unset SONAR_TOKEN
+SONAR_TOKEN_SECRET=security/sonarqube-token sh cicd/security/sonarqube-scan.sh
+```
+
+For a server on your own Linux machine (`http://localhost:9000`), add `SONAR_DOCKER_ARGS="--network host"`.
+
+The end of the output:
+
+```text
+INFO  QUALITY GATE STATUS: PASSED - View details on https://sonarqube.example.com/dashboard?id=my-app
+[sonarqube] PASS: quality gate passed
+```
+
+### 3. Store the token in AWS Secrets Manager
+
+```bash
+read -rsp "SonarQube token (only the sqp_... value): " T && echo
+aws secretsmanager create-secret --name security/sonarqube-token --secret-string "$T"
+unset T
+```
+
+To replace it later (a new token, or an expired one), use the same `read` line, then `aws secretsmanager put-secret-value --secret-id security/sonarqube-token --secret-string "$T"`.
+
+### 4. Let the CodeBuild role read it
+
+Add this policy to the CodeBuild project's service role (CHANGE the region and account ID):
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadSecurityScanSecrets",
+      "Effect": "Allow",
+      "Action": "secretsmanager:GetSecretValue",
+      "Resource": "arn:aws:secretsmanager:us-east-1:123456789012:secret:security/*"
+    }
+  ]
+}
+```
+
+```bash
+aws iam put-role-policy --role-name my-codebuild-role \
+  --policy-name read-security-secrets --policy-document file://read-security-secrets.json
+```
+
+If the secret is encrypted with your own KMS key, the role also needs `kms:Decrypt` on that key. See the [IAM guide](#/tool/aws-iam) and the [Secrets Manager guide](#/tool/aws-secrets).
+
+### 5. Add the buildspec
+
+`cicd/buildspec-sonarqube.yml`:
+
+```yaml
+version: 0.2
+
+# SAST: SonarQube analysis + quality gate (cicd/security/sonarqube-scan.sh).
+# SONAR_HOST_URL is set on the project. SONAR_ENFORCE=true makes a failed gate fail the build.
+env:
+  shell: bash
+  variables:
+    SONAR_TOKEN_SECRET: security/sonarqube-token
+    SONAR_ENFORCE: "false"
+    SONAR_CACHE_DIR: /root/.cache/sonar
+
+phases:
+  pre_build:
+    commands:
+      - sed -i 's/\r$//' cicd/security/*.sh       # in case of Windows line endings
+  build:
+    commands:
+      - sh cicd/security/sonarqube-scan.sh
+
+cache:
+  paths:
+    - '/root/.cache/sonar/**/*'
+```
+
+CodeBuild sets `AWS_REGION` for you, and its standard image already has the AWS CLI, `jq` and Docker.
+
+### 6. Create the CodeBuild project
+
+In the console: **CodeBuild → Build projects → Create build project**.
+
+| Section | Setting |
+|---|---|
+| Project name | `my-app-sonarqube` |
+| Source | Your Git provider (GitLab, GitHub or Bitbucket, through a connection), the repository, branch `main` |
+| Environment | Managed image, **Amazon Linux**, runtime **Standard**, the latest image |
+| Privileged | **On**: the script runs the scanner in Docker |
+| Service role | The role from step 4 |
+| Environment variables | `SONAR_HOST_URL` = `https://sonarqube.example.com` |
+| VPC (under Additional configuration) | Needed when the SonarQube URL is internal: the cluster's VPC, **private** subnets with a NAT gateway (for Git, Docker Hub and AWS APIs), and a security group that the ALB's security group allows on 443 |
+| Buildspec | **Use a buildspec file**: `cicd/buildspec-sonarqube.yml` |
+| Logs | CloudWatch Logs on |
+
+> **Note:** With VPC settings, the service role also needs the EC2 network-interface permissions that CodeBuild uses inside a VPC. The console adds them when it creates the role for you; for an existing role, see "Allow CodeBuild to access AWS services required to create a VPC network interface" in the CodeBuild documentation.
+
+### 7. Run it and read the result
+
+```bash
+aws codebuild start-build --project-name my-app-sonarqube
+
+# another branch, with a failed gate failing the build
+aws codebuild start-build --project-name my-app-sonarqube --source-version feature/login \
+  --environment-variables-override name=SONAR_ENFORCE,value=true,type=PLAINTEXT
+```
+
+Open the build in the console (or `aws logs tail` on its log group). The last lines show the gate status, the dashboard link and `[sonarqube] PASS`, `FINDINGS` or `ERROR`.
+
+> **Warning:** On the **Community Build**, scanning a branch replaces the project's `main` result. For a branch scan, also override `SONAR_PROJECT_KEY` (for example `my-app-feature-login`).
+
+### 8. The same script in GitLab and Jenkins
+
+GitLab (the scanner image has `sonar-scanner`, so the script uses it directly; `SONAR_HOST_URL` and `SONAR_TOKEN` come from CI/CD variables):
+
+```yaml
+sonarqube:
+  stage: security
+  image:
+    name: sonarsource/sonar-scanner-cli:12.3.1.4302_8.3.1
+    entrypoint: [""]
+  variables:
+    GIT_DEPTH: "0"
+    SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"
+  cache:
+    key: sonar-cache
+    paths: [.sonar/cache]
+  script:
+    - sh cicd/security/sonarqube-scan.sh
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+```
+
+Jenkins (the agent needs Docker; the token comes from the `sonarqube-token` credential):
+
+```groovy
+stage('SAST: SonarQube') {
+    environment {
+        SONAR_HOST_URL = 'https://sonarqube.example.com'          // CHANGE
+    }
+    steps {
+        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+            withEnv(["SONAR_ENFORCE=${params.SONAR_ENFORCE}"]) {
+                sh 'sh cicd/security/sonarqube-scan.sh'
+            }
+        }
+    }
+}
+```
+
+If the Jenkins agent runs on EC2 with an IAM role, drop the credential and set `SONAR_TOKEN_SECRET=security/sonarqube-token` instead: the script reads the token from Secrets Manager, as in CodeBuild.
+
+> **Note:** In report mode the script exits 0, so the job stays green and the result is in the log. Set `SONAR_ENFORCE=true` (a CI/CD variable in GitLab, the build parameter in Jenkins) to make a failed gate fail the job.
+
+> **Tip:** In the real project, this is one of five scans (`gitleaks`, `sonarqube`, `dependency-check`, `trivy`, `zap`), each with its own script, behind a small runner `run.sh <scan>` in **one** CodeBuild security project. A `SECURITY_SCAN` variable picks the scan for each run, and every run ends with a results table and a Microsoft Teams message. The SonarQube part works exactly like the script above.
+
 ## Handling findings
 
 > **In simple words:** Fix real problems in the code. For everything else, record a decision in SonarQube with a comment, so the next person knows why.
@@ -530,6 +931,15 @@ stage('Quality gate') {
 | Main branch result replaced by a branch scan | Community Build keeps one branch per project key. Scan only the default branch, or use one key per branch |
 | Jenkins `waitForQualityGate` never returns | The webhook is missing, or SonarQube can't reach the Jenkins URL |
 | `AccessDeniedException` on `.scannerwork` | Run with `-Dsonar.working.directory=/tmp/scannerwork` and a writable `sonar.userHome` |
+| Kubernetes: pod `sonarqube-sonarqube-0` stays `Pending` | No node with about 4 GB free, or the volume can't be created (no default StorageClass or EBS CSI driver). Run `kubectl -n sonarqube describe pod sonarqube-sonarqube-0` and read the events |
+| Kubernetes: pod restarts, the log says it can't connect to the database | The RDS security group doesn't allow the nodes on 5432, the JDBC URL is wrong, or the password in secret `sonarqube-db` is wrong |
+| Kubernetes: the Ingress has no `ADDRESS` | The AWS Load Balancer Controller isn't installed, or it rejected the Ingress: read the events in `kubectl -n sonarqube describe ingress` (certificate ARN, subnet tags) |
+| The URL opens, but other pages return 404 | `pathType: Prefix` is missing: the chart's default makes the ALB match `/` only |
+| The ALB returns 502 or 503 for a few minutes | SonarQube is still starting. The target turns healthy when `/api/system/status` says `UP` |
+| CodeBuild: the scanner `can not be reached` or times out | The SonarQube URL is internal and the project has no VPC settings, or its security group isn't allowed by the ALB's |
+| CodeBuild: `Cannot connect to the Docker daemon` | Turn **Privileged** on in the project's environment |
+| `[sonarqube] ERROR: cannot read the secret` | The secret is missing, in another region, or the role lacks `secretsmanager:GetSecretValue` (step 4 of the script integration) |
+| `$'\r': command not found` or `set: Illegal option -` | The script has Windows line endings. Add `*.sh text eol=lf` to `.gitattributes`, or strip them with `sed -i 's/\r$//'` |
 
 ## Cheat sheet
 
@@ -552,6 +962,16 @@ docker run --rm --network host -e SONAR_HOST_URL -e SONAR_TOKEN -v "$PWD:/usr/sr
 
 # ask the server for a project's gate status
 curl -s -u "$SONAR_TOKEN:" "$SONAR_HOST_URL/api/qualitygates/project_status?projectKey=my-app"
+
+# SonarQube on Kubernetes
+kubectl -n sonarqube get pods,svc,ingress
+kubectl -n sonarqube logs -f sonarqube-sonarqube-0 -c sonarqube
+kubectl -n sonarqube port-forward svc/sonarqube-sonarqube 9000:9000
+curl -s https://sonarqube.example.com/api/system/status
+
+# the scan script (laptop, CodeBuild, GitLab, Jenkins)
+SONAR_HOST_URL=https://sonarqube.example.com SONAR_TOKEN_SECRET=security/sonarqube-token sh cicd/security/sonarqube-scan.sh
+aws codebuild start-build --project-name my-app-sonarqube
 ```
 
 Docs: [SonarQube Server documentation](https://docs.sonarsource.com/sonarqube-server/) · [Python rules](https://rules.sonarsource.com/python/)
