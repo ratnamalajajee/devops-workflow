@@ -6,11 +6,14 @@ Every NextGen platform service on AWS, Azure and Google Cloud, side by side. The
 - How it differs from AWS, and links to the official docs.
 - A runnable script behind every CLI block. The path above each block opens the script.
 
+All scripts are also listed at `/multicloud/files/`, where you can open, download or zip them all. The folder URLs `/multicloud/aws/`, `/multicloud/azure/` and `/multicloud/gcp/` redirect there.
+
 ## What's in this folder
 
 ```
 multicloud/
 ├── index.html              the page (built: don't edit by hand)
+├── files/                  file browser + zip of all scripts (built: don't edit by hand)
 ├── aws/                    AWS CLI v2 scripts
 │   ├── nextgen-aws.env     your values: profile, region, names (edit once)
 │   ├── 00-foundation.sh … 25-cleanup.sh
