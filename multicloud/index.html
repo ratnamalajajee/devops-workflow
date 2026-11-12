@@ -5,222 +5,282 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <script>/* follow the DevOps Launchpad theme choice */try{var t=JSON.parse(localStorage.getItem('dl-theme'));if(t==='dark'||t==='light')document.documentElement.setAttribute('data-theme',t)}catch(e){}</script>
 <meta name="description" content="Azure portal, Azure CLI, Google Cloud console and gcloud steps for every AWS service in the NextGen platform.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%232a52b0'/%3E%3Cpath d='M9 21h14a4 4 0 0 0 0-8 6 6 0 0 0-11.3-1.6A4.8 4.8 0 0 0 9 21z' fill='white'/%3E%3C/svg%3E">
-<title>NextGen Cloud Runbook</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∞</text></svg>">
+<title>NextGen Multi-cloud Runbook · DevOps Launchpad</title>
 <style>
-:root{color-scheme:light}
-body{margin:0}
-img{max-width:100%}
-[hidden]{display:none!important}
-/* Layout: sticky index of build steps on the left; reading column on the right.
-   Each step = Azure block, then GCP block; inside each, console steps sit beside the CLI. */
+/* Same design tokens, fonts, cards and code blocks as DevOps Launchpad (assets/css/style.css).
+   Layout: Launchpad top bar, sticky step index on the left, reading column on the right. */
 :root{
-  --bg:#f4f6f9; --surface:#ffffff; --sunk:#eceff4; --ink:#16202b; --muted:#56616f; --line:#d8dee6;
-  --accent:#2a52b0; --accent-soft:#e2e9f8;
-  --aws:#9a4f00; --aws-soft:#f8ecdc; --az:#0a5cb8; --az-soft:#e0ecfa; --gcp:#157a37; --gcp-soft:#def1e4;
-  --code-bg:#eef2f6; --code-ink:#1b2530; --code-com:#64735b;
-  --warn:#8a5600; --warn-soft:#fff3d9; --shadow:rgb(16 24 40 / .06);
-  --f-head:"Space Grotesk","Segoe UI",system-ui,sans-serif;
-  --f-body:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
-  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Code",Consolas,monospace;
+  --bg:#f5f6fb; --surface:#ffffff; --surface-2:#f1f3f8; --text:#1c2330; --muted:#5d6879; --border:#e2e6ef;
+  --accent:#6d28d9; --accent-soft:#efe9fe; --c:var(--accent); --ok:#16a34a;
+  --code-bg:#0f1623; --code-text:#e4e9f2; --code-comment:#7d8ba1;
+  --note:#2563eb; --note-bg:#ebf2fe; --warn:#d97706; --warn-bg:#fdf3e3;
+  --aws:#ff9900; --az:#0078d4; --gcp:#34a853;
+  --rainbow:linear-gradient(90deg,#6366f1,#8b5cf6,#ec4899,#f97316,#f59e0b,#10b981,#06b6d4);
+  --hero:linear-gradient(125deg,#4f46e5 0%,#7c3aed 30%,#db2777 65%,#f97316 100%);
+  --glow-1:rgba(139,92,246,.10); --glow-2:rgba(236,72,153,.08); --glow-3:rgba(16,185,129,.07);
+  --topbar-h:58px;
+  --font:"Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:"Cascadia Code","JetBrains Mono",Consolas,"SFMono-Regular",Menlo,monospace;
+  color-scheme:light;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0e1319; --surface:#151c24; --sunk:#1b232d; --ink:#e3e8ee; --muted:#9ba7b5; --line:#29333f;
-  --accent:#86a8ff; --accent-soft:#1c2947;
-  --aws:#f0a65c; --aws-soft:#38281a; --az:#70b4ff; --az-soft:#13283f; --gcp:#72d391; --gcp-soft:#142d1e;
-  --code-bg:#0a0f15; --code-ink:#d6dde5; --code-com:#8ea486;
-  --warn:#f0c068; --warn-soft:#33280f; --shadow:rgb(0 0 0 / .3); color-scheme:dark}}
+  --bg:#0c1018; --surface:#141a25; --surface-2:#1b2331; --text:#e6eaf0; --muted:#9aa5b5; --border:#283244;
+  --accent:#a78bfa; --accent-soft:#261d45; --ok:#3fb96a; --code-bg:#090d14; --note-bg:#13203a; --warn-bg:#2c2110;
+  --glow-1:rgba(139,92,246,.16); --glow-2:rgba(236,72,153,.10); --glow-3:rgba(16,185,129,.08);
+  color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0e1319; --surface:#151c24; --sunk:#1b232d; --ink:#e3e8ee; --muted:#9ba7b5; --line:#29333f;
-  --accent:#86a8ff; --accent-soft:#1c2947;
-  --aws:#f0a65c; --aws-soft:#38281a; --az:#70b4ff; --az-soft:#13283f; --gcp:#72d391; --gcp-soft:#142d1e;
-  --code-bg:#0a0f15; --code-ink:#d6dde5; --code-com:#8ea486;
-  --warn:#f0c068; --warn-soft:#33280f; --shadow:rgb(0 0 0 / .3); color-scheme:dark}
+  --bg:#0c1018; --surface:#141a25; --surface-2:#1b2331; --text:#e6eaf0; --muted:#9aa5b5; --border:#283244;
+  --accent:#a78bfa; --accent-soft:#261d45; --ok:#3fb96a; --code-bg:#090d14; --note-bg:#13203a; --warn-bg:#2c2110;
+  --glow-1:rgba(139,92,246,.16); --glow-2:rgba(236,72,153,.10); --glow-3:rgba(16,185,129,.08);
+  color-scheme:dark}
+
+/* one colour per build phase, from the Launchpad palette */
+.step{--c:var(--accent)}
+.step[data-phase="Start here"],.flow li:nth-child(1){--c:#6366f1}
+.step[data-phase="Identity & security"],.flow li:nth-child(2){--c:#e11d48}
+.step[data-phase="Networking"],.flow li:nth-child(3){--c:#3b82f6}
+.step[data-phase="Compute"],.flow li:nth-child(4){--c:#f97316}
+.step[data-phase="Storage"],.flow li:nth-child(5){--c:#10b981}
+.step[data-phase="Databases"],.flow li:nth-child(6){--c:#8b5cf6}
+.step[data-phase="Load balancing & ingress"],.flow li:nth-child(7){--c:#06b6d4}
+.step[data-phase="DNS"],.flow li:nth-child(8){--c:#ec4899}
+.step[data-phase="Monitoring"],.flow li:nth-child(9){--c:#f59e0b}
+.step[data-phase="Finish"],.flow li:nth-child(10){--c:#16a34a}
 
 *{box-sizing:border-box}
-html{scroll-behavior:smooth;scroll-padding-top:76px}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--topbar-h) + 72px)}
 @media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
-a{color:var(--accent);text-underline-offset:2px}
-b{font-weight:600}
-code{font-family:var(--f-mono);font-size:.86em}
-:not(pre)>code{background:var(--sunk);padding:.08em .38em;border-radius:4px;overflow-wrap:anywhere}
+body{margin:0;color:var(--text);font:15.5px/1.6 var(--font);-webkit-font-smoothing:antialiased;
+  background:
+    radial-gradient(900px 520px at 105% -5%,var(--glow-1),transparent 60%),
+    radial-gradient(800px 480px at -10% 15%,var(--glow-2),transparent 60%),
+    radial-gradient(900px 600px at 50% 110%,var(--glow-3),transparent 60%),
+    var(--bg);
+  background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--surface)}
+img{max-width:100%}
+[hidden]{display:none!important}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+b{font-weight:700}
+code{font-family:var(--mono);font-size:.88em}
+:not(pre)>code{padding:.08em .35em;border-radius:5px;overflow-wrap:anywhere;
+  background:color-mix(in srgb,var(--c) 10%,var(--surface-2));border:1px solid color-mix(in srgb,var(--c) 22%,var(--border))}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
+/* Launchpad top bar */
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;height:var(--topbar-h);display:flex;align-items:center;gap:12px;
+  padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));
+  background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px)}
+.topbar::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--rainbow)}
+.tb-brand{display:flex;align-items:center;gap:9px;font-weight:800;color:var(--text);white-space:nowrap;letter-spacing:-.01em}
+.tb-brand:hover{text-decoration:none}
+.logo{display:grid;place-items:center;width:32px;height:32px;border-radius:9px;color:#fff;font-size:19px;background:var(--hero);box-shadow:0 4px 14px rgba(124,58,237,.35)}
+.crumb{min-width:0;color:var(--muted);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{margin-left:auto;flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:18px;cursor:pointer}
+.icon-btn:hover{background:var(--surface-2)}
+
 /* frame */
-.layout{display:grid;grid-template-columns:292px minmax(0,1fr);min-height:100vh}
-.side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--surface);border-right:1px solid var(--line);padding-block:22px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:14px}
-.main{min-width:0;padding-block:0 96px;padding-left:44px;padding-right:max(16px,env(safe-area-inset-right,0px))}
+.layout{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:calc(100vh - var(--topbar-h))}
+.side{position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow-y:auto;border-right:1px solid var(--border);
+  padding-block:20px 48px;padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:14px}
+.main{min-width:0;padding-block:0 96px;padding-left:44px;padding-right:max(28px,env(safe-area-inset-right,0px))}
 .wrap{max-width:1180px}
 
 /* sidebar */
-.brand{display:grid;gap:3px;padding:0 6px 16px}
-.brand-k{font:700 19px/1.1 var(--f-head);letter-spacing:-.01em;margin:0}
+.brand{display:grid;gap:2px;padding:0 10px 14px}
+.brand-k{margin:0;font-size:17px;font-weight:800;letter-spacing:-.01em}
 .brand-t{margin:0;color:var(--muted);font-size:13px}
-.back{display:inline-block;margin:0 6px 14px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none}
-.back:hover{color:var(--accent)}
-.search input{width:100%;font:14px/1.2 var(--f-body);padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink)}
-.nav-toggle{display:none;width:100%;margin-top:10px;font:500 13.5px var(--f-body);padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);cursor:pointer}
-nav{margin-top:14px}
-.nav-top{display:block;padding:6px 8px;border-radius:6px;text-decoration:none;color:var(--ink);font-weight:500;font-size:13.5px}
-.nav-phase{font:600 10.5px/1.3 var(--f-body);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:18px 8px 4px}
+.search input{width:100%;height:38px;padding:0 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font:inherit;font-size:14px}
+.search input:focus{outline:2px solid var(--accent);outline-offset:-1px;background:var(--surface)}
+.nav-toggle{display:none;width:100%;margin-top:10px;font:600 14px var(--font);padding:8px 10px;border:1px solid var(--border);border-radius:10px;background:var(--surface);color:var(--text);cursor:pointer}
+nav{margin-top:12px}
+.nav-top{--c:var(--accent);display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;color:var(--text);font-size:14.5px}
+.nav-top:hover,nav li a:hover{background:color-mix(in srgb,var(--c) 10%,transparent);text-decoration:none}
+.nav-phase{--s:var(--muted);display:flex;align-items:center;gap:8px;margin:14px 0 2px;padding:6px 10px;
+  font:800 11.5px/1.2 var(--font);letter-spacing:.08em;text-transform:uppercase;color:color-mix(in srgb,var(--s) 80%,var(--text))}
+.nav-phase::after{content:"";flex:1;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--s),transparent);opacity:.55}
 nav ul{list-style:none;margin:0;padding:0}
-nav li a{display:grid;grid-template-columns:24px minmax(0,1fr);column-gap:6px;padding:5px 8px;border-radius:6px;text-decoration:none;color:var(--ink);font-size:13.5px;line-height:1.3}
-nav li a .n{font:500 11.5px/1.55 var(--f-mono);color:var(--muted);grid-row:span 2;font-variant-numeric:tabular-nums}
-nav li a small{grid-column:2;color:var(--muted);font-size:11.5px;line-height:1.35}
-nav a:hover{background:var(--sunk)}
-nav a.on{background:var(--accent-soft)}
-nav a.on .n{color:var(--accent)}
-.empty{color:var(--muted);font-size:13px;padding:10px 8px;margin:0}
+nav li a{--c:var(--accent);display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:10px;align-items:center;padding:7px 10px;border-radius:10px;color:var(--text);font-size:14px;line-height:1.3}
+nav li a .n{grid-row:span 2;display:inline-grid;place-items:center;min-width:30px;height:24px;padding:0 5px;border-radius:7px;font:800 11px/1 var(--font);color:#fff;
+  background:linear-gradient(135deg,var(--c),color-mix(in oklab,var(--c) 70%,#000));box-shadow:0 2px 6px color-mix(in srgb,var(--c) 35%,transparent);font-variant-numeric:tabular-nums}
+nav li a small{color:var(--muted);font-size:12px}
+nav a.on{background:color-mix(in srgb,var(--c) 17%,transparent);box-shadow:inset 3px 0 0 var(--c);font-weight:600}
+.empty{color:var(--muted);font-size:13px;padding:10px;margin:0}
 
 /* toolbar */
-.toolbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-block:12px;border-bottom:1px solid var(--line)}
-.seg{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px;background:var(--sunk);border:1px solid var(--line);border-radius:9px;padding:3px}
-.seg-l{font:600 10.5px var(--f-body);text-transform:uppercase;letter-spacing:.09em;color:var(--muted);padding:0 8px 0 6px}
-.seg button{font:500 13px/1 var(--f-body);color:var(--muted);background:transparent;border:0;border-radius:6px;padding:7px 10px;cursor:pointer}
-.seg button:hover{color:var(--ink)}
-.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px var(--shadow),0 0 0 1px var(--line)}
+.toolbar{position:sticky;top:calc(var(--topbar-h) + env(safe-area-inset-top,0px));z-index:5;display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-block:12px;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+.seg{display:inline-flex;align-items:center;flex-wrap:wrap;gap:2px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px}
+.seg-l{font:800 11px var(--font);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:0 8px 0 6px}
+.seg button{font:600 13px/1 var(--font);color:var(--muted);background:transparent;border:0;border-radius:7px;padding:7px 10px;cursor:pointer}
+.seg button:hover{color:var(--text);background:var(--surface-2)}
+.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+.seg button .dot{margin-right:6px}
+.seg button[aria-pressed="false"] .dot{opacity:.35}
 .tb-note{font-size:12.5px;color:var(--muted);margin-left:auto}
 
-/* intro */
-.intro{padding-block:40px 6px;max-width:860px}
-.eyebrow{font:600 11px/1.3 var(--f-body);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 8px}
-h1{font:700 clamp(28px,3.4vw,40px)/1.08 var(--f-head);letter-spacing:-.02em;margin:0 0 14px;text-wrap:balance}
-.lede{color:var(--muted);max-width:70ch;margin:0 0 14px}
-.facts{display:flex;flex-wrap:wrap;gap:6px 22px;list-style:none;padding:0;margin:0;color:var(--muted);font-size:13.5px}
-.facts b{color:var(--ink)}
+/* hero intro, like the Launchpad home page */
+.eyebrow{margin:0 0 6px;font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--muted);max-width:74ch;margin:0 0 14px}
+.hero{position:relative;overflow:hidden;margin-top:24px;padding:32px 36px 28px;border-radius:20px;color:#fff;background:var(--hero);box-shadow:0 18px 40px rgba(124,58,237,.25)}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;pointer-events:none;background:radial-gradient(circle,rgba(255,255,255,.28),transparent 70%)}
+.hero::before{width:380px;height:380px;right:-110px;top:-150px}
+.hero::after{width:260px;height:260px;left:35%;bottom:-170px;opacity:.7}
+.hero>*{position:relative}
+.hero .eyebrow{color:rgba(255,255,255,.85)}
+.hero h1{font-size:clamp(26px,3.6vw,40px);line-height:1.12;margin:0 0 12px;letter-spacing:-.02em;max-width:820px;text-wrap:balance}
+.hero .lede{color:rgba(255,255,255,.92);font-size:17px;max-width:760px;margin:0 0 16px}
+.hero b{color:#fff}
+.facts{display:flex;flex-wrap:wrap;gap:6px 22px;list-style:none;padding:0;margin:0;font-size:13.5px;color:rgba(255,255,255,.9)}
+.hero code{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3);color:#fff}
+
+/* service map + build order */
 .block{padding-block:34px 4px}
-.block h2{font:600 22px/1.2 var(--f-head);margin:0 0 6px}
-.block .sub{color:var(--muted);margin:0 0 14px;max-width:72ch}
-
-/* service map */
-.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-table{border-collapse:collapse;width:100%;font-size:14px}
+.block h2{font-size:24px;font-weight:800;letter-spacing:-.01em;margin:0 0 6px}
+.block .sub{color:var(--muted);margin:0 0 14px;max-width:76ch}
+.tbl{overflow-x:auto;border-radius:10px;border:1px solid color-mix(in srgb,var(--c) 22%,var(--border));background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
 .map-t{min-width:760px}
-th,td{text-align:left;padding:8px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th,td{text-align:left;padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:top}
 tbody tr:last-child td{border-bottom:0}
-thead th{font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--sunk);white-space:nowrap}
-tr.grp th{font:600 12.5px var(--f-head);background:var(--sunk);letter-spacing:.01em;padding-block:6px}
-td.n{font-family:var(--f-mono);font-size:13px;white-space:nowrap}
-td.n a{text-decoration:none;font-weight:500}
-.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px}
+thead th{background:color-mix(in srgb,var(--c) 14%,var(--surface));font-weight:700;white-space:nowrap;
+  color:color-mix(in srgb,var(--c) 45%,var(--text));border-bottom:2px solid color-mix(in srgb,var(--c) 45%,var(--border))}
+tr.grp th{font-size:12px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);background:var(--surface-2)}
+td.n{font-family:var(--mono);font-size:13px;white-space:nowrap}
+td.n a{font-weight:700}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:0}
 .dot.aws{background:var(--aws)} .dot.az{background:var(--az)} .dot.gcp{background:var(--gcp)}
-.flag{font:600 10.5px var(--f-body);text-transform:uppercase;letter-spacing:.06em;color:var(--warn);background:var(--warn-soft);border-radius:4px;padding:2px 6px;margin-left:6px;text-decoration:none;white-space:nowrap}
-
-/* build flow */
-.flow{display:grid;grid-template-columns:repeat(auto-fill,minmax(172px,1fr));gap:8px;list-style:none;padding:0;margin:0}
-.flow a{display:grid;gap:2px;height:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:var(--surface);text-decoration:none;color:var(--ink)}
-.flow a:hover{border-color:var(--accent)}
-.fn{font:500 12px var(--f-mono);color:var(--accent)}
-.ft{font-weight:600;font-size:14px}
+.flag{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--warn);background:var(--warn-bg);border-radius:999px;padding:2px 8px;margin-left:6px;white-space:nowrap}
+.flow{display:grid;grid-template-columns:repeat(auto-fill,minmax(176px,1fr));gap:10px;list-style:none;padding:0;margin:0}
+.flow a{display:grid;gap:3px;height:100%;padding:12px 14px;border-radius:12px;color:var(--text);background:var(--surface);
+  border:1px solid color-mix(in srgb,var(--c) 22%,var(--border));box-shadow:inset 4px 0 0 var(--c)}
+.flow a:hover{text-decoration:none;background:color-mix(in srgb,var(--c) 7%,var(--surface))}
+.fn{justify-self:start;font:800 11.5px/1 var(--font);color:#fff;padding:5px 7px;border-radius:7px;background:linear-gradient(135deg,var(--c),color-mix(in oklab,var(--c) 70%,#000))}
+.ft{font-weight:700;font-size:14.5px}
 .fd{font-size:12.5px;color:var(--muted);line-height:1.4}
+.guides{margin-top:14px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;font-size:14px}
+.guides b{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)}
 
-/* steps */
-.step{padding-block:46px 8px;border-top:1px solid var(--line);margin-top:34px}
-.svc-head{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:18px;align-items:start}
-.num{font:500 30px/1 var(--f-mono);color:var(--accent);padding-top:3px;font-variant-numeric:tabular-nums}
-.step h2{font:600 clamp(22px,2.3vw,28px)/1.15 var(--f-head);letter-spacing:-.01em;margin:0 0 10px;text-wrap:balance}
+/* steps: Launchpad step cards */
+.step{margin-top:26px;padding:6px 26px 22px;background:var(--surface);border-radius:14px;
+  border:1px solid color-mix(in srgb,var(--c) 22%,var(--border));box-shadow:inset 4px 0 0 var(--c)}
+.svc-head{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:14px;align-items:start;padding-top:16px}
+.num{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;color:#fff;font-weight:800;font-size:14px;margin-top:2px;
+  background:linear-gradient(135deg,var(--c),color-mix(in oklab,var(--c) 60%,#7c3aed));box-shadow:0 3px 8px color-mix(in srgb,var(--c) 35%,transparent)}
+.step .eyebrow{color:color-mix(in srgb,var(--c) 72%,var(--text));margin-bottom:2px}
+.step h2{font-size:clamp(20px,2.2vw,24px);font-weight:800;line-height:1.25;letter-spacing:-.01em;margin:0 0 10px;text-wrap:balance}
 .maps{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:0;font-size:14px}
 .pair{display:inline-flex;align-items:center;gap:6px}
 .to{color:var(--muted)}
-.tag{display:inline-flex;align-items:center;font:600 10.5px/1 var(--f-body);letter-spacing:.07em;text-transform:uppercase;padding:4px 7px;border-radius:5px;white-space:nowrap}
-.tag.aws{background:var(--aws-soft);color:var(--aws)}
-.tag.az{background:var(--az-soft);color:var(--az)}
-.tag.gcp{background:var(--gcp-soft);color:var(--gcp)}
-.step>.lede{color:var(--ink);margin:16px 0 4px;max-width:80ch}
+.tag{display:inline-grid;place-items:center;min-width:34px;height:22px;padding:0 7px;border-radius:7px;font:800 11px/1 var(--font);
+  letter-spacing:.03em;text-transform:uppercase;white-space:nowrap;color:#fff}
+.tag.aws{background:linear-gradient(135deg,var(--aws),color-mix(in oklab,var(--aws) 70%,#000))}
+.tag.az{background:linear-gradient(135deg,var(--az),color-mix(in oklab,var(--az) 70%,#000))}
+.tag.gcp{background:linear-gradient(135deg,var(--gcp),color-mix(in oklab,var(--gcp) 70%,#000))}
+.step>.lede{color:var(--text);margin:14px 0 4px;max-width:80ch}
 
-.cloud{margin-top:18px;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.cloud-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:11px 18px;border-bottom:1px solid var(--line)}
-.cloud-head h3{font:600 16px/1.3 var(--f-head);margin:0;flex:1 1 220px}
-.ref{font:500 12px var(--f-mono);color:var(--muted);text-decoration:none}
-.ref:hover{color:var(--accent);text-decoration:underline}
+/* one card per cloud */
+.cloud{--k:var(--accent);margin-top:16px;border-radius:12px;background:var(--surface);overflow:hidden;border:1px solid color-mix(in srgb,var(--k) 30%,var(--border))}
+.cloud.aws{--k:var(--aws)} .cloud.az{--k:var(--az)} .cloud.gcp{--k:var(--gcp)}
+.cloud-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:10px 16px;
+  background:color-mix(in srgb,var(--k) 9%,var(--surface));border-bottom:1px solid color-mix(in srgb,var(--k) 22%,var(--border))}
+.cloud-head h3{flex:1 1 220px;margin:0;font-size:16px;font-weight:700}
+.ref{font:600 12px var(--mono);color:var(--muted)}
+.ref:hover{color:var(--accent)}
 .how{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr)}
-.mode{padding:16px 18px 18px;min-width:0;display:grid;gap:10px;align-content:start}
-.mode.console{border-right:1px solid var(--line)}
-.mode-label{font:600 10.5px/1 var(--f-body);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0}
-.mode ol{margin:0;padding-left:1.35em;display:grid;gap:8px;font-size:14.3px}
-.mode li{padding-left:2px}
-.mode li::marker{color:var(--muted);font:500 12px var(--f-mono)}
+.mode{min-width:0;display:grid;gap:10px;align-content:start;padding:14px 16px 16px}
+.mode.console{border-right:1px solid var(--border)}
+.mode-label{margin:0;font:800 11.5px/1 var(--font);text-transform:uppercase;letter-spacing:.08em;color:color-mix(in srgb,var(--k) 70%,var(--text))}
+.mode ol{margin:0;padding-left:22px;display:grid;gap:6px;font-size:14.5px}
+.mode li::marker{color:var(--k);font-weight:700}
 body[data-view="console"] .mode.cli,body[data-view="cli"] .mode.console{display:none}
 body[data-view="console"] .how,body[data-view="cli"] .how{grid-template-columns:minmax(0,1fr)}
 body[data-view="console"] .mode.console{border-right:0}
 body[data-hide-aws] .cloud.aws,body[data-hide-azure] .cloud.az,body[data-hide-gcp] .cloud.gcp{display:none}
-.seg button .dot{margin-right:6px}
-.seg button[aria-pressed="false"] .dot{opacity:.35}
+
+/* code blocks: Launchpad style (dark, traffic-light dots, language-coloured top edge) */
+.code{--lc:#4ade80;border-radius:10px;overflow:hidden;background:var(--code-bg);border:1px solid #1f2937;border-top:3px solid var(--lc)}
+.code[data-lang="hcl"]{--lc:#c084fc}
+.code-head{display:flex;align-items:center;gap:10px;padding:6px 8px 6px 12px;background:rgba(255,255,255,.05);color:#94a3b8;font:700 11.5px/1.3 var(--mono)}
+.code-head .dots{display:inline-flex;gap:5px;flex:none}
+.code-head .dots i{width:10px;height:10px;border-radius:50%;background:#ff5f57}
+.code-head .dots i:nth-child(2){background:#febc2e}
+.code-head .dots i:nth-child(3){background:#28c840}
+.cap{flex:1;min-width:0;color:var(--lc);overflow-wrap:anywhere}
+a.cap:hover{color:#fff;text-decoration:underline}
+.copy{flex:none;font:600 12px var(--font);color:#cbd5e1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:4px 10px;cursor:pointer}
+.copy:hover{background:rgba(255,255,255,.14)}
+pre{margin:0;padding:13px 15px;overflow-x:auto;color:var(--code-text);font:400 12.8px/1.62 var(--mono);tab-size:2}
+pre code{font-size:inherit;color:inherit;background:none;border:0;padding:0}
+pre .c{color:var(--code-comment);font-style:italic}
+
+/* callouts: Launchpad note / warning boxes */
+.notes{margin-top:16px;border-left:4px solid var(--note);background:var(--note-bg);border-radius:0 10px 10px 0;padding:10px 16px 12px}
+.notes h4{margin:0 0 6px;font-size:12.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--note) 75%,var(--text))}
+.notes ul{margin:0;padding-left:20px;display:grid;gap:4px;font-size:14.5px}
+.notes li::marker{color:var(--note)}
+.callout{margin-top:16px;display:grid;gap:10px;border-left:4px solid var(--warn);background:var(--warn-bg);border-radius:0 10px 10px 0;padding:12px 16px}
+.callout p{margin:0;max-width:86ch}
+.callout strong{color:var(--warn)}
 .trio{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
 .trio>div{min-width:0}
+.mini{min-width:860px;font-size:13.5px}
+.mini td:first-child{font-weight:600}
+.mini code{white-space:nowrap}
 
-/* reference docs */
-.docs{margin-top:12px;padding:14px 18px 16px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
-.docs h4{font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 10px}
+/* reference docs + Launchpad guides */
+.docs{margin-top:14px;padding:12px 16px 14px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border)}
+.docs h4{margin:0 0 10px;font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.site-guides{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0 0 12px;font-size:14px}
+.site-guides .lp{font-size:12px;font-weight:800;color:var(--accent);margin-right:2px}
+.site-guides a{display:inline-flex;align-items:center;padding:3px 11px;border-radius:999px;font-weight:600;
+  background:var(--surface);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--border))}
+.site-guides a:hover{text-decoration:none;background:var(--accent-soft)}
 .doc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px 24px}
 .doc-col{display:grid;gap:7px;align-content:start;min-width:0}
 .doc-col ul{list-style:none;margin:0;padding:0;display:grid;gap:5px;font-size:14px;line-height:1.4}
-.doc-col a{text-decoration:none}
-.doc-col a:hover{text-decoration:underline}
 .doc-col a span{color:var(--muted);font-size:12px;margin-left:3px}
-body[data-hide-aws] .doc-col.aws,body[data-hide-azure] .doc-col.az,body[data-hide-gcp] .doc-col.gcp{display:none}
-.guides{margin-top:14px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;font-size:14px}
-.guides b{font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
-.guides a{text-decoration:none}
-.guides a:hover{text-decoration:underline}
+body[data-hide-aws] .doc-col.aws,body[data-hide-aws] .site-guides,body[data-hide-azure] .doc-col.az,body[data-hide-gcp] .doc-col.gcp{display:none}
 
-.codebar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
-.cap{font:500 12px var(--f-mono);color:var(--muted);overflow-wrap:anywhere}
-a.cap{text-decoration:none}
-a.cap:hover{color:var(--accent);text-decoration:underline}
-.copy{flex:none;font:500 12px var(--f-body);background:var(--surface);color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:4px 10px;cursor:pointer}
-.copy:hover{color:var(--ink);border-color:var(--muted)}
-pre{margin:0;background:var(--code-bg);color:var(--code-ink);border:1px solid var(--line);border-radius:8px;padding:13px 15px;overflow-x:auto;font:400 12.6px/1.62 var(--f-mono);tab-size:2}
-pre code{font-size:inherit;background:none;padding:0}
-pre .c{color:var(--code-com);font-style:italic}
-
-.notes{margin-top:16px;padding:14px 18px 16px;background:var(--sunk);border-radius:12px}
-.notes h4{font:600 11px var(--f-body);text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:0 0 8px}
-.notes ul{margin:0;padding:0;list-style:none;display:grid;gap:6px;font-size:14px}
-.notes li{position:relative;padding-left:16px}
-.notes li::before{content:"";position:absolute;left:1px;top:.6em;width:6px;height:6px;border-radius:50%;background:var(--muted)}
-.callout{margin-top:16px;border:1px solid var(--warn);background:var(--warn-soft);border-radius:12px;padding:14px 18px;display:grid;gap:10px}
-.callout p{margin:0;max-width:86ch}
-.callout strong{color:var(--warn)}
-.mini{min-width:860px;font-size:13.5px}
-.mini td:first-child{font-weight:500}
-.mini code{white-space:nowrap}
-
-footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-size:13px;max-width:86ch}
+footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--border);color:var(--muted);font-size:13px;max-width:86ch}
 footer p{margin:0 0 8px}
 
 @media (max-width:1240px){
   .how{grid-template-columns:minmax(0,1fr)}
-  .mode.console{border-right:0;border-bottom:1px solid var(--line)}
+  .mode.console{border-right:0;border-bottom:1px solid var(--border)}
   body[data-view="console"] .mode.console{border-bottom:0}
 }
 @media (max-width:960px){
   .layout{grid-template-columns:minmax(0,1fr)}
-  .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--line);padding-block:16px 12px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .side{position:static;height:auto;border-right:0;border-bottom:1px solid var(--border);padding-block:16px 12px;
+    padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
   .nav-toggle{display:block}
   .side:not(.open) nav{display:none}
-  .main{padding-left:max(16px,env(safe-area-inset-left,0px))}
-  .num{font-size:22px}
+  .main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
   .tb-note{display:none}
+  .step{padding:4px 16px 18px}
+  .hero{padding:24px 20px}
 }
 @media (max-width:520px){
   .svc-head{grid-template-columns:minmax(0,1fr)}
-  .num{margin-bottom:6px}
-  .mode{padding:14px 14px 16px}
-  .cloud-head{padding:10px 14px}
+  .num{margin-bottom:8px}
+  .mode{padding:12px 12px 14px}
+  .cloud-head{padding:10px 12px}
+  .crumb,.code-head .dots{display:none}
 }
 </style>
 </head>
 <body>
+<header class="topbar">
+  <a href="../" class="tb-brand" title="Back to DevOps Launchpad"><span class="logo" aria-hidden="true">∞</span><span>DevOps Launchpad</span></a>
+  <span class="crumb">/ AWS · Azure · GCP runbook</span>
+  <button id="themeBtn" class="icon-btn" type="button" aria-label="Toggle dark mode" title="Toggle theme">◐</button>
+</header>
 <div class="layout">
 <aside class="side" id="side">
-  <a class="back" href="../">← DevOps Launchpad</a>
   <div class="brand">
     <p class="brand-k">NextGen Platform</p>
     <p class="brand-t">AWS services rebuilt on Azure and Google Cloud</p>
@@ -253,7 +313,7 @@ footer p{margin:0 0 8px}
     <span class="tb-note">CLI blocks are Bash: Cloud Shell, WSL or Git Bash</span>
   </div>
 
-  <header class="intro">
+  <header class="intro hero">
     <p class="eyebrow">NextGen Platform · AWS → Azure / GCP</p>
     <h1>Build every NextGen service on AWS, Azure and Google Cloud</h1>
     <p class="lede">Each AWS service in the platform next to its Azure and Google Cloud equivalent, with click-by-click console steps and copy-paste CLI for all three clouds. Use the <b>Clouds</b> switches to compare all three or hide the ones you don't need. The steps follow dependency order, so you can run them top to bottom in an empty account, subscription or project.</p>
@@ -267,43 +327,43 @@ footer p{margin:0 0 8px}
 
   <section class="block" id="map">
     <h2>Service map</h2>
-    <p class="sub">Your AWS to Azure mapping, with the Google Cloud equivalent added. The step number links to the build instructions.</p>
+    <p class="sub">Your AWS to Azure mapping, with the Google Cloud equivalent added. The step number links to the build instructions; AWS names open the matching DevOps Launchpad guide.</p>
     <div class="tbl">
       <table class="map-t">
         <thead><tr><th><span class="dot aws"></span>AWS</th><th><span class="dot az"></span>Azure</th><th><span class="dot gcp"></span>Google Cloud</th><th>Step</th></tr></thead>
         <tbody>
           <tr class="grp"><th colspan="4">Networking</th></tr>
-          <tr><td>Amazon VPC</td><td>Virtual Network (VNet)</td><td>VPC network (global)</td><td class="n"><a href="#vpc">05</a></td></tr>
-          <tr><td>AWS Transit Gateway</td><td>Virtual WAN hub</td><td>Network Connectivity Center</td><td class="n"><a href="#transit-gateway">11</a></td></tr>
-          <tr><td>Subnets</td><td>Subnets</td><td>Subnets (regional)</td><td class="n"><a href="#subnets">06</a></td></tr>
-          <tr><td>Internet Gateway</td><td>Built-in internet route + public IP</td><td>Default internet gateway route</td><td class="n"><a href="#internet-gateway">07</a></td></tr>
-          <tr><td>NAT Gateway</td><td>Azure NAT Gateway</td><td>Cloud NAT + Cloud Router</td><td class="n"><a href="#nat-gateway">08</a></td></tr>
-          <tr><td>Security Groups</td><td>NSG + Application Security Groups</td><td>VPC firewall rules</td><td class="n"><a href="#security-groups">09</a></td></tr>
-          <tr><td>NACL</td><td>NSG on the subnet</td><td>Network firewall policy</td><td class="n"><a href="#nacl">10</a></td></tr>
+          <tr><td><a href="../#/tool/aws-vpc" title="DevOps Launchpad guide">Amazon VPC</a></td><td>Virtual Network (VNet)</td><td>VPC network (global)</td><td class="n"><a href="#vpc">05</a></td></tr>
+          <tr><td><a href="../#/tool/aws-vpc" title="DevOps Launchpad guide">AWS Transit Gateway</a></td><td>Virtual WAN hub</td><td>Network Connectivity Center</td><td class="n"><a href="#transit-gateway">11</a></td></tr>
+          <tr><td><a href="../#/tool/aws-vpc" title="DevOps Launchpad guide">Subnets</a></td><td>Subnets</td><td>Subnets (regional)</td><td class="n"><a href="#subnets">06</a></td></tr>
+          <tr><td><a href="../#/tool/aws-vpc" title="DevOps Launchpad guide">Internet Gateway</a></td><td>Built-in internet route + public IP</td><td>Default internet gateway route</td><td class="n"><a href="#internet-gateway">07</a></td></tr>
+          <tr><td><a href="../#/tool/aws-vpc" title="DevOps Launchpad guide">NAT Gateway</a></td><td>Azure NAT Gateway</td><td>Cloud NAT + Cloud Router</td><td class="n"><a href="#nat-gateway">08</a></td></tr>
+          <tr><td><a href="../#/tool/aws-vpc" title="DevOps Launchpad guide">Security Groups</a></td><td>NSG + Application Security Groups</td><td>VPC firewall rules</td><td class="n"><a href="#security-groups">09</a></td></tr>
+          <tr><td><a href="../#/tool/aws-vpc" title="DevOps Launchpad guide">NACL</a></td><td>NSG on the subnet</td><td>Network firewall policy</td><td class="n"><a href="#nacl">10</a></td></tr>
           <tr class="grp"><th colspan="4">Compute &amp; containers</th></tr>
-          <tr><td>Amazon EC2</td><td>Virtual Machines</td><td>Compute Engine</td><td class="n"><a href="#ec2">12</a></td></tr>
-          <tr><td>Amazon EKS</td><td>Azure Kubernetes Service (AKS)</td><td>Google Kubernetes Engine (GKE)</td><td class="n"><a href="#eks">13</a></td></tr>
-          <tr><td>AWS Lambda</td><td>Azure Functions</td><td>Cloud Run functions</td><td class="n"><a href="#lambda">14</a></td></tr>
+          <tr><td><a href="../#/tool/ec2-website" title="DevOps Launchpad guide">Amazon EC2</a></td><td>Virtual Machines</td><td>Compute Engine</td><td class="n"><a href="#ec2">12</a></td></tr>
+          <tr><td><a href="../#/tool/eks-cluster" title="DevOps Launchpad guide">Amazon EKS</a></td><td>Azure Kubernetes Service (AKS)</td><td>Google Kubernetes Engine (GKE)</td><td class="n"><a href="#eks">13</a></td></tr>
+          <tr><td><a href="../#/tool/aws-lambda" title="DevOps Launchpad guide">AWS Lambda</a></td><td>Azure Functions</td><td>Cloud Run functions</td><td class="n"><a href="#lambda">14</a></td></tr>
           <tr class="grp"><th colspan="4">Monitoring &amp; logging</th></tr>
-          <tr><td>CloudWatch</td><td>Azure Monitor + Log Analytics</td><td>Cloud Monitoring + Cloud Logging</td><td class="n"><a href="#cloudwatch">24</a></td></tr>
+          <tr><td><a href="../#/tool/aws-cloudwatch" title="DevOps Launchpad guide">CloudWatch</a></td><td>Azure Monitor + Log Analytics</td><td>Cloud Monitoring + Cloud Logging</td><td class="n"><a href="#cloudwatch">24</a></td></tr>
           <tr class="grp"><th colspan="4">Security &amp; identity</th></tr>
-          <tr><td>IAM</td><td>Microsoft Entra ID + Azure RBAC</td><td>Cloud IAM + Cloud Identity</td><td class="n"><a href="#iam">01</a></td></tr>
-          <tr><td>IAM roles</td><td>Entra ID + Managed Identity</td><td>Service accounts</td><td class="n"><a href="#managed-identity">02</a></td></tr>
-          <tr><td>KMS</td><td>Azure Key Vault (keys)</td><td>Cloud KMS</td><td class="n"><a href="#kms">03</a></td></tr>
-          <tr><td>Secrets Manager</td><td>Azure Key Vault (secrets)</td><td>Secret Manager</td><td class="n"><a href="#secrets">04</a></td></tr>
+          <tr><td><a href="../#/tool/aws-iam" title="DevOps Launchpad guide">IAM</a></td><td>Microsoft Entra ID + Azure RBAC</td><td>Cloud IAM + Cloud Identity</td><td class="n"><a href="#iam">01</a></td></tr>
+          <tr><td><a href="../#/tool/aws-iam" title="DevOps Launchpad guide">IAM roles</a></td><td>Entra ID + Managed Identity</td><td>Service accounts</td><td class="n"><a href="#managed-identity">02</a></td></tr>
+          <tr><td><a href="../#/tool/aws-kms" title="DevOps Launchpad guide">KMS</a></td><td>Azure Key Vault (keys)</td><td>Cloud KMS</td><td class="n"><a href="#kms">03</a></td></tr>
+          <tr><td><a href="../#/tool/aws-secrets" title="DevOps Launchpad guide">Secrets Manager</a></td><td>Azure Key Vault (secrets)</td><td>Secret Manager</td><td class="n"><a href="#secrets">04</a></td></tr>
           <tr class="grp"><th colspan="4">Storage</th></tr>
-          <tr><td>Amazon S3</td><td>Azure Blob Storage</td><td>Cloud Storage</td><td class="n"><a href="#s3">15</a></td></tr>
-          <tr><td>Amazon EBS</td><td>Azure Managed Disks</td><td>Persistent Disk / Hyperdisk</td><td class="n"><a href="#ebs">16</a></td></tr>
-          <tr><td>Amazon EFS</td><td>Azure Files (NFS)</td><td>Filestore</td><td class="n"><a href="#efs">17</a></td></tr>
+          <tr><td><a href="../#/tool/aws-s3" title="DevOps Launchpad guide">Amazon S3</a></td><td>Azure Blob Storage</td><td>Cloud Storage</td><td class="n"><a href="#s3">15</a></td></tr>
+          <tr><td><a href="../#/tool/aws-backup" title="DevOps Launchpad guide">Amazon EBS</a></td><td>Azure Managed Disks</td><td>Persistent Disk / Hyperdisk</td><td class="n"><a href="#ebs">16</a></td></tr>
+          <tr><td><a href="../#/tool/aws-efs-fsx" title="DevOps Launchpad guide">Amazon EFS</a></td><td>Azure Files (NFS)</td><td>Filestore</td><td class="n"><a href="#efs">17</a></td></tr>
           <tr class="grp"><th colspan="4">Databases</th></tr>
-          <tr><td>Amazon DynamoDB</td><td>Azure Cosmos DB <a class="flag" href="#state-locking">state locking: read note</a></td><td>Firestore</td><td class="n"><a href="#dynamodb">18</a></td></tr>
-          <tr><td>Amazon RDS</td><td>Azure Database for PostgreSQL / MySQL (flexible server), Azure SQL</td><td>Cloud SQL</td><td class="n"><a href="#rds">19</a></td></tr>
-          <tr><td>Amazon Aurora</td><td>Azure SQL Hyperscale / PostgreSQL flexible server</td><td>AlloyDB for PostgreSQL</td><td class="n"><a href="#aurora">20</a></td></tr>
+          <tr><td><a href="../#/tool/terraform" title="DevOps Launchpad guide">Amazon DynamoDB</a></td><td>Azure Cosmos DB <a class="flag" href="#state-locking">state locking: read note</a></td><td>Firestore</td><td class="n"><a href="#dynamodb">18</a></td></tr>
+          <tr><td><a href="../#/tool/aws-rds" title="DevOps Launchpad guide">Amazon RDS</a></td><td>Azure Database for PostgreSQL / MySQL (flexible server), Azure SQL</td><td>Cloud SQL</td><td class="n"><a href="#rds">19</a></td></tr>
+          <tr><td><a href="../#/tool/aws-rds" title="DevOps Launchpad guide">Amazon Aurora</a></td><td>Azure SQL Hyperscale / PostgreSQL flexible server</td><td>AlloyDB for PostgreSQL</td><td class="n"><a href="#aurora">20</a></td></tr>
           <tr class="grp"><th colspan="4">Load balancing &amp; ingress</th></tr>
-          <tr><td>Application Load Balancer</td><td>Azure Application Gateway</td><td>External Application Load Balancer</td><td class="n"><a href="#alb">21</a></td></tr>
-          <tr><td>ALB Ingress Controller</td><td>Application Gateway Ingress Controller</td><td>GKE Ingress / Gateway API</td><td class="n"><a href="#alb-ingress">22</a></td></tr>
+          <tr><td><a href="../#/tool/aws-elb" title="DevOps Launchpad guide">Application Load Balancer</a></td><td>Azure Application Gateway</td><td>External Application Load Balancer</td><td class="n"><a href="#alb">21</a></td></tr>
+          <tr><td><a href="../#/tool/aws-elb" title="DevOps Launchpad guide">ALB Ingress Controller</a></td><td>Application Gateway Ingress Controller</td><td>GKE Ingress / Gateway API</td><td class="n"><a href="#alb-ingress">22</a></td></tr>
           <tr class="grp"><th colspan="4">DNS &amp; routing</th></tr>
-          <tr><td>Amazon Route 53</td><td>Azure DNS</td><td>Cloud DNS</td><td class="n"><a href="#route53">23</a></td></tr>
+          <tr><td><a href="../#/tool/aws-route53" title="DevOps Launchpad guide">Amazon Route 53</a></td><td>Azure DNS</td><td>Cloud DNS</td><td class="n"><a href="#route53">23</a></td></tr>
         </tbody>
       </table>
     </div>
@@ -504,6 +564,7 @@ gcloud services enable \
       <li>Most CLI blocks end with a list or show command. Run it to confirm the resource exists before moving on.</li>
     </ul></div>
       <div class="docs" id="docs-foundation"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-account">Create Your AWS Account</a><a href="../#/tool/setup">Workstation Setup</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html" target="_blank" rel="noopener">Configure the CLI with IAM Identity Center<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/tag-editor/latest/userguide/tagging.html" target="_blank" rel="noopener">Tagging AWS resources<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/azure-resource-manager/management/overview" target="_blank" rel="noopener">What is Azure Resource Manager<span>↗</span></a></li><li><a href="https://learn.microsoft.com/cli/azure/get-started-with-azure-cli" target="_blank" rel="noopener">Get started with the Azure CLI<span>↗</span></a></li></ul></div>
@@ -658,6 +719,7 @@ gcloud projects get-iam-policy "$PROJECT_ID" \
       <li>Just-in-time admin access: Entra Privileged Identity Management (PIM) and GCP Privileged Access Manager (PAM).</li>
     </ul></div>
       <div class="docs" id="docs-iam"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-iam">AWS IAM</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html" target="_blank" rel="noopener">IAM user guide<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups.html" target="_blank" rel="noopener">IAM user groups<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html" target="_blank" rel="noopener">Security best practices in IAM<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/entra/fundamentals/whatis" target="_blank" rel="noopener">What is Microsoft Entra ID<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/role-based-access-control/overview" target="_blank" rel="noopener">What is Azure RBAC<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/role-based-access-control/custom-roles" target="_blank" rel="noopener">Azure custom roles<span>↗</span></a></li></ul></div>
@@ -802,6 +864,7 @@ gcloud iam service-accounts list</code></pre>
       <li>Cross-account <code>sts:AssumeRole</code> → a role assignment in the other subscription (or Azure Lighthouse); on GCP, service account impersonation with <code>roles/iam.serviceAccountTokenCreator</code>.</li>
     </ul></div>
       <div class="docs" id="docs-managed-identity"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-iam">AWS IAM</a><a href="../#/tool/eks-cluster">EKS Cluster Setup: Runbook</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html" target="_blank" rel="noopener">IAM roles<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html" target="_blank" rel="noopener">IAM roles for Amazon EC2<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/eks/latest/userguide/pod-identities.html" target="_blank" rel="noopener">EKS Pod Identity<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview" target="_blank" rel="noopener">Managed identities overview<span>↗</span></a></li><li><a href="https://learn.microsoft.com/entra/workload-id/workload-identity-federation" target="_blank" rel="noopener">Workload identity federation<span>↗</span></a></li></ul></div>
@@ -944,6 +1007,7 @@ gcloud kms keys add-iam-policy-binding "key-$PREFIX-data" \
       <li><code>date -d</code> is GNU syntax. Run it in Cloud Shell, Linux or WSL, not macOS.</li>
     </ul></div>
       <div class="docs" id="docs-kms"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-kms">AWS KMS</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/kms/latest/developerguide/overview.html" target="_blank" rel="noopener">AWS KMS developer guide<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/kms/latest/developerguide/rotate-keys.html" target="_blank" rel="noopener">Rotate KMS keys<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/key-vault/general/overview" target="_blank" rel="noopener">About Azure Key Vault<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/key-vault/keys/about-keys" target="_blank" rel="noopener">About Key Vault keys<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/key-vault/keys/how-to-configure-key-rotation" target="_blank" rel="noopener">Configure key autorotation<span>↗</span></a></li></ul></div>
@@ -1063,6 +1127,7 @@ gcloud secrets list</code></pre>
       <li>In Kubernetes: the Secrets Store CSI driver add-on on AKS (enabled in step 13) and the Secret Manager add-on on GKE.</li>
     </ul></div>
       <div class="docs" id="docs-secrets"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-secrets">AWS Secrets Manager</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/intro.html" target="_blank" rel="noopener">What is Secrets Manager<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/secretsmanager/latest/userguide/rotating-secrets.html" target="_blank" rel="noopener">Rotate secrets<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/key-vault/secrets/about-secrets" target="_blank" rel="noopener">About Key Vault secrets<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/aks/csi-secrets-store-driver" target="_blank" rel="noopener">Key Vault secrets provider for AKS<span>↗</span></a></li></ul></div>
@@ -1160,6 +1225,7 @@ gcloud compute networks describe "$NETWORK" \
       <li>VPC peering → VNet peering (<code>az network vnet peering create</code>) and VPC Network Peering (<code>gcloud compute networks peerings create</code>).</li>
     </ul></div>
       <div class="docs" id="docs-vpc"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-vpc">AWS VPC: Step-by-Step</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html" target="_blank" rel="noopener">What is Amazon VPC<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/vpc/latest/peering/what-is-vpc-peering.html" target="_blank" rel="noopener">VPC peering<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/virtual-network/virtual-networks-overview" target="_blank" rel="noopener">What is Azure Virtual Network<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/virtual-network/virtual-network-peering-overview" target="_blank" rel="noopener">Virtual network peering<span>↗</span></a></li></ul></div>
@@ -1322,6 +1388,7 @@ gcloud compute networks subnets list --network="$NETWORK"</code></pre>
       <li>S3 and DynamoDB gateway endpoints → GCP Private Google Access; on Azure, service endpoints or private endpoints.</li>
     </ul></div>
       <div class="docs" id="docs-subnets"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-vpc">AWS VPC: Step-by-Step</a><a href="../#/tool/aws-privatelink">VPC Endpoints and PrivateLink</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html" target="_blank" rel="noopener">Subnets for your VPC<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_VPC.WorkingWithRDSInstanceinaVPC.html" target="_blank" rel="noopener">DB instances in a VPC (subnet groups)<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/virtual-network/virtual-network-manage-subnet" target="_blank" rel="noopener">Add, change or delete a subnet<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/virtual-network/subnet-delegation-overview" target="_blank" rel="noopener">Subnet delegation<span>↗</span></a></li></ul></div>
@@ -1439,6 +1506,7 @@ gcloud compute addresses describe "ip-$PREFIX-lb" --global --format="value(addre
       <li>Elastic IP → Standard static public IP (Azure) or a reserved static external IP (GCP). GCP Premium tier IPs are global anycast; Standard tier is regional.</li>
     </ul></div>
       <div class="docs" id="docs-internet-gateway"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-vpc">AWS VPC: Step-by-Step</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Internet_Gateway.html" target="_blank" rel="noopener">Internet gateways<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html" target="_blank" rel="noopener">Route tables<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/virtual-network/ip-services/default-outbound-access" target="_blank" rel="noopener">Default outbound access<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/virtual-network/ip-services/public-ip-addresses" target="_blank" rel="noopener">Public IP addresses<span>↗</span></a></li></ul></div>
@@ -1563,6 +1631,7 @@ gcloud compute routers nats describe "nat-$PREFIX-$ENV" \
       <li>GKE private nodes and VMs without external IPs need Cloud NAT to pull public images and OS packages.</li>
     </ul></div>
       <div class="docs" id="docs-nat-gateway"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-vpc">AWS VPC: Step-by-Step</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html" target="_blank" rel="noopener">NAT gateways<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/nat-gateway/nat-overview" target="_blank" rel="noopener">What is Azure NAT Gateway<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/aks/nat-gateway" target="_blank" rel="noopener">AKS with a NAT gateway<span>↗</span></a></li></ul></div>
@@ -1705,6 +1774,7 @@ gcloud compute firewall-rules list --filter="network~$NETWORK"</code></pre>
       <li>Referencing a security group ID → application security group (Azure) or service account (GCP). Anyone who can edit a GCP VM can change its tags, so service accounts are the stricter target.</li>
     </ul></div>
       <div class="docs" id="docs-security-groups"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-vpc">AWS VPC: Step-by-Step</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html" target="_blank" rel="noopener">Security groups<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/virtual-network/network-security-groups-overview" target="_blank" rel="noopener">Network security groups<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/virtual-network/application-security-groups" target="_blank" rel="noopener">Application security groups<span>↗</span></a></li></ul></div>
@@ -1848,6 +1918,7 @@ gcloud compute network-firewall-policies describe "fwp-$PREFIX-$ENV" --global</c
       <li>GCP order: hierarchical policies, then VPC firewall rules, then the network firewall policy. Flip the last two with <code>gcloud compute networks update "$NETWORK" --network-firewall-policy-enforcement-order=BEFORE_CLASSIC_FIREWALL</code>.</li>
     </ul></div>
       <div class="docs" id="docs-nacl"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-vpc">AWS VPC: Step-by-Step</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html" target="_blank" rel="noopener">Network ACLs<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/virtual-network/network-security-group-how-it-works" target="_blank" rel="noopener">How network security groups filter traffic<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/application-gateway/configuration-infrastructure" target="_blank" rel="noopener">Application Gateway infrastructure (NSG rules)<span>↗</span></a></li></ul></div>
@@ -1965,6 +2036,7 @@ gcloud network-connectivity spokes list --global</code></pre>
       <li>TGW route tables → vHub custom route tables with propagation labels; NCC spoke route filters and spoke groups.</li>
     </ul></div>
       <div class="docs" id="docs-transit-gateway"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-vpc">AWS VPC: Step-by-Step</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/vpc/latest/tgw/what-is-transit-gateway.html" target="_blank" rel="noopener">What is a transit gateway<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/virtual-wan/virtual-wan-about" target="_blank" rel="noopener">What is Azure Virtual WAN<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/architecture/networking/architecture/hub-spoke" target="_blank" rel="noopener">Hub-spoke network topology<span>↗</span></a></li></ul></div>
@@ -2119,6 +2191,7 @@ gcloud compute ssh "vm-$PREFIX-01" --zone="$ZONE" --tunnel-through-iap \
       <li>IAP SSH needs <code>roles/iap.tunnelResourceAccessor</code> and the <code>fw-allow-iap-ssh</code> rule from step 09.</li>
     </ul></div>
       <div class="docs" id="docs-ec2"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/ec2-website">AWS Lab: Website on EC2</a><a href="../#/tool/aws-ssm">AWS Systems Manager</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/concepts.html" target="_blank" rel="noopener">What is Amazon EC2<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html" target="_blank" rel="noopener">Session Manager<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/virtual-machines/overview" target="_blank" rel="noopener">Virtual machines overview<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/virtual-machines/linux/quick-create-cli" target="_blank" rel="noopener">Create a Linux VM with the Azure CLI<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/virtual-machines/sizes/overview" target="_blank" rel="noopener">VM sizes<span>↗</span></a></li></ul></div>
@@ -2307,6 +2380,7 @@ kubectl annotate serviceaccount app-sa -n app \
       <li>From Cloud Shell, <code>MY_IP</code> is the Cloud Shell VM's address and changes between sessions. Update authorized networks when kubectl times out.</li>
     </ul></div>
       <div class="docs" id="docs-eks"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/eks-cluster">EKS Cluster Setup: Runbook</a><a href="../#/tool/kubernetes">Kubernetes</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/eks/latest/userguide/what-is-eks.html" target="_blank" rel="noopener">What is Amazon EKS<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html" target="_blank" rel="noopener">EKS access entries<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/eks/latest/best-practices/introduction.html" target="_blank" rel="noopener">EKS best practices guide<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/aks/what-is-aks" target="_blank" rel="noopener">What is AKS<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/aks/azure-cni-overlay" target="_blank" rel="noopener">Azure CNI Overlay<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/aks/workload-identity-overview" target="_blank" rel="noopener">AKS workload identity<span>↗</span></a></li></ul></div>
@@ -2452,6 +2526,7 @@ curl -H "Authorization: Bearer $(gcloud auth print-identity-token)" "$URL?name=n
       <li>Event sources: SQS/SNS/EventBridge → Service Bus, Event Grid and Event Hubs triggers; Pub/Sub and Eventarc triggers on GCP (<code>--trigger-topic</code>, <code>--trigger-event-filters</code>).</li>
     </ul></div>
       <div class="docs" id="docs-lambda"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-lambda">AWS Lambda and EventBridge</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/lambda/latest/dg/welcome.html" target="_blank" rel="noopener">What is AWS Lambda<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/lambda/latest/dg/urls-configuration.html" target="_blank" rel="noopener">Lambda function URLs<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html" target="_blank" rel="noopener">Lambda in a VPC<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/azure-functions/functions-overview" target="_blank" rel="noopener">Azure Functions overview<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/azure-functions/flex-consumption-plan" target="_blank" rel="noopener">Flex Consumption plan<span>↗</span></a></li></ul></div>
@@ -2608,6 +2683,7 @@ gcloud storage buckets update "gs://$BUCKET" --lifecycle-file=lifecycle.json</co
       <li>Moving data from S3: <code>azcopy copy</code> reads S3 directly; on GCP use Storage Transfer Service or <code>gcloud storage rsync</code>.</li>
     </ul></div>
       <div class="docs" id="docs-s3"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-s3">Amazon S3</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/Welcome.html" target="_blank" rel="noopener">What is Amazon S3<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html" target="_blank" rel="noopener">S3 storage classes<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/object-lifecycle-mgmt.html" target="_blank" rel="noopener">Object lifecycle management<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/storage/blobs/storage-blobs-introduction" target="_blank" rel="noopener">Introduction to Blob Storage<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/storage/blobs/access-tiers-overview" target="_blank" rel="noopener">Access tiers<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/storage/blobs/lifecycle-management-overview" target="_blank" rel="noopener">Lifecycle management<span>↗</span></a></li></ul></div>
@@ -2734,6 +2810,7 @@ gcloud compute snapshots create "snap-$PREFIX-data01" \
       <li>Add an <code>/etc/fstab</code> entry (by UUID, with <code>nofail</code>) so the mount survives reboots.</li>
     </ul></div>
       <div class="docs" id="docs-ebs"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-backup">AWS Backup and DataSync</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/ebs/latest/userguide/what-is-ebs.html" target="_blank" rel="noopener">What is Amazon EBS<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/ebs/latest/userguide/ebs-volume-types.html" target="_blank" rel="noopener">EBS volume types<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/virtual-machines/managed-disks-overview" target="_blank" rel="noopener">Managed disks overview<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/virtual-machines/disks-types" target="_blank" rel="noopener">Disk types<span>↗</span></a></li></ul></div>
@@ -2863,6 +2940,7 @@ gcloud compute ssh "vm-$PREFIX-01" --zone="$ZONE" --tunnel-through-iap --command
       <li>Kubernetes: AKS ships the <code>azurefile-csi-nfs</code> storage class; on GKE enable the Filestore CSI driver (<code>--addons=GcpFilestoreCsiDriver</code>).</li>
     </ul></div>
       <div class="docs" id="docs-efs"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-efs-fsx">Amazon EFS and FSx</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/efs/latest/ug/whatisefs.html" target="_blank" rel="noopener">What is Amazon EFS<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/storage/files/storage-files-introduction" target="_blank" rel="noopener">Introduction to Azure Files<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/storage/files/files-nfs-protocol" target="_blank" rel="noopener">NFS file shares<span>↗</span></a></li></ul></div>
@@ -3014,6 +3092,7 @@ gcloud firestore databases describe --database=appdb</code></pre>
       <li>For very high-throughput wide-column workloads on GCP, Bigtable fits better than Firestore.</li>
     </ul></div>
       <div class="docs" id="docs-dynamodb"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/terraform">Terraform</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Introduction.html" target="_blank" rel="noopener">What is DynamoDB<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/best-practices.html" target="_blank" rel="noopener">DynamoDB best practices<span>↗</span></a></li><li><a href="https://developer.hashicorp.com/terraform/language/backend/s3" target="_blank" rel="noopener">Terraform S3 backend (state locking)<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/cosmos-db/introduction" target="_blank" rel="noopener">What is Azure Cosmos DB<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/cosmos-db/partitioning-overview" target="_blank" rel="noopener">Partitioning in Cosmos DB<span>↗</span></a></li><li><a href="https://developer.hashicorp.com/terraform/language/backend/azurerm" target="_blank" rel="noopener">Terraform azurerm backend<span>↗</span></a></li></ul></div>
@@ -3141,6 +3220,7 @@ gcloud sql instances describe "sql-$PREFIX-$ENV" \
       <li>Migration from RDS: Azure Database Migration Service and Google Database Migration Service both accept RDS sources.</li>
     </ul></div>
       <div class="docs" id="docs-rds"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-rds">Amazon RDS and Aurora</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Welcome.html" target="_blank" rel="noopener">What is Amazon RDS<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.MultiAZ.html" target="_blank" rel="noopener">Multi-AZ deployments<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/postgresql/flexible-server/overview" target="_blank" rel="noopener">PostgreSQL flexible server overview<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/mysql/flexible-server/overview" target="_blank" rel="noopener">MySQL flexible server overview<span>↗</span></a></li></ul></div>
@@ -3281,6 +3361,7 @@ gcloud alloydb instances list --cluster="alloydb-$PREFIX-$ENV" --region="$REGION
       <li>Entra-only authentication means no SQL logins. Applications connect with their managed identity.</li>
     </ul></div>
       <div class="docs" id="docs-aurora"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-rds">Amazon RDS and Aurora</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/CHAP_AuroraOverview.html" target="_blank" rel="noopener">What is Amazon Aurora<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/azure-sql/database/service-tier-hyperscale" target="_blank" rel="noopener">Hyperscale service tier<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/azure-sql/database/sql-database-paas-overview" target="_blank" rel="noopener">What is Azure SQL Database<span>↗</span></a></li></ul></div>
@@ -3460,6 +3541,7 @@ curl -I "http://$(gcloud compute addresses describe "ip-$PREFIX-lb" --global --f
       <li>Need a global, CDN-backed front door on Azure? Use Azure Front Door. The GCP external Application LB is already global and can enable Cloud CDN per backend.</li>
     </ul></div>
       <div class="docs" id="docs-alb"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-elb">Load Balancers</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html" target="_blank" rel="noopener">What is an Application Load Balancer<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/waf/latest/developerguide/waf-chapter.html" target="_blank" rel="noopener">AWS WAF<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/application-gateway/overview" target="_blank" rel="noopener">What is Application Gateway<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/web-application-firewall/ag/ag-overview" target="_blank" rel="noopener">WAF on Application Gateway<span>↗</span></a></li></ul></div>
@@ -3696,6 +3778,7 @@ kubectl get ingress -n app        # add -w to watch until ADDRESS appears</code>
       <li>ALB annotations (<code>alb.ingress.kubernetes.io/*</code>) → <code>appgw.ingress.kubernetes.io/*</code> on AGIC; BackendConfig and FrontendConfig resources on GKE.</li>
     </ul></div>
       <div class="docs" id="docs-alb-ingress"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-elb">Load Balancers</a><a href="../#/tool/deploy-your-app">Deploy Your App: EC2, ECS or EKS</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/eks/latest/userguide/alb-ingress.html" target="_blank" rel="noopener">Route application traffic with an ALB (EKS)<span>↗</span></a></li><li><a href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/" target="_blank" rel="noopener">AWS Load Balancer Controller<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/application-gateway/ingress-controller-overview" target="_blank" rel="noopener">Application Gateway Ingress Controller<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/application-gateway/for-containers/overview" target="_blank" rel="noopener">Application Gateway for Containers<span>↗</span></a></li></ul></div>
@@ -3829,6 +3912,7 @@ gcloud dns record-sets list --zone="zone-$PREFIX-public"</code></pre>
       <li>Weighted, latency and failover routing → Azure Traffic Manager or Front Door; Cloud DNS routing policies (<code>--routing-policy-type=WRR|GEO|FAILOVER</code>). Route 53 domain registration → App Service Domains / Cloud Domains (Squarespace).</li>
     </ul></div>
       <div class="docs" id="docs-route53"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-route53">Amazon Route 53</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/Welcome.html" target="_blank" rel="noopener">What is Amazon Route 53<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/resource-record-sets-choosing-alias-non-alias.html" target="_blank" rel="noopener">Alias and non-alias records<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/dns/dns-overview" target="_blank" rel="noopener">What is Azure DNS<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/dns/private-dns-overview" target="_blank" rel="noopener">Azure Private DNS<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/dns/dns-alias" target="_blank" rel="noopener">Alias record sets<span>↗</span></a></li></ul></div>
@@ -4005,6 +4089,7 @@ gcloud logging read 'severity&gt;=ERROR' --freshness=1h --limit=20</code></pre>
       <li>Long-term log export: diagnostic settings to a storage account or Event Hubs / Log Router sinks to Cloud Storage, BigQuery or Pub/Sub.</li>
     </ul></div>
       <div class="docs" id="docs-cloudwatch"><h4>Reference docs</h4>
+      <p class="site-guides"><span class="lp">∞ On DevOps Launchpad</span><a href="../#/tool/aws-cloudwatch">Amazon CloudWatch</a><a href="../#/tool/prometheus-grafana">Prometheus and Grafana</a></p>
       <div class="doc-grid">
       <div class="doc-col aws"><span class="tag aws">AWS</span><ul><li><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html" target="_blank" rel="noopener">What is Amazon CloudWatch<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AnalyzingLogData.html" target="_blank" rel="noopener">CloudWatch Logs Insights<span>↗</span></a></li><li><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ContainerInsights.html" target="_blank" rel="noopener">Container Insights<span>↗</span></a></li></ul></div>
       <div class="doc-col az"><span class="tag az">Azure</span><ul><li><a href="https://learn.microsoft.com/azure/azure-monitor/overview" target="_blank" rel="noopener">Azure Monitor overview<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/azure-monitor/logs/log-analytics-overview" target="_blank" rel="noopener">Log Analytics overview<span>↗</span></a></li><li><a href="https://learn.microsoft.com/azure/azure-monitor/alerts/alerts-overview" target="_blank" rel="noopener">Azure Monitor alerts<span>↗</span></a></li></ul></div>
@@ -4138,6 +4223,15 @@ gcloud identity groups delete "platform-admins@$ORG_DOMAIN"</code></pre>
 <script>
 (function () {
   var body = document.body;
+
+  /* Theme toggle shared with DevOps Launchpad: same 'dl-theme' key and JSON format as assets/js/app.js */
+  document.getElementById('themeBtn').addEventListener('click', function () {
+    var root = document.documentElement;
+    var dark = root.getAttribute('data-theme') ? root.getAttribute('data-theme') === 'dark'
+      : matchMedia('(prefers-color-scheme: dark)').matches;
+    root.setAttribute('data-theme', dark ? 'light' : 'dark');
+    try { localStorage.setItem('dl-theme', JSON.stringify(root.getAttribute('data-theme'))); } catch (e) {}
+  });
   var store = {
     get: function (k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
@@ -4200,7 +4294,7 @@ gcloud identity groups delete "platform-admins@$ORG_DOMAIN"</code></pre>
     }).join('\n');
 
     var bar = document.createElement('div');
-    bar.className = 'codebar';
+    bar.className = 'code-head';
     var src = pre.getAttribute('data-src');
     var cap = document.createElement(src ? 'a' : 'span');
     cap.className = 'cap';
@@ -4222,9 +4316,18 @@ gcloud identity groups delete "platform-admins@$ORG_DOMAIN"</code></pre>
         navigator.clipboard.writeText(raw).then(function () { done('Copied'); }, selectIt);
       } else { selectIt(); }
     });
+    var dots = document.createElement('span');
+    dots.className = 'dots'; dots.setAttribute('aria-hidden', 'true');
+    dots.innerHTML = '<i></i><i></i><i></i>';
+    bar.appendChild(dots);
     bar.appendChild(cap);
     bar.appendChild(btn);
-    pre.parentNode.insertBefore(bar, pre);
+    var box = document.createElement('div');
+    box.className = 'code';
+    box.setAttribute('data-lang', /\.tf$/.test(src || '') ? 'hcl' : 'bash');
+    pre.parentNode.insertBefore(box, pre);
+    box.appendChild(bar);
+    box.appendChild(pre);
   });
 
   /* Sidebar navigation built from the steps */
@@ -4253,6 +4356,8 @@ gcloud identity groups delete "platform-admins@$ORG_DOMAIN"</code></pre>
     current.list.appendChild(li);
     current.items.push({ li: li, sec: sec });
     linkFor.set(sec, a);
+    var col = getComputedStyle(sec).getPropertyValue('--c').trim();
+    if (col) { a.style.setProperty('--c', col); current.head.style.setProperty('--s', col); }
   });
   var empty = document.createElement('p');
   empty.className = 'empty'; empty.hidden = true;
