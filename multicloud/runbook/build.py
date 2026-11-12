@@ -5,7 +5,7 @@ Outputs (committed and served as static files; the site itself has no build step
   multicloud/index.html                         the runbook page: each <pre data-src="path">
                                                 in the template is filled with that file
   multicloud/files/index.html                   file browser: every script, env and Terraform file
-  multicloud/files/nextgen-multicloud-scripts.zip   all scripts in one download
+  multicloud/files/multicloud-scripts.zip   all scripts in one download
 
 Script headers (everything up to the '# --- runbook commands' line) are left out of the
 runbook page, so the page shows only the commands.
@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parent.parent          # the multicloud/ folder
 TEMPLATE = ROOT / "runbook" / "template.html"
 OUT = ROOT / "index.html"
 FILES_OUT = ROOT / "files" / "index.html"
-ZIP_NAME = "nextgen-multicloud-scripts.zip"
+ZIP_NAME = "multicloud-scripts.zip"
 ZIP_OUT = ROOT / "files" / ZIP_NAME
 MARKER = "# --- runbook commands"
 #         folder   label    tag    tool
@@ -111,7 +111,7 @@ def describe(folder, path):
     if path.suffix == ".tf":
         return ("18", "Terraform state backend (no lock database needed)", "DynamoDB state locking", "state-locking")
     head = path.read_text(encoding="utf-8").split("\n")[:4]
-    m2 = re.match(r"# NextGen runbook - step (\d+) - [^:]+: (.*)", head[1] if len(head) > 1 else "")
+    m2 = re.match(r"# Multi-cloud runbook - step (\d+) - [^:]+: (.*)", head[1] if len(head) > 1 else "")
     m3 = re.search(r"Replaces AWS: (.*?)\s+\|\s+Page: /multicloud/#(\S+)", head[2] if len(head) > 2 else "")
     if not (m2 and m3):
         return ("", rel, "", "")
@@ -148,7 +148,7 @@ def build_files_page(template):
         clouds.append(f"""
   <section class="step" id="{folder}" style="--c:var(--{tag})">
     <div class="files-head"><span class="tag {tag}">{label}</span><h2>{label} scripts ({tool})</h2>{gh_link}</div>
-    <p class="files-run">Run one step from the <code>multicloud</code> folder: <code>bash run-step.sh {folder} 05</code>. Settings live in <code>{folder}/nextgen-{folder}.env</code>.</p>
+    <p class="files-run">Run one step from the <code>multicloud</code> folder: <code>bash run-step.sh {folder} 05</code>. Settings live in <code>{folder}/settings.env</code>.</p>
     <div class="tbl"><table class="files-t">
       <thead><tr><th>Step</th><th>File</th><th>What it builds</th><th>AWS service</th><th class="lines">Lines</th><th>Links</th></tr></thead>
       <tbody>{"".join(rows)}</tbody>
@@ -173,7 +173,7 @@ def build_files_page(template):
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 {theme_init}
 <title>Runbook Script Files · DevOps Launchpad</title>
-<meta name="description" content="Every AWS, Azure and GCP script behind the NextGen multi-cloud runbook: open, download or run each step.">
+<meta name="description" content="Every AWS, Azure and GCP script behind the ShopNow multi-cloud runbook: open, download or run each step.">
 {icon}
 <style>{css}{FILES_CSS}</style>
 </head>
@@ -187,7 +187,7 @@ def build_files_page(template):
 <main class="files-main">
 <div class="wrap">
   <header class="intro hero">
-    <p class="eyebrow">NextGen Platform · multi-cloud runbook</p>
+    <p class="eyebrow">ShopNow Platform · multi-cloud runbook</p>
     <h1>Runbook script files</h1>
     <p class="lede">Every script behind the runbook, by cloud: {total} files. Open a file to read it in the browser, download it, or jump to its step on the runbook page.</p>
     <div class="hero-actions">
@@ -224,7 +224,7 @@ document.getElementById('themeBtn').addEventListener('click', function () {{
 # ---------- zip of all scripts ----------
 def zip_members():
     paths = [p for c in CLOUDS for p in source_files(c[0])] + [ROOT / t for t in TOOLS]
-    return [("nextgen-multicloud/" + p.relative_to(ROOT).as_posix(), p.read_bytes()) for p in paths]
+    return [("multicloud-scripts/" + p.relative_to(ROOT).as_posix(), p.read_bytes()) for p in paths]
 
 
 def build_zip(members):

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# NextGen runbook - step 09 - GCP: Firewall rules by tag and service account
+# Multi-cloud runbook - step 09 - GCP: Firewall rules by tag and service account
 # Replaces AWS: Security Groups   |   Page: /multicloud/#security-groups
 # Run from the multicloud folder:  bash run-step.sh gcp 09
-# Set your values once in gcp/nextgen-gcp.env before the first run.
+# Set your values once in gcp/settings.env before the first run.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/nextgen-gcp.env"
-WORK_DIR="${WORK_DIR:-$HOME/nextgen-work/gcp}"   # scratch files stay out of the repo
+source "$HERE/settings.env"
+WORK_DIR="${WORK_DIR:-$HOME/multicloud-work/gcp}"   # scratch files stay out of the repo
 mkdir -p "$WORK_DIR" && cd "$WORK_DIR"
 set -euo pipefail
 # --- runbook commands (shown on the page) ----------------------------------

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# NextGen runbook - step 21 - GCP: Global external Application LB + managed cert + Cloud Armor
+# Multi-cloud runbook - step 21 - GCP: Global external Application LB + managed cert + Cloud Armor
 # Replaces AWS: ALB   |   Page: /multicloud/#alb
 # Run from the multicloud folder:  bash run-step.sh gcp 21
-# Set your values once in gcp/nextgen-gcp.env before the first run.
+# Set your values once in gcp/settings.env before the first run.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/nextgen-gcp.env"
-WORK_DIR="${WORK_DIR:-$HOME/nextgen-work/gcp}"   # scratch files stay out of the repo
+source "$HERE/settings.env"
+WORK_DIR="${WORK_DIR:-$HOME/multicloud-work/gcp}"   # scratch files stay out of the repo
 mkdir -p "$WORK_DIR" && cd "$WORK_DIR"
 set -euo pipefail
 # --- runbook commands (shown on the page) ----------------------------------
@@ -31,7 +31,7 @@ gcloud compute forwarding-rules create "fr-$PREFIX-http" --global \
   --target-http-proxy="thp-$PREFIX-web" --ports=80
 
 # WAF: Cloud Armor preconfigured rules
-gcloud compute security-policies create "armor-$PREFIX-$ENV" --description="NextGen WAF"
+gcloud compute security-policies create "armor-$PREFIX-$ENV" --description="ShopNow WAF"
 gcloud compute security-policies rules create 1000 --security-policy="armor-$PREFIX-$ENV" \
   --expression="evaluatePreconfiguredWaf('sqli-v33-stable')" --action=deny-403
 gcloud compute security-policies rules create 1001 --security-policy="armor-$PREFIX-$ENV" \

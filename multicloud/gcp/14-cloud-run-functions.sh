@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# NextGen runbook - step 14 - GCP: Cloud Run function, authenticated HTTP
+# Multi-cloud runbook - step 14 - GCP: Cloud Run function, authenticated HTTP
 # Replaces AWS: AWS Lambda   |   Page: /multicloud/#lambda
 # Run from the multicloud folder:  bash run-step.sh gcp 14
-# Set your values once in gcp/nextgen-gcp.env before the first run.
+# Set your values once in gcp/settings.env before the first run.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/nextgen-gcp.env"
-WORK_DIR="${WORK_DIR:-$HOME/nextgen-work/gcp}"   # scratch files stay out of the repo
+source "$HERE/settings.env"
+WORK_DIR="${WORK_DIR:-$HOME/multicloud-work/gcp}"   # scratch files stay out of the repo
 mkdir -p "$WORK_DIR" && cd "$WORK_DIR"
 set -euo pipefail
 # --- runbook commands (shown on the page) ----------------------------------
@@ -16,7 +16,7 @@ import functions_framework
 @functions_framework.http
 def hello(request):
     name = request.args.get("name", "world")
-    return f"Hello, {name}, from NextGen"
+    return f"Hello, {name}, from ShopNow"
 EOF
 echo "functions-framework==3.*" > requirements.txt
 
@@ -27,4 +27,4 @@ gcloud functions deploy "fn-$PREFIX-hello" \
 
 URL=$(gcloud functions describe "fn-$PREFIX-hello" --region="$REGION" \
   --format="value(serviceConfig.uri)")
-curl -H "Authorization: Bearer $(gcloud auth print-identity-token)" "$URL?name=nextgen"
+curl -H "Authorization: Bearer $(gcloud auth print-identity-token)" "$URL?name=shopnow"

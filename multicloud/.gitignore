@@ -1,10 +1,10 @@
-# Scripts write scratch files to ~/nextgen-work/<cloud>; these catch anything run from inside the repo
+# Scripts write scratch files to ~/multicloud-work/<cloud>; these catch anything run from inside the repo
 *.bin
 plain.txt
 out.json
 function.zip
 hello-fn/
-nextgen-fn/
+shopnow-fn/
 __pycache__/
 
 # Terraform (from the backend.tf examples)

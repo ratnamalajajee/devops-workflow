@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# NextGen runbook - step 01 - Azure: Entra ID group + RBAC role assignment
+# Multi-cloud runbook - step 01 - Azure: Entra ID group + RBAC role assignment
 # Replaces AWS: IAM   |   Page: /multicloud/#iam
 # Run from the multicloud folder:  bash run-step.sh azure 01
-# Set your values once in azure/nextgen-azure.env before the first run.
+# Set your values once in azure/settings.env before the first run.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/nextgen-azure.env"
-WORK_DIR="${WORK_DIR:-$HOME/nextgen-work/azure}"   # scratch files stay out of the repo
+source "$HERE/settings.env"
+WORK_DIR="${WORK_DIR:-$HOME/multicloud-work/azure}"   # scratch files stay out of the repo
 mkdir -p "$WORK_DIR" && cd "$WORK_DIR"
 set -euo pipefail
 # --- runbook commands (shown on the page) ----------------------------------
@@ -26,7 +26,7 @@ az role assignment create --assignee-object-id "$GROUP_ID" \
 # Optional least-privilege custom role
 cat > vm-operator.json <<EOF
 {
-  "Name": "NextGen VM Operator",
+  "Name": "ShopNow VM Operator",
   "Description": "Start, stop and restart VMs only",
   "Actions": [
     "Microsoft.Compute/virtualMachines/read",
