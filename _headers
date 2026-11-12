@@ -10,3 +10,13 @@
 
 /assets/vm/*
   Cache-Control: public, max-age=604800
+
+# Multi-cloud runbook step scripts: show as text in the browser
+/multicloud/aws/*
+  Content-Type: text/plain; charset=utf-8
+
+/multicloud/azure/*
+  Content-Type: text/plain; charset=utf-8
+
+/multicloud/gcp/*
+  Content-Type: text/plain; charset=utf-8

@@ -7,5 +7,6 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY index.html /usr/share/nginx/html/
 COPY assets/ /usr/share/nginx/html/assets/
 COPY content/ /usr/share/nginx/html/content/
+COPY multicloud/ /usr/share/nginx/html/multicloud/
 
 EXPOSE 80

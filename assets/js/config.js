@@ -581,6 +581,7 @@ window.DEVOPS_CONFIG = {
         { label: 'Big picture: every service in one real app', then: ['aws-real-deployment'] },
         { label: 'Then: deploy one app three ways (EC2, ECS, EKS)', then: ['deploy-your-app'] },
         { label: 'Pick one cloud', pick: ['aws', { title: 'Azure', badge: 'AZ', color: '#0078d4', url: 'https://learn.microsoft.com/en-us/azure/architecture/aws-professional/', note: 'Microsoft Learn: Azure for AWS professionals' }] },
+        { label: 'Compare clouds side by side', links: [{ title: 'AWS → Azure → GCP runbook', badge: 'MC', color: '#0d9488', url: 'multicloud/', note: '24 services: console steps, CLI scripts and docs for each cloud' }] },
         { label: 'AWS deep dives', then: ['aws-iam', 'aws-vpc', 'aws-privatelink', 'ec2-website', 'aws-ssm', 'aws-s3', 'aws-efs-fsx', 'aws-backup', 'aws-route53', 'aws-elb', 'aws-rds', 'aws-lambda', 'aws-kms', 'aws-secrets'] }
       ],
       ready: 'You can build a VPC, run a website on a server behind a load balancer, and give it only the IAM permissions it needs.'
