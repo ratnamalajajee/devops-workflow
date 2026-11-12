@@ -16,6 +16,7 @@ window.DEVOPS_CONFIG = {
     'Infrastructure as Code': { color: '#8b5cf6', icon: '🏗️', short: 'Infra as Code' },
     'Kubernetes': { color: '#3b82f6', icon: '☸️' },
     'CI/CD': { color: '#10b981', icon: '🔁' },
+    'Security': { color: '#e11d48', icon: '🛡️' },
     'Monitoring': { color: '#06b6d4', icon: '📈' },
     'Final project': { color: '#a855f7', icon: '🏆' }
   },
@@ -461,6 +462,56 @@ window.DEVOPS_CONFIG = {
       desc: 'Jenkins down, stuck queues, GitHub Actions and GitLab issues, local-vs-CI and dev-vs-prod builds, ECR push errors.'
     },
     {
+      id: 'gitleaks',
+      section: 'Security',
+      title: 'Gitleaks: Secret Scanning',
+      badge: 'KEY',
+      color: '#9333ea',
+      level: 'Beginner',
+      hours: 2,
+      desc: 'Find leaked passwords and keys: install, run and prove it locally, pre-commit hook, GitLab CI job and Jenkins stage with report and enforce modes.'
+    },
+    {
+      id: 'sonarqube',
+      section: 'Security',
+      title: 'SonarQube: Static Code Analysis',
+      badge: 'SQ',
+      color: '#2563eb',
+      level: 'Intermediate',
+      hours: 4,
+      desc: 'Run the server (Docker, Compose, Helm on EKS), analyse Python code, quality gates, then GitLab CI and Jenkins step by step.'
+    },
+    {
+      id: 'trivy',
+      section: 'Security',
+      title: 'Trivy: Image and Dependency Scanning',
+      badge: 'TRV',
+      color: '#0891b2',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'Scan images before the push, dependencies and IaC files; .trivyignore with expiry dates; GitLab and Jenkins gates plus a nightly registry scan.'
+    },
+    {
+      id: 'snyk',
+      section: 'Security',
+      title: 'Snyk: Dependency Checking',
+      badge: 'SNK',
+      color: '#4b45a1',
+      level: 'Intermediate',
+      hours: 2,
+      desc: 'Install the Snyk CLI, scan Python requirements, the .snyk policy file, GitLab and Jenkins jobs, and free alternatives (Dependency-Check, pip-audit).'
+    },
+    {
+      id: 'dast-zap',
+      section: 'Security',
+      title: 'DAST with OWASP ZAP',
+      badge: 'ZAP',
+      color: '#c2410c',
+      level: 'Intermediate',
+      hours: 3,
+      desc: 'DAST tools compared, then ZAP: install, practise on Juice Shop, baseline/full/API scans, rules file, login, GitLab and Jenkins jobs.'
+    },
+    {
       id: 'prometheus-grafana',
       section: 'Monitoring',
       title: 'Prometheus and Grafana',
@@ -559,8 +610,9 @@ window.DEVOPS_CONFIG = {
       id: 'security', short: 'Security', icon: '🛡️', title: 'Security tools (DevSecOps)', color: '#e11d48', time: '2–3 weeks',
       why: 'Security is part of every stage, not a last-minute check. Scanners in the pipeline catch leaked secrets, vulnerable libraries and risky images before they reach production ("shift left").',
       learn: ['Secret scanning in code', 'SAST: static code analysis', 'SCA and image scanning for known vulnerabilities', 'IaC scanning for Terraform and Kubernetes files', 'DAST: testing the running app', 'Least-privilege IAM and encryption with KMS'],
-      tools: [['Gitleaks', 'secrets'], ['SonarQube', 'SAST'], ['Trivy', 'images & libraries'], ['Checkov', 'IaC'], ['OWASP ZAP', 'DAST'], ['AWS IAM & KMS', 'access & encryption']],
+      tools: [['Gitleaks', 'secrets'], ['SonarQube', 'SAST'], ['Trivy', 'images & libraries'], ['Snyk', 'dependencies'], ['Checkov', 'IaC'], ['OWASP ZAP', 'DAST'], ['AWS IAM & KMS', 'access & encryption']],
       rows: [
+        { label: 'One tool at a time', then: ['gitleaks', 'sonarqube', 'trivy', 'snyk', 'dast-zap'] },
         { label: 'Secure pipeline', then: ['jenkins-devsecops'] },
         { label: 'Secure the cloud', then: ['aws-iam', 'aws-kms', 'aws-secrets'] }
       ],
