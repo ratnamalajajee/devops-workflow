@@ -1,0 +1,8 @@
+# Cloudflare Pages redirects (nginx.conf has the same rules for the Docker image)
+# The multi-cloud script folders have no page of their own: open the file browser at that cloud
+/multicloud/aws      /multicloud/files/#aws    302
+/multicloud/aws/     /multicloud/files/#aws    302
+/multicloud/azure    /multicloud/files/#azure  302
+/multicloud/azure/   /multicloud/files/#azure  302
+/multicloud/gcp      /multicloud/files/#gcp    302
+/multicloud/gcp/     /multicloud/files/#gcp    302
