@@ -70,7 +70,7 @@ Dockerfile, nginx.conf  # container hosting
 
 ## Multi-cloud runbook
 
-`multicloud/` holds a separate page, linked from the sidebar as **AWS · Azure · GCP runbook**. It shows every NextGen platform service on AWS, Azure and Google Cloud side by side: console steps, CLI, differences from AWS and official docs. Every CLI block on it is a runnable script in `multicloud/aws`, `multicloud/azure` or `multicloud/gcp`.
+`multicloud/` holds a separate page, linked from the sidebar as **AWS · Azure · GCP runbook**. It shows every ShopNow platform service on AWS, Azure and Google Cloud side by side: console steps, CLI, differences from AWS and official docs. Every CLI block on it is a runnable script in `multicloud/aws`, `multicloud/azure` or `multicloud/gcp`.
 
 The page is built from those scripts, so edit a script and rebuild with `python multicloud/runbook/build.py`. Commit the rebuilt `multicloud/index.html` with your change. Details are in [multicloud/README.md](multicloud/README.md).
 

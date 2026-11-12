@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# NextGen runbook - step 06 - AWS: Public, private and DB subnets in two AZs
+# Multi-cloud runbook - step 06 - AWS: Public, private and DB subnets in two AZs
 # Replaces AWS: Subnets   |   Page: /multicloud/#subnets
 # Run from the multicloud folder:  bash run-step.sh aws 06
-# Set your values once in aws/nextgen-aws.env before the first run.
+# Set your values once in aws/settings.env before the first run.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/nextgen-aws.env"
-WORK_DIR="${WORK_DIR:-$HOME/nextgen-work/aws}"   # scratch files stay out of the repo
+source "$HERE/settings.env"
+WORK_DIR="${WORK_DIR:-$HOME/multicloud-work/aws}"   # scratch files stay out of the repo
 mkdir -p "$WORK_DIR" && cd "$WORK_DIR"
 set -euo pipefail
 # --- runbook commands (shown on the page) ----------------------------------
@@ -31,7 +31,7 @@ aws ec2 create-tags --resources "$(subnet_id snet-private-a)" "$(subnet_id snet-
 
 # DB subnet group for RDS and Aurora (steps 19-20)
 aws rds create-db-subnet-group --db-subnet-group-name "dbsg-$PREFIX-$ENV" \
-  --db-subnet-group-description "NextGen databases" \
+  --db-subnet-group-description "ShopNow databases" \
   --subnet-ids "$(subnet_id snet-db-a)" "$(subnet_id snet-db-b)"
 
 aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" \

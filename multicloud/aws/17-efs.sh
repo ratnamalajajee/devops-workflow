@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# NextGen runbook - step 17 - AWS: EFS file system with mount targets in both AZs
+# Multi-cloud runbook - step 17 - AWS: EFS file system with mount targets in both AZs
 # Replaces AWS: Amazon EFS   |   Page: /multicloud/#efs
 # Run from the multicloud folder:  bash run-step.sh aws 17
-# Set your values once in aws/nextgen-aws.env before the first run.
+# Set your values once in aws/settings.env before the first run.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/nextgen-aws.env"
-WORK_DIR="${WORK_DIR:-$HOME/nextgen-work/aws}"   # scratch files stay out of the repo
+source "$HERE/settings.env"
+WORK_DIR="${WORK_DIR:-$HOME/multicloud-work/aws}"   # scratch files stay out of the repo
 mkdir -p "$WORK_DIR" && cd "$WORK_DIR"
 set -euo pipefail
 # --- runbook commands (shown on the page) ----------------------------------
-EFS_SG=$(aws ec2 create-security-group --group-name "sg-$PREFIX-efs" --description "NextGen EFS" \
+EFS_SG=$(aws ec2 create-security-group --group-name "sg-$PREFIX-efs" --description "ShopNow EFS" \
   --vpc-id "$(vpc_id)" --query GroupId --output text)
 aws ec2 authorize-security-group-ingress --group-id "$EFS_SG" --protocol tcp --port 2049 --cidr 10.40.0.0/16
 

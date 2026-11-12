@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# NextGen runbook - step 09 - AWS: Security groups that reference each other
+# Multi-cloud runbook - step 09 - AWS: Security groups that reference each other
 # Replaces AWS: Security Groups   |   Page: /multicloud/#security-groups
 # Run from the multicloud folder:  bash run-step.sh aws 09
-# Set your values once in aws/nextgen-aws.env before the first run.
+# Set your values once in aws/settings.env before the first run.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/nextgen-aws.env"
-WORK_DIR="${WORK_DIR:-$HOME/nextgen-work/aws}"   # scratch files stay out of the repo
+source "$HERE/settings.env"
+WORK_DIR="${WORK_DIR:-$HOME/multicloud-work/aws}"   # scratch files stay out of the repo
 mkdir -p "$WORK_DIR" && cd "$WORK_DIR"
 set -euo pipefail
 # --- runbook commands (shown on the page) ----------------------------------
 VPC_ID=$(vpc_id)
 for g in alb web db; do
-  aws ec2 create-security-group --group-name "sg-$PREFIX-$g" --description "NextGen $g" \
+  aws ec2 create-security-group --group-name "sg-$PREFIX-$g" --description "ShopNow $g" \
     --vpc-id "$VPC_ID" --query GroupId --output text
 done
 

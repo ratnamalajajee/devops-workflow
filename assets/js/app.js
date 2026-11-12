@@ -109,7 +109,7 @@
       `<a href="#/" class="nav-home ${!activeId ? 'active' : ''}">🏠 Home</a>` +
       `<a href="#/roadmap" class="nav-home ${activeId === 'roadmap' ? 'active' : ''}">🧭 How to start: roadmap</a>` +
       `<a href="#/lab" class="nav-home ${activeId === 'lab' ? 'active' : ''}">🖥️ Practice lab</a>` +
-      `<a href="multicloud/" class="nav-home" title="Every NextGen service on AWS, Azure and GCP: console steps, CLI and docs">🌐 AWS · Azure · GCP runbook</a>` +
+      `<a href="multicloud/" class="nav-home" title="Every ShopNow service on AWS, Azure and GCP: console steps, CLI and docs">🌐 AWS · Azure · GCP runbook</a>` +
       groupTools().map((g) => {
         const sec = sectionOf(g.name);
         const hasActive = g.items.some(({ t }) => t.id === activeId);

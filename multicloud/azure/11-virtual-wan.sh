@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# NextGen runbook - step 11 - Azure: Virtual WAN + hub + VNet connection
+# Multi-cloud runbook - step 11 - Azure: Virtual WAN + hub + VNet connection
 # Replaces AWS: Transit Gateway   |   Page: /multicloud/#transit-gateway
 # Run from the multicloud folder:  bash run-step.sh azure 11
-# Set your values once in azure/nextgen-azure.env before the first run.
+# Set your values once in azure/settings.env before the first run.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/nextgen-azure.env"
-WORK_DIR="${WORK_DIR:-$HOME/nextgen-work/azure}"   # scratch files stay out of the repo
+source "$HERE/settings.env"
+WORK_DIR="${WORK_DIR:-$HOME/multicloud-work/azure}"   # scratch files stay out of the repo
 mkdir -p "$WORK_DIR" && cd "$WORK_DIR"
 set -euo pipefail
 # --- runbook commands (shown on the page) ----------------------------------

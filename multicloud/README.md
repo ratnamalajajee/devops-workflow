@@ -1,6 +1,6 @@
 # Multi-cloud runbook: AWS → Azure → GCP
 
-Every NextGen platform service on AWS, Azure and Google Cloud, side by side. The page is served at `/multicloud/` and linked from the DevOps Launchpad sidebar as **AWS · Azure · GCP runbook**. For each of the 24 services it shows:
+Every ShopNow platform service on AWS, Azure and Google Cloud, side by side. The page is served at `/multicloud/` and linked from the DevOps Launchpad sidebar as **AWS · Azure · GCP runbook**. For each of the 24 services it shows:
 
 - Console steps and CLI for all three clouds, with **AWS / Azure / GCP** toggles to compare any combination.
 - How it differs from AWS, and links to the official docs.
@@ -15,11 +15,11 @@ multicloud/
 ├── index.html              the page (built: don't edit by hand)
 ├── files/                  file browser + zip of all scripts (built: don't edit by hand)
 ├── aws/                    AWS CLI v2 scripts
-│   ├── nextgen-aws.env     your values: profile, region, names (edit once)
+│   ├── settings.env     your values: profile, region, names (edit once)
 │   ├── 00-foundation.sh … 25-cleanup.sh
 │   └── terraform/backend.tf
-├── azure/                  Azure CLI scripts, same layout (nextgen-azure.env)
-├── gcp/                    gcloud scripts, same layout (nextgen-gcp.env)
+├── azure/                  Azure CLI scripts, same layout (settings.env)
+├── gcp/                    gcloud scripts, same layout (settings.env)
 ├── runbook/
 │   ├── template.html       layout, console steps, notes, doc links
 │   └── build.py            template + scripts → index.html
@@ -34,12 +34,12 @@ Scripts are Bash. Use AWS CloudShell, Azure Cloud Shell, Google Cloud Shell, WSL
 
 ```bash
 cd multicloud
-# 1. Put your values in the env file once: aws/nextgen-aws.env, azure/nextgen-azure.env or gcp/nextgen-gcp.env
+# 1. Put your values in the env file once: aws/settings.env, azure/settings.env or gcp/settings.env
 bash run-step.sh azure 00     # 2. sign in and create the base
 bash run-step.sh azure 05     # 3. then each step in order: 05, 06, 07 …
 ```
 
-Each script loads its env file, stops at the first failing command (`set -euo pipefail`), and writes scratch files to `~/nextgen-work/<cloud>` instead of the repo. Set `WORK_DIR` to change that.
+Each script loads its env file, stops at the first failing command (`set -euo pipefail`), and writes scratch files to `~/multicloud-work/<cloud>` instead of the repo. Set `WORK_DIR` to change that.
 
 Before the first run, replace the placeholders: subscription ID, billing account, AWS profile, `SUFFIX`, the `example.com` domain and email addresses, `jane.doe` user names, the `PlatformAdmins` role in `aws/13a-eks.sh`, and the corporate range `203.0.113.0/24`.
 
@@ -60,7 +60,7 @@ Before the first run, replace the placeholders: subscription ID, billing account
 
 ## Conventions
 
-- Names: `{type}-{prefix}-{env}`, for example `vnet-nextgen-dev`. Globally unique names add `SUFFIX`.
+- Names: `{type}-{prefix}-{env}`, for example `vnet-shopnow-dev`. Globally unique names add `SUFFIX`.
 - Address plans: AWS `10.40.0.0/16`, Azure `10.10.0.0/16`, GCP `10.20.0.0/16`, GCP private services `10.30.0.0/16`. They don't overlap, so the clouds can be connected later.
 - Each script looks up the IDs it needs from earlier steps, so it can run in a fresh shell.
 - Terraform state locking needs no database on Azure or GCP: see `*/terraform/backend.tf` and step 18 on the page.

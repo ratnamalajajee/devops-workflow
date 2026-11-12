@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# NextGen runbook - step 24 - AWS: SNS topic, CloudWatch alarm, Container Insights, Logs Insights
+# Multi-cloud runbook - step 24 - AWS: SNS topic, CloudWatch alarm, Container Insights, Logs Insights
 # Replaces AWS: CloudWatch   |   Page: /multicloud/#cloudwatch
 # Run from the multicloud folder:  bash run-step.sh aws 24
-# Set your values once in aws/nextgen-aws.env before the first run.
+# Set your values once in aws/settings.env before the first run.
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source "$HERE/nextgen-aws.env"
-WORK_DIR="${WORK_DIR:-$HOME/nextgen-work/aws}"   # scratch files stay out of the repo
+source "$HERE/settings.env"
+WORK_DIR="${WORK_DIR:-$HOME/multicloud-work/aws}"   # scratch files stay out of the repo
 mkdir -p "$WORK_DIR" && cd "$WORK_DIR"
 set -euo pipefail
 # --- runbook commands (shown on the page) ----------------------------------
@@ -29,7 +29,7 @@ aws eks create-addon --cluster-name "$EKS" --addon-name amazon-cloudwatch-observ
 # Metric filter: count ERROR lines in the platform log group
 aws logs put-metric-filter --log-group-name "/$PREFIX/$ENV/platform" --filter-name errors \
   --filter-pattern "ERROR" \
-  --metric-transformations metricName=PlatformErrors,metricNamespace=NextGen,metricValue=1
+  --metric-transformations metricName=PlatformErrors,metricNamespace=ShopNow,metricValue=1
 
 # Logs Insights: last hour of EKS audit and API logs
 QID=$(aws logs start-query --log-group-name "/aws/eks/$EKS/cluster" \
