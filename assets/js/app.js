@@ -715,6 +715,39 @@ docker build -t devops-launchpad . &amp;&amp; docker run -p 8080:80 devops-launc
     }
   });
 
+  // ---------- animated diagrams ----------
+  // An animated <svg> carries data-dur (loop length) and data-starts (each step's start, in seconds).
+  // Its "steps in words" list is the <details class="anim-steps"> right after the figure.
+  const animOf = (fig) => {
+    const svg = fig && fig.querySelector('svg[data-starts]');
+    return svg && svg.pauseAnimations ? { svg, dur: parseFloat(svg.dataset.dur), starts: svg.dataset.starts.split(' ').map(Number) } : null;
+  };
+  main.addEventListener('click', (e) => {
+    const li = e.target.closest('.anim-steps li');
+    if (li) {   // jump to that step
+      const a = animOf(li.closest('.anim-steps').previousElementSibling);
+      const k = [...li.parentNode.children].indexOf(li);
+      if (a) a.svg.setCurrentTime(a.starts[k] + 0.05);
+      return;
+    }
+    const fig = e.target.closest('figure.is-anim');
+    const a = animOf(fig);
+    if (!a) return;   // pause / play
+    if (a.svg.animationsPaused()) a.svg.unpauseAnimations(); else a.svg.pauseAnimations();
+    fig.classList.toggle('is-paused', a.svg.animationsPaused());
+  });
+  // While a "steps in words" list is open, highlight the step the drawing is showing.
+  setInterval(() => {
+    main.querySelectorAll('details.anim-steps[open]').forEach((d) => {
+      const a = animOf(d.previousElementSibling);
+      if (!a) return;
+      const t = a.svg.getCurrentTime() % a.dur;
+      let i = 0;
+      while (i + 1 < a.starts.length && t >= a.starts[i + 1]) i++;
+      d.querySelectorAll('li').forEach((li, k) => li.classList.toggle('is-now', k === i));
+    });
+  }, 250);
+
   // ---------- copy buttons ----------
   main.addEventListener('click', async (e) => {
     const btn = e.target.closest('.copy');
