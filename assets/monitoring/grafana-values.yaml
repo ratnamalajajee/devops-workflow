@@ -1,0 +1,98 @@
+# Grafana for EKS: data sources (Prometheus, Loki, Jaeger), email through Amazon SES,
+# an IAM role for CloudWatch, and an internal ALB.
+# Chart: grafana/grafana 10.5.15
+#   helm upgrade --install grafana grafana/grafana --version 10.5.15 -n monitoring -f grafana-values.yaml
+# Needs first: the Secret grafana-smtp-credentials (keys user, password) and the IAM role
+# grafana-cloudwatch-role. Check every line marked CHANGE.
+#
+datasources:
+  datasources.yaml:
+    apiVersion: 1
+    datasources:
+    - name: Loki
+      type: loki
+      uid: loki
+      access: proxy
+      url: http://loki-gateway.monitoring.svc.cluster.local:80
+      jsonData:
+        maxLines: 1000
+        derivedFields:
+          - datasourceUid: jaeger
+            matcherRegex: 'trace_id=(\w+)'
+            name: TraceID
+            url: '$${__value.raw}'
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      isDefault: true
+      url: http://prometheus-server.monitoring.svc.cluster.local   # <release>-server; the release is "prometheus"
+    - name: Jaeger
+      type: jaeger
+      uid: jaeger
+      access: proxy
+      url: http://jaeger.monitoring.svc.cluster.local:16686
+      jsonData:
+        tracesToLogsV2:
+          datasourceUid: loki
+          filterByTraceID: false
+          filterBySpanID: false
+          customQuery: true
+          query: '{job="fluentbit"} | json | line_format "{{.log}}" |~ "$${__trace.traceId}"'
+smtp:
+  existingSecret: grafana-smtp-credentials
+  userKey: user
+  passwordKey: password
+grafana.ini:
+  smtp:
+    enabled: true
+    host: 'email-smtp.us-east-1.amazonaws.com:587'   # CHANGE: your SES Region
+    from_address: 'alerts@example.com'          # CHANGE: an SES-verified sender
+    from_name: 'Grafana Alerts'
+    startTLS_policy: 'MandatoryStartTLS'
+  unified_alerting:
+    enabled: true
+autoscaling:
+  behavior: {}
+  enabled: false
+  maxReplicas: 20
+  minReplicas: 2
+  targetCPU: "65"
+  targetMemory: "65"
+headlessService: false
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::REPLACE_WITH_ACCOUNT_ID:role/grafana-cloudwatch-role   # CHANGE
+strategy:
+  type: Recreate               # the disk is ReadWriteOnce: stop the old pod before the new one starts
+ingress:
+  annotations:
+    alb.ingress.kubernetes.io/certificate-arn: REPLACE_WITH_ACM_CERTIFICATE_ARN   # CHANGE: one ARN, or several comma-separated
+    alb.ingress.kubernetes.io/group.name: REPLACE_WITH_ALB_GROUP_NAME   # optional: share one internal ALB; delete the line for its own ALB
+    alb.ingress.kubernetes.io/healthcheck-path: /login
+    alb.ingress.kubernetes.io/load-balancer-attributes: idle_timeout.timeout_seconds=300
+    alb.ingress.kubernetes.io/scheme: internal
+    alb.ingress.kubernetes.io/target-type: ip
+    kubernetes.io/ingress.class: alb
+  enabled: true
+  hosts:
+  - grafana.example.com                  # CHANGE: your Grafana hostname
+  path: /
+  pathType: Prefix
+persistence:
+  accessModes:
+  - ReadWriteOnce
+  enabled: true
+  size: 20Gi
+  storageClassName: gp2                 # CHANGE: kubectl get storageclass
+  type: pvc
+replicas: 1
+resources:
+  limits:
+    cpu: 1000m
+    memory: 1.5Gi
+  requests:
+    cpu: 500m
+    memory: 500Mi
+service:
+  type: NodePort

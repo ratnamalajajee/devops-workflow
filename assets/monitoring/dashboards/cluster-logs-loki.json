@@ -1,0 +1,125 @@
+{
+  "title": "Cluster Logs (Loki)",
+  "uid": "cluster-logs-loki",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "timezone": "browser",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "__inputs": [
+    {
+      "name": "DS_LOKI",
+      "label": "Loki",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "loki",
+      "pluginName": "Loki"
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "DS_LOKI",
+        "type": "datasource",
+        "query": "loki",
+        "current": {},
+        "hide": 0,
+        "label": "Loki datasource"
+      },
+      {
+        "name": "namespace",
+        "type": "query",
+        "datasource": "${DS_LOKI}",
+        "query": "label_values({job=\"fluentbit\"}, kubernetes_namespace_name)",
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": true,
+        "multi": false,
+        "current": {}
+      },
+      {
+        "name": "pod",
+        "type": "query",
+        "datasource": "${DS_LOKI}",
+        "query": "label_values({job=\"fluentbit\", kubernetes_namespace_name=\"$namespace\"}, kubernetes_pod_name)",
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": true,
+        "multi": true,
+        "current": {}
+      },
+      {
+        "name": "container",
+        "type": "query",
+        "datasource": "${DS_LOKI}",
+        "query": "label_values({job=\"fluentbit\", kubernetes_namespace_name=\"$namespace\"}, kubernetes_container_name)",
+        "refresh": 2,
+        "sort": 1,
+        "includeAll": true,
+        "multi": true,
+        "current": {}
+      },
+      {
+        "name": "search",
+        "type": "textbox",
+        "label": "Search text",
+        "query": "",
+        "current": {
+          "value": ""
+        }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Log volume by namespace",
+      "type": "timeseries",
+      "datasource": "${DS_LOKI}",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "${DS_LOKI}",
+          "expr": "sum by (kubernetes_namespace_name) (count_over_time({job=\"fluentbit\", kubernetes_namespace_name=~\"$namespace\"}[$__interval]))",
+          "legendFormat": "{{kubernetes_namespace_name}}"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Logs",
+      "type": "logs",
+      "datasource": "${DS_LOKI}",
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "${DS_LOKI}",
+          "expr": "{job=\"fluentbit\", kubernetes_namespace_name=~\"$namespace\", kubernetes_pod_name=~\"$pod\", kubernetes_container_name=~\"$container\"} | json | line_format \"{{.log}}\" |~ \"(?i)$search\""
+        }
+      ]
+    }
+  ]
+}
