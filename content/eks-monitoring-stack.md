@@ -127,6 +127,8 @@ kubectl config current-context                     # make sure it's the right cl
 
 ### Download the files
 
+All files, with what each one is for and View / Download links: [Monitoring stack files](https://devops-workflow.pages.dev/assets/monitoring/). Or fetch them all at once:
+
 ```bash
 mkdir -p ~/monitoring/dashboards && cd ~/monitoring
 for f in prometheus-values.yaml grafana-values.yaml loki-values.yaml fluent-bit-values.yaml \
