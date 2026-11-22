@@ -1,7 +1,7 @@
 // Minimal, dependency-free Markdown renderer covering what the guides use:
 // headings (###+), paragraphs, ul/ol lists, fenced code, tables, callouts
 // (> **Tip:** / **Note:** / **Warning:** / **Cost:** / **Why:** / **In simple words:**),
-// `code`, **bold**, *italic*, [links](url), and diagram fences: ```flow, ```compare, ```svg.
+// `code`, **bold**, *italic*, [links](url), and diagram fences: ```flow, ```compare, ```svg, ```steps.
 (function () {
   const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -64,6 +64,18 @@
       rows.filter((r) => r[k]).map((r) => `<li>${inline(r[k])}</li>`).join('') + '</ul></div>';
     return `<figure class="compare">${col(0, 'cmp-a')}<div class="cmp-vs" aria-hidden="true">VS</div>${col(1, 'cmp-b')}</figure>`;
   }
+  // ```steps: an animated diagram's steps in words, right under it. One step per line:
+  // "act colour | act name | title | text". A native <details>, so it shows and hides without JavaScript.
+  function stepsBlock(code) {
+    const steps = lines(code).map(splitRow);
+    const col = (c) => (/^#[0-9a-f]{3,8}$/i.test(c || '') ? c : 'var(--accent)');
+    return `<details class="anim-steps"><summary><span class="when-closed">Show the steps in words</span>` +
+      `<span class="when-open">Hide the steps in words</span><span class="n">· ${steps.length} steps</span></summary><ol>` +
+      steps.map(([c, act, title, text]) =>
+        `<li style="--ac:${col(c)}"><span class="as-act">${inline(act || '')}</span>` +
+        `<span class="as-body"><strong>${inline(title || '')}</strong> ${inline(text || '')}</span></li>`).join('') +
+      '</ol><p class="as-tip">Click a step to jump to it. Click the drawing to pause or play.</p></details>';
+  }
   const isBlockStart = (l) => /^(```|#{1,6} |>|\s*[-*] |\s*\d+\. )/.test(l) || /^\|/.test(l);
 
   function render(src) {
@@ -85,8 +97,10 @@
         const code = buf.join('\n');
         if (lang === 'flow') out.push(flowBlock(code));
         else if (lang === 'compare') out.push(compareBlock(code));
-        // inline SVG drawn by the guide authors (trusted repo content); text after "svg" is the caption
-        else if (lang === 'svg') out.push(`<figure class="diagram">${code}${info.length > 4 ? `<figcaption>${inline(info.slice(4))}</figcaption>` : ''}</figure>`);
+        else if (lang === 'steps') out.push(stepsBlock(code));
+        // inline SVG drawn by the guide authors (trusted repo content); text after "svg" is the caption.
+        // Animated ones carry data-starts (step start times), which the page uses to pause, jump and highlight.
+        else if (lang === 'svg') out.push(`<figure class="diagram${/data-starts=/.test(code) ? ' is-anim' : ''}">${code}${info.length > 4 ? `<figcaption>${inline(info.slice(4))}</figcaption>` : ''}</figure>`);
         else out.push(codeBlock(lang, code, info.split(/\s+/).slice(1).map((f) => f.toLowerCase())));
       } else if ((m = l.match(/^(#{3,6}) (.*)/))) {
         const n = m[1].length;
