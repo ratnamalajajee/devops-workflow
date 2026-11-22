@@ -272,6 +272,39 @@ footer p{margin:0 0 8px}
   .cloud-head{padding:10px 12px}
   .crumb,.code-head .dots{display:none}
 }
+
+/* "Watch how it works" drawings: each plays the same flow on AWS, then Azure, then Google Cloud.
+   Same look as DevOps Launchpad (assets/css/style.css); the drawings come from runbook/anim/. */
+.watch{margin:18px 0 8px;font-size:12.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:color-mix(in srgb,var(--c) 72%,var(--text))}
+.diagram{margin:0 0 20px;padding:16px;border-radius:14px;background:var(--surface-2);border:1px solid var(--border)}
+.diagram svg{display:block;width:100%;max-width:620px;height:auto;margin:0 auto;font-family:var(--font)}
+.diagram figcaption{margin-top:10px;text-align:center;font-size:13.5px;color:var(--muted)}
+.dg-text{fill:var(--text)}
+.dg-muted{fill:var(--muted)}
+.dg-box{fill:var(--surface)}
+.dg-region{fill:color-mix(in srgb,#f97316 8%,var(--surface));stroke:#f97316;stroke-width:2.5}
+.diagram.is-anim{position:relative;cursor:pointer}
+.diagram.is-anim.is-paused::after{content:"❚❚ Paused · click to play";position:absolute;top:10px;right:10px;padding:3px 10px;border-radius:999px;
+  font-size:12px;font-weight:700;background:var(--text);color:var(--surface);pointer-events:none}
+.anim-steps{margin:-10px 0 4px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.anim-steps>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;padding:10px 14px;font-size:14px;font-weight:700;color:var(--accent)}
+.anim-steps>summary::-webkit-details-marker{display:none}
+.anim-steps>summary::before{content:"▸";display:inline-block;transition:transform .15s}
+.anim-steps[open]>summary::before{transform:rotate(90deg)}
+.anim-steps .when-open,.anim-steps[open] .when-closed{display:none}
+.anim-steps[open] .when-open{display:inline}
+.anim-steps>summary .n{color:var(--muted);font-weight:500}
+.anim-steps ol{list-style:none;counter-reset:step;margin:0;padding:0 10px 6px;display:grid;gap:4px}
+.anim-steps li{counter-increment:step;margin:0;padding:7px 10px;border-radius:10px;cursor:pointer;display:grid;grid-template-columns:26px minmax(0,1fr);
+  column-gap:10px;font-size:14.5px;line-height:1.5;border:1.5px solid transparent}
+.anim-steps li::before{content:counter(step);grid-row:span 2;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;
+  background:var(--ac);color:#fff;font-size:12.5px;font-weight:800}
+.anim-steps li:hover{background:var(--surface-2)}
+.anim-steps li.is-now{background:color-mix(in srgb,var(--ac) 13%,transparent);border-color:color-mix(in srgb,var(--ac) 55%,transparent)}
+.anim-steps .as-act{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ac)}
+.anim-steps .as-body strong{color:var(--text)}
+.anim-steps .as-tip{margin:0;padding:2px 14px 12px;font-size:12.5px;color:var(--muted)}
+@media (max-width:640px){.diagram{padding:8px;margin-inline:-8px}}
 </style>
 </head>
 <body>
@@ -401,6 +434,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">Every later CLI block reads the shell variables defined here. Save each variables block as a file, edit the values once, and run <code>source</code> on it whenever you open a new shell. Azure also needs a Log Analytics workspace now, because AKS and Functions connect to it when they are created.</p>
 
+    <!-- anim:foundation -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Account, region, profile, tags</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/configure/sso.html" target="_blank" rel="noopener">aws configure sso ↗</a></div>
       <div class="how">
@@ -490,6 +525,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">AWS IAM keeps users, groups and permission policies in one service. Azure splits it: <b>Entra ID</b> stores identities (users, groups, app registrations) and <b>Azure RBAC</b> grants roles at a scope (management group, subscription, resource group or resource). Google Cloud keeps one <b>IAM policy</b> per resource that binds principals (users, Google groups, service accounts) to roles; groups live in Cloud Identity or Google Workspace.</p>
 
+    <!-- anim:iam -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>IAM group + managed and custom policies</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/iam/create-group.html" target="_blank" rel="noopener">aws iam ↗</a></div>
       <div class="how">
@@ -576,6 +613,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">An IAM role that a machine or pod assumes becomes a <b>managed identity</b> in Azure and a <b>service account</b> in GCP. Neither needs stored keys: the platform hands short-lived tokens to whatever the identity is attached to. Create the identities here; steps 12–14 attach them to the VM, cluster and function.</p>
 
+    <!-- anim:managed-identity -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>IAM roles for EC2, EKS, Lambda and pods</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/iam/create-role.html" target="_blank" rel="noopener">aws iam create-role ↗</a></div>
       <div class="how">
@@ -660,6 +699,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">A customer-managed key with automatic rotation, used for envelope encryption and for CMK/CMEK on storage and databases. The Key Vault created here also stores the secrets in step 04.</p>
+
+    <!-- anim:kms -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Customer managed KMS key with rotation</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/kms/create-key.html" target="_blank" rel="noopener">aws kms ↗</a></div>
@@ -747,6 +788,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">Store the database password once; steps 19 and 20 read it from here when they create the servers. The app identity from step 02 gets read-only access.</p>
 
+    <!-- anim:secrets -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Secrets Manager secret + read policy</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/secretsmanager/create-secret.html" target="_blank" rel="noopener">aws secretsmanager ↗</a></div>
       <div class="how">
@@ -829,6 +872,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">Address plan for the whole runbook: AWS uses <code>10.40.0.0/16</code>, Azure <code>10.10.0.0/16</code> and GCP <code>10.20.0.0/16</code>. The ranges don't overlap, so the clouds can be joined by VPN or interconnect later.</p>
+
+    <!-- anim:vpc -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>VPC</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/ec2/create-vpc.html" target="_blank" rel="noopener">aws ec2 create-vpc ↗</a></div>
@@ -930,6 +975,8 @@ footer p{margin:0 0 8px}
       </table>
     </div>
 
+    <!-- anim:subnets -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Public, private and DB subnets in two AZs</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/ec2/create-subnet.html" target="_blank" rel="noopener">aws ec2 create-subnet ↗</a></div>
       <div class="how">
@@ -1014,6 +1061,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">Neither cloud has an Internet Gateway object to create and attach. A VNet has a system route to the internet, and a GCP VPC gets a <code>0.0.0.0/0</code> route to the default internet gateway when it is created. What decides access is whether a resource has a public IP or a load balancer in front of it (inbound), and a NAT path (outbound, step 08). This step reserves the public IPs the load balancers use later.</p>
 
+    <!-- anim:internet-gateway -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Internet gateway + public route table</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/ec2/create-internet-gateway.html" target="_blank" rel="noopener">aws ec2 create-internet-gateway ↗</a></div>
       <div class="how">
@@ -1094,6 +1143,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">Private VMs and Kubernetes nodes get outbound internet through a fixed public IP, the same job as an AWS NAT Gateway. Azure NAT Gateway attaches to subnets. Cloud NAT is configuration on a Cloud Router, so there is no appliance to size or place in a subnet.</p>
+
+    <!-- anim:nat-gateway -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>NAT gateway + private route table</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/ec2/create-nat-gateway.html" target="_blank" rel="noopener">aws ec2 create-nat-gateway ↗</a></div>
@@ -1177,6 +1228,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">AWS security groups attach to network interfaces and can reference other groups. Azure covers that with a <b>Network Security Group</b> plus <b>Application Security Groups</b>: named sets of NICs you can use as a rule's source or destination. GCP uses <b>VPC firewall rules</b> that target instances by network tag or service account. All three are stateful.</p>
+
+    <!-- anim:security-groups -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Security groups that reference each other</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/ec2/authorize-security-group-ingress.html" target="_blank" rel="noopener">aws ec2 authorize-security-group-ingress ↗</a></div>
@@ -1263,6 +1316,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">NACLs are stateless subnet-wide allow and deny lists. Azure has no separate NACL: an NSG associated with a subnet does that job, with stateful rules. GCP uses <b>network firewall policies</b>, one policy attached to the whole VPC with ordered allow and deny rules, plus hierarchical policies at the organization or folder.</p>
 
+    <!-- anim:nacl -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Stateless network ACL for the DB subnets</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/ec2/create-network-acl-entry.html" target="_blank" rel="noopener">aws ec2 create-network-acl-entry ↗</a></div>
       <div class="how">
@@ -1346,6 +1401,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">Transit Gateway joins many VPCs and on-premises links through one hub. Azure <b>Virtual WAN</b> gives you a managed hub per region that connects VNets, VPN, ExpressRoute and other hubs. GCP <b>Network Connectivity Center</b> is a hub with spokes: VPC networks, VPN or Interconnect attachments, and router appliances.</p>
 
+    <!-- anim:transit-gateway -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Transit gateway + VPC attachment</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/ec2/create-transit-gateway.html" target="_blank" rel="noopener">aws ec2 create-transit-gateway ↗</a></div>
       <div class="how">
@@ -1428,6 +1485,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">A private Ubuntu 24.04 VM with no public IP, running as the identity from step 02. A startup script installs nginx so the load balancer in step 21 has a backend. Admin access goes through Azure Bastion or <code>az vm run-command</code> on Azure, and IAP TCP forwarding on GCP.</p>
+
+    <!-- anim:ec2 -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Private Ubuntu instance with Session Manager</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/ec2/run-instances.html" target="_blank" rel="noopener">aws ec2 run-instances ↗</a></div>
@@ -1518,6 +1577,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">A zone-redundant cluster in the subnet from step 06, egress through the NAT from step 08, logs to the workspace from step 00, and Workload Identity so pods can use the app identity from step 02 without keys. The API server is limited to your current IP (<code>MY_IP</code>).</p>
+
+    <!-- anim:eks -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>EKS cluster, managed node group, Pod Identity</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/eks/create-cluster.html" target="_blank" rel="noopener">aws eks ↗</a></div>
@@ -1614,6 +1675,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">A Python HTTP function that needs a key (Azure) or an identity token (GCP) to call. Azure Functions also needs a storage account for its own state.</p>
 
+    <!-- anim:lambda -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Lambda function in the VPC with an IAM-auth URL</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/lambda/create-function.html" target="_blank" rel="noopener">aws lambda create-function ↗</a></div>
       <div class="how">
@@ -1701,6 +1764,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">A private, versioned store with public access blocked, plus a <code>tfstate</code> container or bucket for Terraform state (see the note in step 18). Azure adds a <b>storage account</b> layer above containers; a GCP bucket maps one-to-one to an S3 bucket.</p>
+
+    <!-- anim:s3 -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Versioned, KMS-encrypted buckets</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/s3api/put-bucket-versioning.html" target="_blank" rel="noopener">aws s3api ↗</a></div>
@@ -1790,6 +1855,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">A 128 GB data disk in the VM's zone, attached to the VM from step 12, formatted, mounted at <code>/data</code>, then snapshotted.</p>
 
+    <!-- anim:ebs -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>gp3 volume, attach, mount, snapshot</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/ec2/create-volume.html" target="_blank" rel="noopener">aws ec2 create-volume ↗</a></div>
       <div class="how">
@@ -1873,6 +1940,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">An NFS share that several VMs or pods mount at the same time. Azure Files NFS needs a Premium FileStorage account reachable only from your subnets. Filestore takes its IP from the Private Services Access range set up in step 06.</p>
+
+    <!-- anim:efs -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>EFS file system with mount targets in both AZs</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/efs/create-file-system.html" target="_blank" rel="noopener">aws efs ↗</a></div>
@@ -1968,6 +2037,8 @@ footer p{margin:0 0 8px}
       </div>
     </div>
 
+    <!-- anim:dynamodb -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>On-demand DynamoDB table (+ legacy lock table)</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/dynamodb/create-table.html" target="_blank" rel="noopener">aws dynamodb create-table ↗</a></div>
       <div class="how">
@@ -2053,6 +2124,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">PostgreSQL 16, private networking only, zone-redundant high availability, 14 days of backups. The admin password is read from the secret created in step 04.</p>
+
+    <!-- anim:rds -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>RDS for PostgreSQL, Multi-AZ, private</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/rds/create-db-instance.html" target="_blank" rel="noopener">aws rds create-db-instance ↗</a></div>
@@ -2140,6 +2213,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">Aurora's separated compute and storage with fast replicas matches Azure SQL <b>Hyperscale</b> and GCP <b>AlloyDB</b>. For Aurora PostgreSQL on Azure, the step 19 flexible server is the closer engine match; use Hyperscale for SQL Server workloads or when you need storage up to 128 TB.</p>
 
+    <!-- anim:aurora -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Aurora PostgreSQL cluster, writer + reader</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/rds/create-db-cluster.html" target="_blank" rel="noopener">aws rds create-db-cluster ↗</a></div>
       <div class="how">
@@ -2224,6 +2299,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">A public HTTP(S) entry point with a web application firewall, sending traffic to the nginx VM from step 12. On Azure it uses the public IP from step 07 and the dedicated subnet from step 06. On GCP the load balancer is a chain of resources: backend, URL map, proxy and forwarding rule.</p>
+
+    <!-- anim:alb -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Application Load Balancer + AWS WAF</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/elbv2/create-load-balancer.html" target="_blank" rel="noopener">aws elbv2 ↗</a></div>
@@ -2310,6 +2387,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">Kubernetes <code>Ingress</code> objects become load balancer configuration. AKS gets AGIC as an add-on that programs the Application Gateway from step 21; AGIC supports Azure CNI Overlay from v1.9.1 (generally available since August 2025). GKE's ingress controller is on by default and builds a global external Application LB for each Ingress.</p>
+
+    <!-- anim:alb-ingress -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>AWS Load Balancer Controller (Helm) + Ingress</h3><a class="ref" href="https://kubernetes-sigs.github.io/aws-load-balancer-controller/" target="_blank" rel="noopener">Controller docs ↗</a></div>
@@ -2399,6 +2478,8 @@ footer p{margin:0 0 8px}
     </header>
     <p class="lede">A public zone for <code>shopnow.example.com</code> with <code>app</code> pointing at the load balancer from step 21, and a private zone visible only inside the network (a Route 53 private hosted zone). After creating the public zone, copy its name servers to your registrar.</p>
 
+    <!-- anim:route53 -->
+
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Public hosted zone with alias record + private zone</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/route53/change-resource-record-sets.html" target="_blank" rel="noopener">aws route53 ↗</a></div>
       <div class="how">
@@ -2481,6 +2562,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">On Azure, platform metrics are on by default. Resource logs reach the Log Analytics workspace from step 00 only through <b>diagnostic settings</b>, and alerts notify an <b>action group</b>. On GCP, Cloud Monitoring and Cloud Logging collect platform data automatically; you add notification channels, alert policies and the Ops Agent on VMs. The example alert fires when the VM's CPU stays above 80% for 5 minutes.</p>
+
+    <!-- anim:cloudwatch -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>SNS topic, CloudWatch alarm, Container Insights, Logs Insights</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/cloudwatch/put-metric-alarm.html" target="_blank" rel="noopener">aws cloudwatch ↗</a></div>
@@ -2568,6 +2651,8 @@ footer p{margin:0 0 8px}
       </div>
     </header>
     <p class="lede">On Azure and GCP everything in this runbook lives in one resource group or one project, so cleanup is one command each, plus a few objects that sit outside them. AWS has no such container: you delete resources one by one in reverse dependency order. That difference is a good reason to build all three with Terraform.</p>
+
+    <!-- anim:cleanup -->
 
     <div class="cloud aws">
       <div class="cloud-head"><span class="tag aws">AWS</span><h3>Delete in reverse dependency order</h3><a class="ref" href="https://docs.aws.amazon.com/cli/latest/reference/ec2/delete-vpc.html" target="_blank" rel="noopener">aws ec2 delete-vpc ↗</a></div>
@@ -2704,6 +2789,48 @@ footer p{margin:0 0 8px}
       if (b) setOpt(seg, b.getAttribute('data-val'));
     });
   });
+
+  /* Animated drawings. Each <svg> carries data-dur (loop length) and data-starts (each step's start, in
+     seconds); its "steps in words" list is the <details class="anim-steps"> right after the figure.
+     Click the drawing to pause or play; click a step to jump to it. Drawings off screen are paused. */
+  function animOf(fig) {
+    var svg = fig && fig.querySelector('svg[data-starts]');
+    return svg && svg.pauseAnimations ? { svg: svg, dur: parseFloat(svg.getAttribute('data-dur')),
+      starts: svg.getAttribute('data-starts').split(' ').map(Number) } : null;
+  }
+  document.addEventListener('click', function (e) {
+    var li = e.target.closest('.anim-steps li');
+    if (li) {
+      var s = animOf(li.closest('.anim-steps').previousElementSibling);
+      if (s) s.svg.setCurrentTime(s.starts[Array.prototype.indexOf.call(li.parentNode.children, li)] + 0.05);
+      return;
+    }
+    var fig = e.target.closest('figure.is-anim');
+    var a = animOf(fig);
+    if (!a) return;
+    if (a.svg.animationsPaused()) a.svg.unpauseAnimations(); else a.svg.pauseAnimations();
+    fig.classList.toggle('is-paused', a.svg.animationsPaused());
+  });
+  if ('IntersectionObserver' in window) {
+    var seen = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        var a = animOf(en.target);
+        if (!a) return;
+        if (!en.isIntersecting) a.svg.pauseAnimations();
+        else if (!en.target.classList.contains('is-paused')) a.svg.unpauseAnimations();
+      });
+    }, { rootMargin: '200px 0px' });
+    document.querySelectorAll('figure.is-anim').forEach(function (fig) { seen.observe(fig); });
+  }
+  setInterval(function () {
+    document.querySelectorAll('details.anim-steps[open]').forEach(function (d) {
+      var a = animOf(d.previousElementSibling);
+      if (!a) return;
+      var t = a.svg.getCurrentTime() % a.dur, i = 0;
+      while (i + 1 < a.starts.length && t >= a.starts[i + 1]) i++;
+      d.querySelectorAll('li').forEach(function (li, k) { li.classList.toggle('is-now', k === i); });
+    });
+  }, 250);
 
   /* Code blocks: comment highlighting + caption + copy */
   function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }

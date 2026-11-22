@@ -10,6 +10,10 @@ Outputs (committed and served as static files; the site itself has no build step
 Script headers (everything up to the '# --- runbook commands' line) are left out of the
 runbook page, so the page shows only the commands.
 
+Each <!-- anim:STEP-ID --> marker in the template is replaced by runbook/anim/STEP-ID.html:
+the "Watch how it works" drawing for that step (AWS, then Azure, then Google Cloud) and its
+steps in words.
+
     python multicloud/runbook/build.py           # rebuild everything
     python multicloud/runbook/build.py --check   # fail if any output is out of date
 """
@@ -34,6 +38,8 @@ CLOUDS = [("aws", "AWS", "aws", "AWS CLI v2"),
 SOURCE_TYPES = (".sh", ".env", ".tf")
 TOOLS = ("run-step.sh", "README.md")
 PRE = re.compile(r'<pre([^>]*\bdata-src="[^"]+"[^>]*)><code></code></pre>')
+ANIM_DIR = ROOT / "runbook" / "anim"
+ANIM = re.compile(r"<!-- anim:([a-z0-9-]+) -->")
 esc = lambda s: html.escape(s, quote=True)
 
 
@@ -70,7 +76,14 @@ def build_runbook():
         return (f'<pre data-src="{src}" data-cap="{caption}"><code>'
                 f"{html.escape(page_text(path), quote=False)}</code></pre>")
 
-    page = PRE.sub(fill, template)
+    def drawing(match):
+        path = ANIM_DIR / f"{match.group(1)}.html"
+        if not path.is_file():
+            missing.append(path.relative_to(ROOT).as_posix())
+            return match.group(0)
+        return path.read_text(encoding="utf-8").replace("\r\n", "\n").strip("\n")
+
+    page = ANIM.sub(drawing, PRE.sub(fill, template))
     if missing:
         sys.exit("Missing files referenced by the template: " + ", ".join(missing))
     unused = [p.relative_to(ROOT).as_posix() for c in CLOUDS for p in source_files(c[0])
