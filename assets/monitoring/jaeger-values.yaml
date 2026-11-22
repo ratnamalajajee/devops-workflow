@@ -1,0 +1,69 @@
+# Jaeger v2 for EKS: receives OTLP traces (4317 gRPC, 4318 HTTP), keeps them 72 h on a Badger disk.
+# Chart: jaegertracing/jaeger 4.x (pin the version you test; see the guide)
+#   kubectl apply -f jaeger-badger-pvc.yaml
+#   helm upgrade --install jaeger jaegertracing/jaeger --version 4.16.1 -n monitoring -f jaeger-values.yaml
+#
+jaeger:
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  extraVolumes:
+    - name: badger-data
+      persistentVolumeClaim:
+        claimName: jaeger-badger-data
+  extraVolumeMounts:
+    - name: badger-data
+      mountPath: /badger
+
+userconfig:
+  service:
+    extensions: [jaeger_storage, jaeger_query, healthcheckv2]
+    pipelines:
+      traces:
+        receivers: [otlp]
+        processors: [batch]
+        exporters: [jaeger_storage_exporter]
+    telemetry:
+      resource:
+        service.name: jaeger
+      metrics:
+        level: detailed
+        readers:
+          - pull:
+              exporter:
+                prometheus:
+                  host: 0.0.0.0
+                  port: 8888
+      logs:
+        level: info
+  extensions:
+    healthcheckv2:
+      use_v2: true
+      http: {}
+    jaeger_query:
+      storage:
+        traces: primary_store
+    jaeger_storage:
+      backends:
+        primary_store:
+          badger:
+            directories:
+              keys: "/badger/keys"
+              values: "/badger/values"
+            ephemeral: false
+            ttl:
+              spans: 72h
+  receivers:
+    otlp:
+      protocols:
+        grpc: {}
+        http: {}
+  processors:
+    batch: {}
+  exporters:
+    jaeger_storage_exporter:
+      trace_storage: primary_store

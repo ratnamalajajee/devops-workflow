@@ -1,0 +1,209 @@
+# SQL exporter for Aurora / RDS PostgreSQL: long-running, slowest, costliest and blocked queries.
+# Chart: burningalchemist/sql-exporter 0.18.x (pin the version you test; see the guide)
+#   helm upgrade --install sql-exporter burningalchemist/sql-exporter --version 0.18.15 -n monitoring -f sql-exporter-values.yaml
+# Needs first: the Secret sql-exporter-aurora-dsn (key dsn) and pg_stat_statements on the database.
+# Prometheus scrapes it every 15 s through the prometheus.io/scrape_fast annotation.
+#
+image:
+  repository: burningalchemist/sql_exporter
+
+service:
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/scrape_fast: "true"
+    prometheus.io/port: "9399"
+
+serviceMonitor:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi
+
+env:
+  SQLEXPORTER_TARGET_DSN:
+    from:
+      kind: Secret
+      name: sql-exporter-aurora-dsn
+      key: dsn
+
+config:
+  global:
+    scrape_timeout: 10s
+    max_connections: 3
+    max_idle_connections: 3
+
+  target:
+    data_source_name: '${SQLEXPORTER_TARGET_DSN}'
+    collectors:
+      - collector_long_running_queries
+      - collector_query_stats
+      - collector_query_stats_by_total_time
+      - collector_blocking_queries
+
+  collectors:
+    - collector_name: collector_long_running_queries
+      metrics:
+        - metric_name: sql_long_running_query_duration_seconds
+          type: gauge
+          help: 'Duration in seconds of currently running queries, only queries active for more than 5 seconds are included'
+          key_labels:
+            - "pid"
+            - "usename"
+            - "datname"
+            - "application_name"
+            - "state"
+            - "client_ip"
+            - "query"
+          values:
+            - "duration_seconds"
+          query_ref: long_running_queries
+      queries:
+        - query_name: long_running_queries
+          query: |
+            SELECT
+              pid,
+              usename,
+              datname,
+              COALESCE(application_name, '') AS application_name,
+              state,
+              COALESCE(client_addr::text, '') AS client_ip,
+              EXTRACT(EPOCH FROM (now() - query_start))::float AS duration_seconds,
+              LEFT(query, 200) AS query
+            FROM pg_stat_activity
+            WHERE state != 'idle'
+              AND query_start IS NOT NULL
+              AND pid != pg_backend_pid()
+              AND now() - query_start > interval '5 seconds'
+            ORDER BY duration_seconds DESC
+            LIMIT 10;
+
+    - collector_name: collector_query_stats
+      metrics:
+        - metric_name: sql_query_mean_exec_time_ms
+          type: gauge
+          help: 'Mean execution time in milliseconds for this query since stats were last reset (requires pg_stat_statements)'
+          key_labels:
+            - "queryid"
+            - "query"
+          values:
+            - "mean_exec_time_ms"
+          query_ref: query_stats
+        - metric_name: sql_query_calls_total
+          type: gauge
+          help: 'Number of times this query has been executed since stats were last reset (requires pg_stat_statements)'
+          key_labels:
+            - "queryid"
+            - "query"
+          values:
+            - "calls"
+          query_ref: query_stats
+        - metric_name: sql_query_max_exec_time_ms
+          type: gauge
+          help: 'Maximum execution time in milliseconds observed for this query (requires pg_stat_statements)'
+          key_labels:
+            - "queryid"
+            - "query"
+          values:
+            - "max_exec_time_ms"
+          query_ref: query_stats
+      queries:
+        - query_name: query_stats
+          query: |
+            SELECT
+              queryid::text AS queryid,
+              LEFT(query, 200) AS query,
+              calls,
+              round(mean_exec_time::numeric, 2) AS mean_exec_time_ms,
+              round(max_exec_time::numeric, 2) AS max_exec_time_ms
+            FROM pg_stat_statements
+            WHERE mean_exec_time > 100
+            ORDER BY mean_exec_time DESC
+            LIMIT 20;
+
+    - collector_name: collector_query_stats_by_total_time
+      metrics:
+        - metric_name: sql_query_total_exec_time_seconds
+          type: gauge
+          help: 'Total cumulative execution time in seconds across all calls to this query since stats were last reset (requires pg_stat_statements) - identifies queries costing the most overall DB load, not just the slowest per-call'
+          key_labels:
+            - "queryid"
+            - "query"
+          values:
+            - "total_time_seconds"
+          query_ref: query_stats_by_total_time
+        - metric_name: sql_query_by_total_time_calls_total
+          type: gauge
+          help: 'Number of times this query has been executed since stats were last reset (requires pg_stat_statements)'
+          key_labels:
+            - "queryid"
+            - "query"
+          values:
+            - "calls"
+          query_ref: query_stats_by_total_time
+        - metric_name: sql_query_by_total_time_rows_total
+          type: gauge
+          help: 'Total number of rows returned/affected across all calls to this query (requires pg_stat_statements)'
+          key_labels:
+            - "queryid"
+            - "query"
+          values:
+            - "rows"
+          query_ref: query_stats_by_total_time
+      queries:
+        - query_name: query_stats_by_total_time
+          query: |
+            SELECT
+              queryid::text AS queryid,
+              LEFT(query, 200) AS query,
+              calls,
+              rows,
+              round((total_exec_time / 1000)::numeric, 2) AS total_time_seconds
+            FROM pg_stat_statements
+            ORDER BY total_exec_time DESC
+            LIMIT 10;
+
+    - collector_name: collector_blocking_queries
+      metrics:
+        - metric_name: sql_blocking_query_duration_seconds
+          type: gauge
+          help: 'Duration in seconds that a query has been blocked waiting on another session'
+          key_labels:
+            - "blocked_pid"
+            - "blocked_user"
+            - "blocking_pid"
+            - "blocking_user"
+            - "blocked_statement"
+            - "blocking_statement"
+          values:
+            - "blocked_duration_seconds"
+          query_ref: blocking_queries
+      queries:
+        - query_name: blocking_queries
+          query: |
+            SELECT
+              blocked_activity.pid AS blocked_pid,
+              blocked_activity.usename AS blocked_user,
+              blocking_activity.pid AS blocking_pid,
+              blocking_activity.usename AS blocking_user,
+              LEFT(blocked_activity.query, 150) AS blocked_statement,
+              LEFT(blocking_activity.query, 150) AS blocking_statement,
+              EXTRACT(EPOCH FROM (now() - blocked_activity.query_start))::float AS blocked_duration_seconds
+            FROM pg_catalog.pg_locks blocked_locks
+            JOIN pg_catalog.pg_stat_activity blocked_activity
+              ON blocked_activity.pid = blocked_locks.pid
+            JOIN pg_catalog.pg_locks blocking_locks
+              ON blocking_locks.locktype = blocked_locks.locktype
+              AND blocking_locks.database IS NOT DISTINCT FROM blocked_locks.database
+              AND blocking_locks.relation IS NOT DISTINCT FROM blocked_locks.relation
+              AND blocking_locks.page IS NOT DISTINCT FROM blocked_locks.page
+              AND blocking_locks.tuple IS NOT DISTINCT FROM blocked_locks.tuple
+              AND blocking_locks.pid != blocked_locks.pid
+              AND blocking_locks.granted
+            JOIN pg_catalog.pg_stat_activity blocking_activity
+              ON blocking_activity.pid = blocking_locks.pid
+            WHERE NOT blocked_locks.granted;

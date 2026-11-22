@@ -1,0 +1,308 @@
+{
+  "title": "Aurora Postgres - Long Running Queries",
+  "uid": "aurora-long-running-queries",
+  "schemaVersion": 39,
+  "version": 1,
+  "editable": true,
+  "timezone": "browser",
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "refresh": "30s",
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "DS_PROMETHEUS",
+        "type": "datasource",
+        "query": "prometheus",
+        "current": {},
+        "hide": 0,
+        "label": "Prometheus datasource"
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Currently Long-Running Queries (active > 5s)",
+      "type": "table",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "${DS_PROMETHEUS}",
+          "instant": true,
+          "format": "table",
+          "expr": "sql_long_running_query_duration_seconds"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "pattern": "^(Value|pid|usename|datname|application_name|state|client_ip|query)$"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "indexByName": {},
+            "renameByName": {
+              "Value": "Duration (s)",
+              "pid": "PID",
+              "usename": "User",
+              "datname": "Database",
+              "application_name": "App",
+              "state": "State",
+              "client_ip": "Client IP",
+              "query": "Query"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Duration (s)",
+                "desc": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Top Slow Queries by Mean Execution Time (requires pg_stat_statements)",
+      "type": "table",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "${DS_PROMETHEUS}",
+          "instant": true,
+          "format": "table",
+          "expr": "sql_query_mean_exec_time_ms"
+        },
+        {
+          "refId": "B",
+          "datasource": "${DS_PROMETHEUS}",
+          "instant": true,
+          "format": "table",
+          "expr": "sql_query_calls_total"
+        },
+        {
+          "refId": "C",
+          "datasource": "${DS_PROMETHEUS}",
+          "instant": true,
+          "format": "table",
+          "expr": "sql_query_max_exec_time_ms"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "queryid",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "pattern": "^(queryid|query 1|Value #A|Value #B|Value #C)$"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "indexByName": {},
+            "renameByName": {
+              "query 1": "Query",
+              "queryid": "Query ID",
+              "Value #A": "Mean (ms)",
+              "Value #B": "Calls",
+              "Value #C": "Max (ms)"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Mean (ms)",
+                "desc": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Top Queries by Total DB Time (requires pg_stat_statements)",
+      "type": "table",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "${DS_PROMETHEUS}",
+          "instant": true,
+          "format": "table",
+          "expr": "sql_query_total_exec_time_seconds"
+        },
+        {
+          "refId": "B",
+          "datasource": "${DS_PROMETHEUS}",
+          "instant": true,
+          "format": "table",
+          "expr": "sql_query_by_total_time_calls_total"
+        },
+        {
+          "refId": "C",
+          "datasource": "${DS_PROMETHEUS}",
+          "instant": true,
+          "format": "table",
+          "expr": "sql_query_by_total_time_rows_total"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "joinByField",
+          "options": {
+            "byField": "queryid",
+            "mode": "outer"
+          }
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "pattern": "^(queryid|query 1|Value #A|Value #B|Value #C)$"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "indexByName": {},
+            "renameByName": {
+              "query 1": "Query",
+              "queryid": "Query ID",
+              "Value #A": "Total Time (s)",
+              "Value #B": "Calls",
+              "Value #C": "Rows"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Total Time (s)",
+                "desc": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Blocking Queries",
+      "type": "table",
+      "datasource": "${DS_PROMETHEUS}",
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 27
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "datasource": "${DS_PROMETHEUS}",
+          "instant": true,
+          "format": "table",
+          "expr": "sql_blocking_query_duration_seconds"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "pattern": "^(Value|blocked_pid|blocked_user|blocking_pid|blocking_user|blocked_statement|blocking_statement)$"
+            }
+          }
+        },
+        {
+          "id": "organize",
+          "options": {
+            "indexByName": {},
+            "renameByName": {
+              "Value": "Blocked Duration (s)",
+              "blocked_pid": "Blocked PID",
+              "blocked_user": "Blocked User",
+              "blocking_pid": "Blocking PID",
+              "blocking_user": "Blocking User",
+              "blocked_statement": "Blocked Query",
+              "blocking_statement": "Blocking Query"
+            }
+          }
+        },
+        {
+          "id": "sortBy",
+          "options": {
+            "fields": {},
+            "sort": [
+              {
+                "field": "Blocked Duration (s)",
+                "desc": true
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -532,6 +532,16 @@ window.DEVOPS_CONFIG = {
       desc: 'Monitoring theory in simple words, then install Prometheus, Grafana and Alertmanager with Docker, on a Linux server and on Kubernetes with Helm; PromQL, dashboards, Slack alerts.'
     },
     {
+      id: 'eks-monitoring-stack',
+      section: 'Monitoring',
+      title: 'Monitoring Stack on EKS: Runbook',
+      badge: 'OBS',
+      color: '#f46800',
+      level: 'Runbook',
+      hours: 4,
+      desc: 'Copy-paste runbook with working values files: Prometheus, Grafana (CloudWatch via IRSA, SES email), Loki and Fluent Bit, Jaeger, and an SQL exporter for slow Aurora queries.'
+    },
+    {
       id: 'capstone',
       section: 'Final project',
       title: 'Capstone Project',
@@ -637,6 +647,7 @@ window.DEVOPS_CONFIG = {
       tools: [['CloudWatch', 'AWS metrics, logs & alarms'], ['Prometheus', 'metrics & alerts'], ['Grafana', 'dashboards'], ['kubectl logs / events', 'pod problems']],
       rows: [
         { label: 'Start here', then: ['prometheus-grafana'] },
+        { label: 'Then: the full stack on EKS', then: ['eks-monitoring-stack'] },
         { label: 'On this site', links: ['aws-cloudwatch', 'aws-sns-ses', 'aws-opensearch', 'k8s-troubleshooting'] },
         { label: 'Official docs', links: [
           { title: 'Prometheus', badge: 'PR', color: '#e6522c', url: 'https://prometheus.io/docs/introduction/overview/', note: 'Overview' },

@@ -1,0 +1,14 @@
+# Disk for Jaeger's Badger storage. Create it before installing Jaeger.
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jaeger-badger-data
+  namespace: monitoring
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp2                 # CHANGE: kubectl get storageclass
+  resources:
+    requests:
+      storage: 20Gi
