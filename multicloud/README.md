@@ -2,6 +2,7 @@
 
 Every ShopNow platform service on AWS, Azure and Google Cloud, side by side. The page is served at `/multicloud/` and linked from the DevOps Launchpad sidebar as **AWS · Azure · GCP runbook**. For each of the 24 services it shows:
 
+- A "Watch how it works" animation that plays the same flow on AWS, then Azure, then Google Cloud, with the steps in words below it. Click the drawing to pause it, or a step to jump to it.
 - Console steps and CLI for all three clouds, with **AWS / Azure / GCP** toggles to compare any combination.
 - How it differs from AWS, and links to the official docs.
 - A runnable script behind every CLI block. The path above each block opens the script.
@@ -22,7 +23,8 @@ multicloud/
 ├── gcp/                    gcloud scripts, same layout (settings.env)
 ├── runbook/
 │   ├── template.html       layout, console steps, notes, doc links
-│   └── build.py            template + scripts → index.html
+│   ├── anim/               one animated drawing per step (<step-id>.html)
+│   └── build.py            template + scripts + drawings → index.html
 └── run-step.sh             run one step for one cloud
 ```
 
@@ -52,6 +54,7 @@ Before the first run, replace the placeholders: subscription ID, billing account
 | A command | the script, below its `# --- runbook commands` line | `python multicloud/runbook/build.py` |
 | Console steps, notes, doc links, layout | `runbook/template.html` | `python multicloud/runbook/build.py` |
 | Add a script | create it (copy the header from a neighbour) and add `<pre data-src="azure/NN-name.sh"><code></code></pre>` to the template | `python multicloud/runbook/build.py` |
+| A step's animation | replace `runbook/anim/<step-id>.html`. The template places it with `<!-- anim:<step-id> -->` | `python multicloud/runbook/build.py` |
 
 - Commit the rebuilt `index.html` with your change. `python multicloud/runbook/build.py --check` fails if the committed page doesn't match the scripts.
 - The script header (shebang, env loading, `set -euo pipefail`) isn't shown on the page, so the page stays copy-paste friendly.
