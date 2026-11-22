@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monitoring Stack Files</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>∞</text></svg>">
+  <style>
+    :root {
+      --bg: #f6f7fb; --surface: #ffffff; --surface-2: #f1f3f8; --text: #1c2333; --muted: #5b6577;
+      --border: #e3e7ef; --accent: #6d28d9; --code-bg: #0f172a; --code-text: #e2e8f0;
+      --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      --mono: ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0c1018; --surface: #141a25; --surface-2: #1b2331; --text: #e6eaf0; --muted: #9aa5b5; --border: #283244; --accent: #a78bfa; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15.5px/1.6 var(--font); }
+    main { max-width: 980px; margin: 0 auto; padding: 28px 16px 48px; }
+    a { color: var(--accent); }
+    .back { font-size: 14px; text-decoration: none; }
+    h1 { font-size: 28px; margin: 10px 0 6px; }
+    h2 { font-size: 18px; margin: 30px 0 10px; }
+    p { margin: 0 0 12px; color: var(--muted); }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { background: var(--surface-2); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+    tr:last-child td { border-bottom: 0; }
+    td.file { font-family: var(--mono); font-size: 13.5px; white-space: nowrap; }
+    td.get { white-space: nowrap; }
+    td.get a { display: inline-block; margin-right: 10px; font-size: 14px; }
+    .step { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--border); font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+    pre { margin: 0; padding: 14px 16px; background: var(--code-bg); color: var(--code-text); font: 13px/1.55 var(--mono); overflow-x: auto; }
+    .code { border-radius: 12px; overflow: hidden; border: 1px solid #1f2937; }
+    .code-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px 6px 14px; background: #111827; color: #94a3b8; font: 12px var(--mono); }
+    .copy { font: 600 12px var(--font); color: #e2e8f0; background: #1f2937; border: 1px solid #334155; border-radius: 6px; padding: 3px 10px; cursor: pointer; }
+    .note { border-left: 4px solid var(--accent); background: var(--surface); border-radius: 0 10px 10px 0; padding: 10px 14px; margin: 16px 0; color: var(--text); }
+    @media (max-width: 700px) {
+      thead { display: none; }
+      tr { display: block; border-bottom: 1px solid var(--border); padding: 8px 0; }
+      tr:last-child { border-bottom: 0; }
+      td { display: block; border: 0; padding: 4px 14px; }
+      td.file { white-space: normal; word-break: break-all; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <a class="back" href="/#/tool/eks-monitoring-stack">← Monitoring Stack on EKS: Runbook</a>
+  <h1>Monitoring stack files</h1>
+  <p>The values files, IAM policies and dashboards used in the runbook. Follow the runbook for the order and the commands; it explains every setting.</p>
+
+  <div class="note">Before you install, replace every value marked <code>CHANGE</code> or <code>REPLACE_WITH_…</code>, and the cluster name <code>my-eks-qa</code>. Passwords and SMTP credentials never go in these files; the runbook creates them as Kubernetes Secrets.</div>
+
+  <h2>Helm values and manifests</h2>
+  <div class="card"><table>
+    <thead><tr><th>File</th><th>What it is</th><th>Step</th><th>Get it</th></tr></thead>
+    <tbody>
+      <tr><td class="file">prometheus-values.yaml</td><td>Prometheus: scrape jobs (normal, 15 s fast, 5 min slow), alert rules, 30 days / 45 GB retention, optional Alertmanager email</td><td><span class="step">Step 2</span></td>
+        <td class="get"><a href="/assets/monitoring/prometheus-values.yaml">View</a><a href="/assets/monitoring/prometheus-values.yaml" download>Download</a></td></tr>
+      <tr><td class="file">grafana-values.yaml</td><td>Grafana: Prometheus, Loki and Jaeger data sources, SES email, IAM role for CloudWatch, internal ALB</td><td><span class="step">Step 3</span></td>
+        <td class="get"><a href="/assets/monitoring/grafana-values.yaml">View</a><a href="/assets/monitoring/grafana-values.yaml" download>Download</a></td></tr>
+      <tr><td class="file">loki-values.yaml</td><td>Loki: one pod (SingleBinary), 50 GiB disk, 30 days of logs</td><td><span class="step">Step 5</span></td>
+        <td class="get"><a href="/assets/monitoring/loki-values.yaml">View</a><a href="/assets/monitoring/loki-values.yaml" download>Download</a></td></tr>
+      <tr><td class="file">fluent-bit-values.yaml</td><td>Fluent Bit: on every node, container and kubelet logs to Loki</td><td><span class="step">Step 5</span></td>
+        <td class="get"><a href="/assets/monitoring/fluent-bit-values.yaml">View</a><a href="/assets/monitoring/fluent-bit-values.yaml" download>Download</a></td></tr>
+      <tr><td class="file">jaeger-badger-pvc.yaml</td><td>The disk for Jaeger's trace storage (create it first)</td><td><span class="step">Step 6</span></td>
+        <td class="get"><a href="/assets/monitoring/jaeger-badger-pvc.yaml">View</a><a href="/assets/monitoring/jaeger-badger-pvc.yaml" download>Download</a></td></tr>
+      <tr><td class="file">jaeger-values.yaml</td><td>Jaeger v2: receives OTLP traces, keeps them 72 hours</td><td><span class="step">Step 6</span></td>
+        <td class="get"><a href="/assets/monitoring/jaeger-values.yaml">View</a><a href="/assets/monitoring/jaeger-values.yaml" download>Download</a></td></tr>
+      <tr><td class="file">sql-exporter-values.yaml</td><td>SQL exporter: long-running, slowest, costliest and blocked PostgreSQL queries</td><td><span class="step">Step 7</span></td>
+        <td class="get"><a href="/assets/monitoring/sql-exporter-values.yaml">View</a><a href="/assets/monitoring/sql-exporter-values.yaml" download>Download</a></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>IAM for Grafana → CloudWatch</h2>
+  <div class="card"><table>
+    <thead><tr><th>File</th><th>What it is</th><th>Step</th><th>Get it</th></tr></thead>
+    <tbody>
+      <tr><td class="file">grafana-cloudwatch-trust-policy.json</td><td>Trust policy template: only the <code>grafana</code> service account in <code>monitoring</code> may use the role</td><td><span class="step">Step 4</span></td>
+        <td class="get"><a href="/assets/monitoring/grafana-cloudwatch-trust-policy.json">View</a><a href="/assets/monitoring/grafana-cloudwatch-trust-policy.json" download>Download</a></td></tr>
+      <tr><td class="file">grafana-cloudwatch-policy.json</td><td>Read-only CloudWatch metrics and CloudWatch Logs permissions</td><td><span class="step">Step 4</span></td>
+        <td class="get"><a href="/assets/monitoring/grafana-cloudwatch-policy.json">View</a><a href="/assets/monitoring/grafana-cloudwatch-policy.json" download>Download</a></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Grafana dashboards</h2>
+  <div class="card"><table>
+    <thead><tr><th>File</th><th>What it shows</th><th>Step</th><th>Get it</th></tr></thead>
+    <tbody>
+      <tr><td class="file">dashboards/cluster-logs-loki.json</td><td>Cluster Logs (Loki): log volume by namespace, and logs filtered by namespace, pod, container and text</td><td><span class="step">Step 8</span></td>
+        <td class="get"><a href="/assets/monitoring/dashboards/cluster-logs-loki.json">View</a><a href="/assets/monitoring/dashboards/cluster-logs-loki.json" download>Download</a></td></tr>
+      <tr><td class="file">dashboards/aurora-long-running-queries.json</td><td>Aurora Postgres: running-now, slowest, costliest and blocking queries (needs the SQL exporter)</td><td><span class="step">Step 8</span></td>
+        <td class="get"><a href="/assets/monitoring/dashboards/aurora-long-running-queries.json">View</a><a href="/assets/monitoring/dashboards/aurora-long-running-queries.json" download>Download</a></td></tr>
+    </tbody>
+  </table></div>
+  <p style="margin-top:10px">The AWS RDS dashboard is imported by its grafana.com ID, <strong>707</strong>. See the runbook's Step 8.</p>
+
+  <h2>Download everything</h2>
+  <div class="code">
+    <div class="code-head"><span>bash</span><button class="copy" type="button">Copy</button></div>
+<pre><code>MON_URL=https://devops-workflow.pages.dev/assets/monitoring
+mkdir -p ~/monitoring/dashboards &amp;&amp; cd ~/monitoring
+for f in prometheus-values.yaml grafana-values.yaml loki-values.yaml fluent-bit-values.yaml \
+         jaeger-values.yaml jaeger-badger-pvc.yaml sql-exporter-values.yaml \
+         grafana-cloudwatch-trust-policy.json grafana-cloudwatch-policy.json; do
+  curl -fsSLO "$MON_URL/$f"
+done
+for f in cluster-logs-loki.json aurora-long-running-queries.json; do
+  curl -fsSL -o "dashboards/$f" "$MON_URL/dashboards/$f"
+done
+grep -n "CHANGE\|REPLACE_WITH\|my-eks-qa" *.yaml      # the values you must set</code></pre>
+  </div>
+</main>
+<script>
+  document.querySelector('.copy').addEventListener('click', async (e) => {
+    const text = document.querySelector('pre code').innerText;
+    try { await navigator.clipboard.writeText(text); e.target.textContent = 'Copied ✓'; }
+    catch (err) { e.target.textContent = 'Select and copy'; }
+    setTimeout(() => { e.target.textContent = 'Copy'; }, 1500);
+  });
+</script>
+</body>
+</html>
